@@ -176,7 +176,7 @@ class Sparql_CIM_Object(object):
     def calculate_literals_number(self):
         """
         This calculates the number of known properties or associators.
-        It is used to find which is the best instance to start woth, when enumerating instances with the BGP.
+        It is used to find which is the best instance to start with, when enumerating instances with the BGP.
         The bigger the number of literals, the easier it is.
         """
         self.m_number_literals = 0
@@ -1013,7 +1013,7 @@ def _part_triples_to_instances_dict_function(part, object_factory):
             # If the variable of the object is also a subject variable defining an instance,
             # then it can only be an associator. This is why it is necessary to define the class
             # of a subject in a triplet. This is however necessary to instantiate it
-            # and do any WMY query on it.
+            # and do any WMI query on it.
             assert isinstance(associator_instance, Sparql_CIM_Object)
             current_instance.m_associators[part_predicate] = associator_instance
             associator_instance.m_associated[part_predicate] = current_instance
@@ -1125,6 +1125,7 @@ def _visit_all_nodes(instances_dict):
     """
     Exploration of the graph, starting by the instances which can be calculated without inference.
     It receives the dictionary of all instances detected in the Sparql query.
+    It returns the same instances as in the input list, but properly sorted.
     """
 
     # Find the start instance to walk the entire graph.
@@ -1239,6 +1240,7 @@ def _custom_eval_function_generic_instances(ctx, instances_dict):
     This feeds the graph with triples calculated with nested evaluations of instances.
     """
 
+    # This returns the reordered nodes.
     visited_nodes = _visit_all_nodes(instances_dict)
     assert len(instances_dict) == len(visited_nodes)
 

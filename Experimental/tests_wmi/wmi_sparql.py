@@ -124,29 +124,11 @@ def _query_header(sparql_query):
         raise
 
     list_vars = parsed_query[1]['projection']
-    print("list_vars=", list_vars)
-    list_names = []
-    for one_var in list_vars:
-        try:
-            # vars_{'var': rdflib.term.Variable('my_file_name')}
-            list_names.append(str(one_var['var']))
-        except KeyError:
-            # Maybe this is an expression like: "(COUNT(?my_file_name) AS ?ELEMENTCOUNT"
-            # vars_{'expr': ConditionalOrExpression_{'expr': ConditionalAndExpression_{'expr': RelationalExpression_{'expr': AdditiveExpression_{'expr': MultiplicativeExpression_{'expr': Aggregate_Count_{'distinct': ([], {}), 'vars': ConditionalOrExpression_{'expr': ConditionalAndExpression_{'expr': RelationalExpression_{'expr': AdditiveExpression_{'expr': MultiplicativeExpression_{'expr': rdflib.term.Variable('my_file_name')}}}}}}}}}}}, 'evar': rdflib.term.Variable('ELEMENTCOUNT')}
-            pass
+    list_names = [str(one_var['var']) for one_var in list_vars]
     return list_names
 
 
-def query_to_bgp(sparql_query):
-    parsed_query = rdflib.plugins.sparql.parser.parseQuery(sparql_query)
-    translated_query = rdflib.plugins.sparql.algebra.translateQuery(parsed_query)
-    if translated_query.algebra.p.p.name == "Extend":
-        return translated_query.algebra.p.p.p.p.p.p.triples
-    else:
-        return translated_query.algebra.p.p.triples
-
-
-def bgps_to_object_patterns(part_triples):
+def _part_triples_to_instances_list(part_triples):
     """
     This takes as input the basic graph pattern (BGP) of a sparql query, which is the list of triples patterns
     extracted from this query.
@@ -159,7 +141,7 @@ def bgps_to_object_patterns(part_triples):
     This is a reasonable requirement because CIM queries have to work on concrete objects:
     A file cannot be a process or a socket etc...
     """
-    object_patterns_dict = dict()
+    instances_dict = dict()
     logging.debug("len(triples)=%d" % len(part_triples))
     for part_subject, part_predicate, part_object in part_triples:
         logging.debug("    spo=%s %s %s" % (part_subject, part_predicate, part_object))
@@ -170,20 +152,20 @@ def bgps_to_object_patterns(part_triples):
                     # This is the class name without the Survol prefix which is not useful here.
                     class_short = class_as_str[len(survol_url_prefix):]
                     # object_factory can also tell the difference between an associator and a property
-                    object_patterns_dict[part_subject] = _CimPattern(part_subject, class_short)
+                    instances_dict[part_subject] = _CimPattern(part_subject, class_short)
 
-    if not object_patterns_dict:
+    if not instances_dict:
         # If it does not contain any instance defined by a type which can be mapped to a WMI class,
         # then this query applies to non-instance content, which can only be the WMI ontology.
         # This ontology should be returned anyway: Classes, properties etc...
         logging.warning("No instance found. Possibly a meta-data query.")
-        return object_patterns_dict
+        return instances_dict
         # raise Exception("No instance found")
-    logging.debug("Created object patterns:%s" % object_patterns_dict.keys())
+    logging.debug("Created instances:%s" % instances_dict.keys())
 
-    # Second pass on the BGP: The keys of object_patterns_dict are URL variables whose values must be found.
+    # Second pass on the BGP: The keys of instances_dict are URL variables whose values must be found.
     for part_subject, part_predicate, part_object in part_triples:
-        current_instance = object_patterns_dict.get(part_subject, None)
+        current_instance = instances_dict.get(part_subject, None)
         if not current_instance:
             # This is not the pattern of a Survol instance, and therefore is not usable here.
             continue
@@ -194,7 +176,7 @@ def bgps_to_object_patterns(part_triples):
             # This applies only to CIM properties which can be used in a WQL query.
             current_instance.m_properties[_strip_prefix(part_predicate)] = part_object
 
-    return list(object_patterns_dict.values())
+    return list(instances_dict.values())
 
 
 class CustomEvalEnvironment:
@@ -205,9 +187,7 @@ class CustomEvalEnvironment:
     def __init__(self, test_description, sparql_query, expected_patterns):
         self.m_test_description = test_description
         self.m_sparql_query = sparql_query
-        # m_output_variables is only for documentation.
-        # self.m_output_variables = _query_header(self.m_sparql_query)
-        self.m_output_variables = []
+        self.m_output_variables = _query_header(self.m_sparql_query)
         self.m_expected_patterns = expected_patterns
         self.m_graph = rdflib.Graph()
 
@@ -237,7 +217,8 @@ class CustomEvalEnvironment:
 
         all_snippets = []
         for one_permutation in itertools.permutations(instances_list):
-            code_description, result_as_str = objects_list_to_python_code(one_permutation, function_name)
+            code_description, result_as_str = objects_list_to_python_code(
+                self.m_output_variables, one_permutation, function_name)
             all_snippets.append((code_description, result_as_str))
 
         best_snippet_index = 0
@@ -265,7 +246,6 @@ class CustomEvalEnvironment:
             # FIXME: This is temporary logging.
             if counter % 100 == 0:
                 print("one_result_dict=", ",".join(["%s=>%s" % one_result for one_result in one_result_dict.items()]))
-                print("_________________________________________________")
             counter += 1
             # FIXME: Finish earlier to ease profiling.
             if counter == 1000000:
@@ -347,6 +327,12 @@ class CustomEvalEnvironment:
             for one_instance in instances_list:
                 assert isinstance(one_instance, _CimPattern)
 
+                # Some values might be nodes. Their monikers is needed to build monikers of associations.
+                #evaluated_key_values_to_monikers = {
+                #    property_key: _evaluate_value_to_moniker(property_value)
+                #    for property_key, property_value in one_instance.m_properties.items()
+                #}
+
                 assert isinstance(one_instance.m_class, str)
 
                 assert str(one_instance.m_subject) in one_result_dict, "%s not in %s" % (one_instance.m_subject, str(one_result_dict))
@@ -357,9 +343,17 @@ class CustomEvalEnvironment:
                 assert isinstance(the_instance, (PseudoWmiObject, wmi._wmi_object)) or issubclass(the_instance.__class__, win32com.client.DispatchBaseClass), "Wrong type for %s:%s" % (one_instance.m_subject, the_instance)
 
                 alt_moniker = _pattern_instance_to_moniker(the_instance)
+                #rebuilt_moniker = _create_wmi_moniker(one_instance.m_class, **evaluated_key_values_to_monikers)
 
+                #if rebuilt_moniker:
+                #    assert isinstance(rebuilt_moniker, str)
                 assert isinstance(alt_moniker, str)
 
+                #if rebuilt_moniker and alt_moniker != rebuilt_moniker:
+                #    print("DIFFERENT:     alt_moniker=", alt_moniker)
+                #    print("         : rebuilt_moniker=", rebuilt_moniker)
+
+                # CA EVITE DE RECREER LE MONIKER.
                 new_object_node = _wmi_moniker_to_rdf_node(alt_moniker)
 
                 if not new_object_node:
@@ -378,9 +372,25 @@ class CustomEvalEnvironment:
                     assert isinstance(property_node, rdflib.term.URIRef)
                     ctx_graph.add((new_object_node, property_node, value_node))
         length_after = len(ctx_graph)
-        print("Leaving _insert_wmi_results_in_graph : length_before=", length_before, "length_after=", length_after)
+        print("length_before=", length_before, "length_after=", length_after)
 
-    def _evaluate_wmi_snippet(self, rdf_graph, object_patterns_list, snippet_name):
+        """
+        Verifier si toutes les variables sont la, y compris les variables intermediaires,
+        et pas seulement les variables selectionnees par la query sparql.
+
+        Ca serait peut-etre plus rapide si on reordonnait avec une liste par variable.
+        Ensuite, on boucle en premier lieu sur les triples.    
+        Autrement dit, les snippets, au lieu de faire yield, vont remplir une liste par variable.
+        Mais ca complique le parallelisme. Sauf si on agrege plusieurs listes a la fin.
+        On pourrait aussi avoir des arbres pour eviter la redondance des variables sur lesquelles on boucle.
+        Mais ca aussi gene le parallelisme et force a stocker explictement.
+        Ne pas recalculer les class_node et property_node.
+        En premier lieu ... PROFILER !
+        Ca pourrait aussi appeler une callback.
+        Bref: Pour le moment, on fait au plus simple: Ca yield des dictionnaires de key-values.
+        """
+
+    def _fetch_wmi_objects_in_graph(self, ctx_graph, instances_list, snippet_name):
         """
         This executes WMI queries on the list of instances.
         It is indirectly called by rdflib custom eval functions when executing a sparql query.
@@ -396,9 +406,9 @@ class CustomEvalEnvironment:
         """
 
         # Name of the function which is about to be generated.
-        print("_evaluate_wmi_snippet", snippet_name)
+        # best_generated_python_code = self._best_snippet("my_results_generator", instances_list)
         start_time = time.time()
-        best_generated_python_code = self._best_snippet(snippet_name, object_patterns_list)
+        best_generated_python_code = self._best_snippet(snippet_name, instances_list)
         optim_time = time.time()
         optim_seconds = optim_time - start_time
 
@@ -429,9 +439,9 @@ class CustomEvalEnvironment:
         # It is rewritten in case it is too slow to be finished.
         log_snippet_details("# Execution time : %f\n" % exec_seconds)
 
-        self._insert_wmi_results_in_graph(rdf_graph, object_patterns_list, snippet_results)
+        self._insert_wmi_results_in_graph(ctx_graph, instances_list, snippet_results)
         # Log file written again for performance testing.
-        log_snippet_details("# Graph size : %d\n" % len(rdf_graph))
+        log_snippet_details("# Graph size : %d\n" % len(ctx_graph))
         insertion_time = time.time()
         insertion_seconds = insertion_time - exec_time
         log_snippet_details("# Insertion time : %f\n" % insertion_seconds)
@@ -452,31 +462,64 @@ class CustomEvalEnvironment:
             assert left == right
         assert ordered_actual_instances == ordered_expected_instances
 
-    def run_query_in_rdflib(self, snippet_name):
-        print("Run query", snippet_name)
-        print(self.m_sparql_query)
-        the_bgps = query_to_bgp(self.m_sparql_query)
-        object_patterns_list = bgps_to_object_patterns(the_bgps)
+    def _custom_eval_bgp(self, ctx_graph, part_triples, snippet_name):
+        # Possibly add the ontology to ctx.graph
 
+        logging.debug("Instances:")
+        # This extracts the list of object patterns from the BGPs, by grouping them by common subject,
+        # if this subject has a CIM class as rdf:type.
+        instances_list = _part_triples_to_instances_list(part_triples)
+        #print("INSTANCES_LIST A START ========================")
+        #for one_pattern in instances_list:
+        #    print("    ", one_pattern)
+        #print("INSTANCES_LIST A END   ========================")
         if debug_mode:
-            self._check_objects_list(object_patterns_list)
+            self._check_objects_list(instances_list)
 
-        if object_patterns_list:
-            # Maybe the BGPs do not allow to detect object which can be fetched with WMI.
-            self._evaluate_wmi_snippet(self.m_graph, object_patterns_list, snippet_name)
+        if instances_list:
+            self._fetch_wmi_objects_in_graph(ctx_graph, instances_list, snippet_name)
+        else:
+            logging.warning("No instances. Maybe a meta-data query.")
 
-        # ... however, it is a valid Sparql query which can be evaluated.
-        self.m_graph.serialize("content_" + snippet_name + ".rdf", "xml")
-        with open("query_" + snippet_name + ".rdf", "w") as query_file:
-            query_file.write(self.m_sparql_query)
-        print("len(self.m_graph)=", len(self.m_graph))
-        query_results = self.m_graph.query(self.m_sparql_query)
-        print("query_results=", query_results)
+    def run_query_in_rdflib(self, snippet_name):
+        def _wmi_custom_eval_function(ctx, part):
+            """
+            Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
 
+            This is a callback given to rdflib sparql evaluation.
+            """
+
+            logging.debug("_wmi_custom_eval_function part.name=%s" % part.name)
+            # part.name = "SelectQuery", "Project", "BGP"
+            # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
+            # A triple pattern is a triple: RDF-term or value, IRI or value, RDF term or value.
+            if part.name == 'BGP':
+                # part.name = "SelectQuery", "Project", "BGP"
+                # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
+                # A triple pattern is a triple: RDF-term or value, IRI or value, RDF term or value.
+                self._custom_eval_bgp(ctx.graph, part.triples, snippet_name)
+
+                # Normal execution of the Sparql engine on the graph with many more triples.
+                ret_bgp = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+                return ret_bgp
+
+            raise NotImplementedError()
+
+        print("Run query")
+        print(self.m_sparql_query)
+
+        # add function directly, normally we would use setuptools and entry_points
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = _wmi_custom_eval_function
+        try:
+            query_results = self.m_graph.query(self.m_sparql_query)
+        except Exception:
+            print("Error self.m_sparql_query=", self.m_sparql_query)
+            raise
+        if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
+            del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
         query_results_as_list = list(query_results)
         print("run_query_in_rdflib returning %d elements" % len(query_results_as_list))
         return query_results_as_list
-
 
 
 #################################################################################################
@@ -559,6 +602,7 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
                 wmi_class_objects[class_name] = wmi_class_obj
 
     for class_name, wmi_class_obj in wmi_class_objects.items():
+        # print("class_name=", class_name)
         class_node = rdflib.URIRef(SURVOLNS[class_name])
         rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
@@ -579,6 +623,7 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
 
         for wmi_property_obj in wmi_class_obj.Properties_:
             property_name = wmi_property_obj.Name
+            # print("    property_name=", property_name)
             full_property_name = "%s.%s" % (class_name, property_name)
             property_node = rdflib.URIRef(SURVOLNS[full_property_name])
 
@@ -719,6 +764,9 @@ def _create_classes_dictionary():
 
     for one_class in classes_list:
         the_properties, the_keys = _get_wmi_class_properties(one_class)
+        #if debug_mode:
+        #    print(one_class, "the_properties=", the_properties)
+        #    print(one_class, "the_keys=", the_keys)
         classes_dict[one_class] = the_properties
         keys_dict[one_class] = _keys_list_to_tuple(the_keys)
     return classes_dict, keys_dict
@@ -774,7 +822,8 @@ def _create_wmi_moniker(class_name, **kwargs):
 
             # This conversion to str would be done anyway.
             # BEWARE: Backslahes must be escaped in arguments of WMI monikers !!!
-            result = str(the_value).replace("\\", "\\\\")
+            result = str(the_value).replace("\\", "\\\\") # .replace('"', '\\"')
+            # print("_value_to_str result=", result)
             return result
 
     # The keys must be sorted.
@@ -788,7 +837,9 @@ def _create_wmi_moniker(class_name, **kwargs):
         # Maybe some keys are missing.
         print("WARNING: Missing keys for %s from %s" % (class_name, valid_keys))
         return None
+    #print("properties_as_str=", properties_as_str)
 
+    # print("properties_as_str=", properties_as_str)
     # This is just to ensure that only key properties are used. "Caption" is never a key property.
     assert properties_as_str.find("Caption") < 0
     wmi_moniker = moniker_prefix + class_name + "." + properties_as_str
@@ -803,6 +854,9 @@ def _wmi_moniker_to_rdf_node(object_wmi_moniker):
 
 
 def wmi_attributes_to_rdf_node(class_name, **kwargs):
+    #print("kwargs1=", kwargs)
+    #for k, v in kwargs.items():
+    #    print("    ", k, v, len(v), type(v))
     unquoted_moniker = _create_wmi_moniker(class_name, **kwargs)
     print("unquoted_moniker=", unquoted_moniker)
     if not unquoted_moniker:
@@ -1233,7 +1287,7 @@ def _build_generator(class_name, where_clauses, needed_variables):
     }
 
 
-def _generate_wql_code(output_stream, lst_objects, function_name):
+def _generate_wql_code(output_stream, lst_output_variables, lst_objects, function_name):
     known_variables = set()
     total_cost = 1
 
@@ -1384,7 +1438,7 @@ def _generate_wql_code(output_stream, lst_objects, function_name):
     return code_description
 
 
-def objects_list_to_python_code(shuffled_lst_objects, function_name):
+def objects_list_to_python_code(output_variables, shuffled_lst_objects, function_name):
     print("run_lst_objects")
     for one_obj in shuffled_lst_objects:
         print("    ", one_obj)
@@ -1394,7 +1448,7 @@ def objects_list_to_python_code(shuffled_lst_objects, function_name):
 
     # The returned dict gives criterias to compare different implementations of the nested loops
     # enumerating WQL objects. The performance can be completely different.
-    code_description = _generate_wql_code(my_stream, shuffled_lst_objects, function_name)
+    code_description = _generate_wql_code(my_stream, output_variables, shuffled_lst_objects, function_name)
     my_stream.seek(0)
     result_as_str = my_stream.read()
     print("Generated code:", code_description)

@@ -16,7 +16,7 @@ However, information related to the same class are not stored together, because:
 from __future__ import print_function
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Primhill Computers, 2018-2021"
+__copyright__   = "Primhill Computers, 2018-2023"
 __license__ = "GPL"
 __maintainer__ = "Remi Chateauneu"
 __email__ = "contact@primhillcomputers.com"
@@ -525,13 +525,9 @@ def send_graph_to_url(input_graph, events_url):
     bytes_number = len(events_as_bytes)
 
     try:
-        if True:
-            the_headers = {"Content-type": "application/xml:", 'Content-Length': bytes_number}
-            req = urllib2.Request(events_url, headers=the_headers)
-            urlopen_result = urllib2.urlopen(req, data=events_as_bytes, timeout=10.0)
-        else:
-            req = urllib2.Request(events_url)
-            urlopen_result = urllib2.urlopen(req, data=events_as_bytes, timeout=10.0)
+        the_headers = {"Content-type": "application/xml:", 'Content-Length': bytes_number}
+        req = urllib2.Request(events_url, headers=the_headers)
+        urlopen_result = urllib2.urlopen(req, data=events_as_bytes, timeout=10.0)
     except Exception as server_exception:
         logging.error("Event server error=%s" % str(server_exception))
         raise
@@ -665,6 +661,7 @@ def _is_CIM(attr, attr_val):
 def _is_time_stamp(attr):
     """
     This identifies CIM attribute which is date or time and must be displayed as such.
+    For example "ns1:TerminationDate", "ns1:CreationDate"
     """
     return attr.find("Date") > 0 or attr.find("Time") > 0
 
@@ -675,6 +672,9 @@ class CIM_XmlMarshaller(object):
     into XML and also sends updates events to the Survol server if there is one.
     """
     def __init__(self):
+        # TODO: Must set the class with rdfs:Class
+        # TODO: Possibly self.__class__.__name__
+        # TODO: See https://www.w3.org/TR/rdf-schema/#ch_class
         pass
 
     def plain_to_XML(self, strm, sub_margin):
@@ -704,8 +704,11 @@ class CIM_XmlMarshaller(object):
             except AttributeError:
                 continue
             if _is_CIM(attr, attr_val):
-                # FIXME: Not very reliable.
+                # FIXME: Not very reliable because it only tests the attribute name.
                 if _is_time_stamp(attr):
+                    # TODO : <ns1:AccessTime>23:30:15:900428</ns1:AccessTime>
+                    # TODO: This should be something like : <ns1:FileMode rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">33188</ns1:FileMode>
+                    # TODO: See https://www.w3schools.com/xml/schema_dtypes_date.asp
                     attr_val = _timestamp_to_str(attr_val)
                 if attr_val:
                     # No need to write empty strings.

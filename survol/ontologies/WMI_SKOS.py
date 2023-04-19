@@ -169,6 +169,16 @@ def Main():
 
     # Writes the same content in turtle format.
     lib_export_ontology.flush_or_save_rdf_graph(skos_graph, path_base + "_DUPL.ttl", 'ttl')
+    #skos_graph.serialize(destination=path_base + "_DUPL2.ttl", format='turtle')
+
+    #skos_graph.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
+    #lib_export_ontology.flush_or_save_rdf_graph(skos_graph, path_base + "_DUPL_BIND.ttl", 'ttl')
+    #skos_graph.serialize(destination=path_base + "_DUPL_BIND2.ttl", format='turtle')
+
+    #g = rdflib.Graph()
+    #g.parse(path_base + ".rdfs", format='xml')
+    #g.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
+    #g.serialize(destination=path_base + "_RELOAD.ttl", format='turtle')
 
 
 if __name__ == '__main__':

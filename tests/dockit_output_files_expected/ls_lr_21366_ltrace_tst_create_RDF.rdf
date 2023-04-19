@@ -1,0 +1,1682 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:ns1="http://www.primhillcomputers.com/survol#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/technical_notes.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>technical_notes</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/technical_notes.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/FileToPackageCache.vps516494.localdomain.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>FileToPackageCache</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/FileToPackageCache.vps516494.localdomain.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/web.debug.config">
+    <ns1:FileName>web</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/web.debug.config</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/yawn_util.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/yawn_util.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>yawn_util</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Process.Handle=21368">
+    <ns1:Name>pid=21368</ns1:Name>
+    <ns1:Username></ns1:Username>
+    <ns1:TerminationDate>17:47:26.896330</ns1:TerminationDate>
+    <ns1:Priority rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</ns1:Priority>
+    <ns1:CurrentDirectory>C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle</ns1:CurrentDirectory>
+    <ns1:CreationDate>17:47:26.510613</ns1:CreationDate>
+    <ns1:Handle>21368</ns1:Handle>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.ini">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.ini</ns1:Name>
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.txt</ns1:Name>
+    <ns1:FileName>mineit_graphviz_ps</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestMySql.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestMySql.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>TestMySql</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestLoopOdbc.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestLoopOdbc.py</ns1:Name>
+    <ns1:FileName>TestLoopOdbc</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/testwnet.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/testwnet.py</ns1:Name>
+    <ns1:FileName>testwnet</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.txt</ns1:Name>
+    <ns1:FileName>mineit_python_cobaye</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure/AzureTest.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure/AzureTest.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>AzureTest</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_jpype_jmx.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_jpype_jmx.py</ns1:Name>
+    <ns1:FileName>Test_jpype_jmx</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_MQ.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_MQ.py</ns1:Name>
+    <ns1:FileName>CTypesStructs_MQ</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestCapstone.py">
+    <ns1:FileName>TestCapstone</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestCapstone.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.txt</ns1:Name>
+    <ns1:FileName>mineit_short_graphviz_ps</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/sample_shell.sh">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/sample_shell.sh</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>sample_shell</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/pefile_test.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/pefile_test.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>pefile_test</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.txt</ns1:Name>
+    <ns1:FileName>mineit_proftpd</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker</ns1:Name>
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker</ns1:Name>
+    <ns1:FileName>mineit_gcc_hello_world</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_UndecorateSymbolName.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_UndecorateSymbolName.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Test_UndecorateSymbolName</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>rchateau</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/usr/lib/locale/locale-archive">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>locale-archive</ns1:FileName>
+    <ns1:Name>C:/usr/lib/locale/locale-archive</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_file</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=UnknownFileDescr:6">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>UnknownFileDescr:6</ns1:Name>
+    <ns1:FileName>UnknownFileDescr:6</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.xml">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/lib64/libdl.so.2">
+    <ns1:Name>C:/lib64/libdl.so.2</ns1:Name>
+    <ns1:FileName>libdl</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.txt">
+    <ns1:FileName>mineit_sample_short_shell</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.docker</ns1:Name>
+    <ns1:FileName>mineit_big_mysql_select</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.log">
+    <ns1:FileName>mineit_big_mysql_select</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker/TestProgs/HelloWorld.c">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>HelloWorld</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker/TestProgs/HelloWorld.c</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/toto.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/toto.xml</ns1:Name>
+    <ns1:FileName>toto</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.xml</ns1:Name>
+    <ns1:FileName>mineit_graphviz_ps</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/testcgi.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/testcgi.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>testcgi</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.xml">
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.xml</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.txt">
+    <ns1:FileName>mineit_minusp_bash_while_sleep</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.txt</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/toto.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/toto.txt</ns1:Name>
+    <ns1:FileName>toto</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/yawn_render.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/yawn_render.py</ns1:Name>
+    <ns1:FileName>yawn_render</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/getting_process_information_on_windows.py">
+    <ns1:FileName>getting_process_information_on_windows</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/getting_process_information_on_windows.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.txt">
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.xml">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.xml</ns1:Name>
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>RDF</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.txt">
+    <ns1:FileName>mineit_ps_ef</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.txt</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ActiveXObjectWMI.htm">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ActiveXObjectWMI.htm</ns1:Name>
+    <ns1:FileName>ActiveXObjectWMI</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ScanOdbcRegex.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ScanOdbcRegex.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>ScanOdbcRegex</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.xml">
+    <ns1:FileName>mineit_big_mysql_select</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.xml</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.xml">
+    <ns1:FileName>mineit_vim</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/cobaye.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/cobaye.py</ns1:Name>
+    <ns1:FileName>cobaye</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker/TestProgs">
+    <ns1:FileName>TestProgs</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker/TestProgs</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/big_mysql_select.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/big_mysql_select.py</ns1:Name>
+    <ns1:FileName>big_mysql_select</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumNamespaces.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumNamespaces.py</ns1:Name>
+    <ns1:FileName>EnumNamespaces</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/webslptool.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/webslptool.py</ns1:Name>
+    <ns1:FileName>webslptool</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_gcc_incomplete</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.docker/Dockerfile">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.docker">
+    <ns1:FileName>mineit_graphviz_ps</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.docker</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/win32_EnumProcessModules.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/win32_EnumProcessModules.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>win32_EnumProcessModules</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SlpApache.sh">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SlpApache.sh</ns1:Name>
+    <ns1:FileName>SlpApache</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>u01</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_server.py">
+    <ns1:FileName>pyslp_server</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_server.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/Login.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/Login.py</ns1:Name>
+    <ns1:FileName>Login</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.docker</ns1:Name>
+    <ns1:FileName>mineit_wget_hotmail</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./Tools/PrincipalPeriodTest.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./Tools/PrincipalPeriodTest.py</ns1:Name>
+    <ns1:FileName>PrincipalPeriodTest</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/ls_lr.ltrace.21366.log">
+    <ns1:FileName>ls_lr</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/ls_lr.ltrace.21366.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/XsdRdfToDot.sh">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>XsdRdfToDot</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/XsdRdfToDot.sh</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.docker</ns1:Name>
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/lib64/libc.so.6">
+    <ns1:FileName>libc</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/lib64/libc.so.6</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23077.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23077.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_firefox</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_vim</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.log</ns1:Name>
+    <ns1:FileName>mineit_copy_bigfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/webserver.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/webserver.py</ns1:Name>
+    <ns1:FileName>webserver</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.log</ns1:Name>
+    <ns1:FileName>mineit_short_graphviz_ps</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker/TestProgs/mineit_mysql_select.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker/TestProgs/mineit_mysql_select.py</ns1:Name>
+    <ns1:FileName>mineit_mysql_select</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Windows.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Windows.py</ns1:Name>
+    <ns1:FileName>CTypesStructs_Windows</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/svc_rdf_to_svg.py">
+    <ns1:FileName>svc_rdf_to_svg</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/svc_rdf_to_svg.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/test_win32wnet.py">
+    <ns1:FileName>test_win32wnet</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/test_win32wnet.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumInstanceNames.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumInstanceNames.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>EnumInstanceNames</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/build_merge.htm">
+    <ns1:FileName>build_merge</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/build_merge.htm</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/extract_table_names.py">
+    <ns1:FileName>extract_table_names</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/extract_table_names.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/lookup_pip.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/lookup_pip.py</ns1:Name>
+    <ns1:FileName>lookup_pip</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.xml</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/relative_url.py">
+    <ns1:FileName>relative_url</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/relative_url.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.xml">
+    <ns1:FileName>mineit_file</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker</ns1:Name>
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/TestUnicodeStrings.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/TestUnicodeStrings.py</ns1:Name>
+    <ns1:FileName>TestUnicodeStrings</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/TestProgs/oracle_db_schemas.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/TestProgs/oracle_db_schemas.py</ns1:Name>
+    <ns1:FileName>oracle_db_schemas</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.txt</ns1:Name>
+    <ns1:FileName>mineit_copy_bigfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.xml</ns1:Name>
+    <ns1:FileName>mineit_sample_short_shell</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/README.txt">
+    <ns1:FileName>README</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/README.txt</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.xml</ns1:Name>
+    <ns1:FileName>mineit_minusp_bash_while_sleep</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.log">
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_gcc_hello_world</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.docker/Dockerfile">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.docker/Dockerfile</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/favorites_urls.js">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/favorites_urls.js</ns1:Name>
+    <ns1:FileName>favorites_urls</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/tst_dbus_small.py">
+    <ns1:FileName>tst_dbus_small</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/tst_dbus_small.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/com_type_lib_versions.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/com_type_lib_versions.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>com_type_lib_versions</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.txt</ns1:Name>
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/TrineRdfToGraphviz.pl">
+    <ns1:FileName>TrineRdfToGraphviz</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/TrineRdfToGraphviz.pl</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.log">
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.ini">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.ini</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_proftpd</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/lib_clusters.py">
+    <ns1:FileName>lib_clusters</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/lib_clusters.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.txt">
+    <ns1:FileName>mineit_gcc_hello_world</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.txt</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.strace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_data/tnsnames.ora">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_data/tnsnames.ora</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>tnsnames</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/what_is_it.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/what_is_it.txt</ns1:Name>
+    <ns1:FileName>what_is_it</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_ip_config.py">
+    <ns1:FileName>Test_ip_config</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_ip_config.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.log</ns1:Name>
+    <ns1:FileName>mineit_find_grep</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_sample_short_shell</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.docker</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_wget_hotmail</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/WindowsGetDocumentSummaryInformation.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/WindowsGetDocumentSummaryInformation.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>WindowsGetDocumentSummaryInformation</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.log">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_graphviz_ps</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure/AzureTest2.py">
+    <ns1:FileName>AzureTest2</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure/AzureTest2.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.ini">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_find_grep</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.ini</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_plenty_of_clone</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.xml">
+    <ns1:FileName>mineit_proftpd</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.xml</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/generate_descriptor.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>generate_descriptor</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/generate_descriptor.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.xml">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_python_cobaye</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp">
+    <ns1:Name>rchateau-hp</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/ctypes_scanner.py">
+    <ns1:FileName>ctypes_scanner</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/ctypes_scanner.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_vim</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_big_mysql_select</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_big_mysql_select.strace.18648.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/readelf_customized.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/readelf_customized.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>readelf_customized</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.docker">
+    <ns1:FileName>mineit_file</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.docker</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=stderr">
+    <ns1:Name>stderr</ns1:Name>
+    <ns1:FileName>stderr</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ExtractIconFromExe.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ExtractIconFromExe.py</ns1:Name>
+    <ns1:FileName>ExtractIconFromExe</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_find_grep</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Posix.py">
+    <ns1:FileName>CTypesStructs_Posix</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Posix.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/dockit.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>dockit</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/dockit.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2</ns1:Name>
+    <ns1:FileName>port_to_py2</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/tst_pypcap.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/tst_pypcap.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>tst_pypcap</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.log">
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/etc/selinux/config">
+    <ns1:Name>C:/etc/selinux/config</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>config</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/UnitTests">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/UnitTests</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>UnitTests</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/load_urls_with_rdfquery.htm">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>load_urls_with_rdfquery</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/load_urls_with_rdfquery.htm</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ParseTcpDump.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ParseTcpDump.py</ns1:Name>
+    <ns1:FileName>ParseTcpDump</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.txt</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_find_grep</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/svc_merge_rdf_files.py">
+    <ns1:FileName>svc_merge_rdf_files</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/svc_merge_rdf_files.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/Tools">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/Tools</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Tools</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.docker/Dockerfile</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/var/lib/sss/mc/passwd">
+    <ns1:FileName>passwd</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/var/lib/sss/mc/passwd</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.log">
+    <ns1:FileName>mineit_plenty_of_clone</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/gui_slpmenu.py">
+    <ns1:FileName>gui_slpmenu</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/gui_slpmenu.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/list_rdf_generators.tmpl.htm">
+    <ns1:FileName>list_rdf_generators</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/list_rdf_generators.tmpl.htm</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/lib64/libselinux.so.1">
+    <ns1:FileName>libselinux</ns1:FileName>
+    <ns1:Name>C:/lib64/libselinux.so.1</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.xml">
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Experimental</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem">
+    <ns1:FileName>tests_wbem</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10">
+    <ns1:PermanentAddress>192.168.1.10</ns1:PermanentAddress>
+    <ns1:Name>192.168.1.10</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.log</ns1:Name>
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/list_machines_in_domain.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>list_machines_in_domain</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/list_machines_in_domain.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.docker">
+    <ns1:FileName>mineit_copy_bigfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.docker</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/dockit.pyc">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/dockit.pyc</ns1:Name>
+    <ns1:FileName>dockit</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/rdf_center.htm">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/rdf_center.htm</ns1:Name>
+    <ns1:FileName>rdf_center</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product</ns1:Name>
+    <ns1:FileName>product</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples/SLPtest.pl">
+    <ns1:FileName>SLPtest</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples/SLPtest.pl</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.xml">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.xml</ns1:Name>
+    <ns1:FileName>mineit_find_grep</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/Dockerfile</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/sqlparse_test.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/sqlparse_test.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>sqlparse_test</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests</ns1:Name>
+    <ns1:FileName>UnitTests</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.txt">
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.txt</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker">
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.xml">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_gcc_hello_world</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SlpPy.sh">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SlpPy.sh</ns1:Name>
+    <ns1:FileName>SlpPy</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>app</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_data">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_data</ns1:Name>
+    <ns1:FileName>tests_data</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/var/run/setrans/.setrans-unix">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/var/run/setrans/.setrans-unix</ns1:Name>
+    <ns1:FileName></ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.docker">
+    <ns1:FileName>mineit_minusp_bash_while_sleep</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.docker</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/rdf_droite.htm">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/rdf_droite.htm</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>rdf_droite</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker/Dockerfile">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.docker/Dockerfile</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/com_type_libraries.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/com_type_libraries.py</ns1:Name>
+    <ns1:FileName>com_type_libraries</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker/TestProgs">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_hello_world.ltrace.docker/TestProgs</ns1:Name>
+    <ns1:FileName>TestProgs</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/out.png">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/RDF/out.png</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>out</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/wmi_test.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/wmi_test.py</ns1:Name>
+    <ns1:FileName>wmi_test</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Tibco.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Tibco.py</ns1:Name>
+    <ns1:FileName>CTypesStructs_Tibco</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/security_directories.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/security_directories.py</ns1:Name>
+    <ns1:FileName>security_directories</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.ini">
+    <ns1:FileName>mineit_plenty_of_clone</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.ini</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.log">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.log</ns1:Name>
+    <ns1:FileName>mineit_vim</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client_register.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client_register.py</ns1:Name>
+    <ns1:FileName>pyslp_client_register</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/windows_event_log_viewer.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/windows_event_log_viewer.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>windows_event_log_viewer</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.txt">
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker/home/rchateau">
+    <ns1:FileName>rchateau</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker/home/rchateau</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/pyrasite_clone.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/pyrasite_clone.py</ns1:Name>
+    <ns1:FileName>pyrasite_clone</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestUnicodeStrings.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestUnicodeStrings.py</ns1:Name>
+    <ns1:FileName>TestUnicodeStrings</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/etc/ld.so.preload">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/etc/ld.so.preload</ns1:Name>
+    <ns1:FileName>ld</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.docker/Dockerfile">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.xml">
+    <ns1:FileName>mineit_wget_hotmail</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=UnknownFileDescr:4">
+    <ns1:FileName>UnknownFileDescr:4</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>UnknownFileDescr:4</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/var/lib/sss/mc/group">
+    <ns1:FileName>group</ns1:FileName>
+    <ns1:Name>C:/var/lib/sss/mc/group</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_COM_GetRunningObjectTable.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>Test_COM_GetRunningObjectTable</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Test_COM_GetRunningObjectTable.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/DragAndDrop.htm">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/DragAndDrop.htm</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>DragAndDrop</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.txt</ns1:Name>
+    <ns1:FileName>mineit_gcc_incomplete</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=stdout">
+    <ns1:FileName>stdout</ns1:FileName>
+    <ns1:Name>stdout</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/test_wget_hotmail.sh">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/test_wget_hotmail.sh</ns1:Name>
+    <ns1:FileName>test_wget_hotmail</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.txt</ns1:Name>
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/lib64/libcap.so.2">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>libcap</ns1:FileName>
+    <ns1:Name>C:/lib64/libcap.so.2</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0/xe/lib">
+    <ns1:FileName>lib</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0/xe/lib</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/merge_rdf_inputs.htm">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/merge_rdf_inputs.htm</ns1:Name>
+    <ns1:FileName>merge_rdf_inputs</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.txt">
+    <ns1:FileName>mineit_plenty_of_clone</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/unittest.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/unittest.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>unittest</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/wbem.pyproj">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>wbem</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/wbem.pyproj</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.strace.5899.log</ns1:Name>
+    <ns1:FileName>mineit_simple_perl_file_write</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/frames_result.htm">
+    <ns1:FileName>frames_result</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/frames_result.htm</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/usr/lib64/gconv/gconv-modules.cache">
+    <ns1:Name>C:/usr/lib64/gconv/gconv-modules.cache</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>gconv-modules</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumClassNames.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumClassNames.py</ns1:Name>
+    <ns1:FileName>EnumClassNames</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.docker">
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.docker</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/TechnicalNotes.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/TechnicalNotes.txt</ns1:Name>
+    <ns1:FileName>TechnicalNotes</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestBarf.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestBarf.py</ns1:Name>
+    <ns1:FileName>TestBarf</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/yawn_cim_insight.py">
+    <ns1:FileName>yawn_cim_insight</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/yawn_cim_insight.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/cgi_hostname_traceroute.py">
+    <ns1:FileName>cgi_hostname_traceroute</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/cgi_hostname_traceroute.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP">
+    <ns1:FileName>SLP</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/packsnifflinux.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/packsnifflinux.py</ns1:Name>
+    <ns1:FileName>packsnifflinux</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestEnumWindows.py">
+    <ns1:FileName>TestEnumWindows</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestEnumWindows.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_short_graphviz_ps</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.log">
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker/home">
+    <ns1:FileName>home</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker/home</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.xml">
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/README.txt">
+    <ns1:FileName>README</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/README.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/.">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName></ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/.</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/dockit_cdb.ini">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/dockit_cdb.ini</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>dockit_cdb</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/column_defs_lowlevel.py">
+    <ns1:FileName>column_defs_lowlevel</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/column_defs_lowlevel.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=UnknownFileDescr:5">
+    <ns1:FileName>UnknownFileDescr:5</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>UnknownFileDescr:5</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/list_rdf_generators.tmpl.htm.htm">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/list_rdf_generators.tmpl.htm.htm</ns1:Name>
+    <ns1:FileName>list_rdf_generators</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/ctypes_EnumWindows.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/ctypes_EnumWindows.py</ns1:Name>
+    <ns1:FileName>ctypes_EnumWindows</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.docker">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.docker</ns1:Name>
+    <ns1:FileName>mineit_python_cobaye</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/test_dyn_methods_for_uris.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/test_dyn_methods_for_uris.py</ns1:Name>
+    <ns1:FileName>test_dyn_methods_for_uris</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./Tools">
+    <ns1:FileName>Tools</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./Tools</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.log">
+    <ns1:FileName>mineit_python_cobaye</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_python_cobaye.strace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SlpMgr.sh">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SlpMgr.sh</ns1:Name>
+    <ns1:FileName>SlpMgr</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>tests_pyslp</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/HelloWorld.c">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/HelloWorld.c</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>HelloWorld</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ClusterFilenames.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/ClusterFilenames.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>ClusterFilenames</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23083.log">
+    <ns1:FileName>mineit_firefox</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23083.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/wbem_utils.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/wbem_utils.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>wbem_utils</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/mineit_mysql_select.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/mineit_mysql_select.py</ns1:Name>
+    <ns1:FileName>mineit_mysql_select</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.docker">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.docker</ns1:Name>
+    <ns1:FileName>mineit_proftpd</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0</ns1:Name>
+    <ns1:FileName>11</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.docker">
+    <ns1:FileName>mineit_ps_ef</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.docker</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.log">
+    <ns1:FileName>mineit_file</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_file.ltrace.24611.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/etc/ld.so.cache">
+    <ns1:FileName>ld</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/etc/ld.so.cache</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_AC2">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>tests_AC2</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_AC2</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/tst_dbus.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/tst_dbus.py</ns1:Name>
+    <ns1:FileName>tst_dbus</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/oracle_db_schemas.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/oracle_db_schemas.py</ns1:Name>
+    <ns1:FileName>oracle_db_schemas</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure/AzureCopy.cer">
+    <ns1:FileName>AzureCopy</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure/AzureCopy.cer</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.log">
+    <ns1:FileName>mineit_minusp_bash_while_sleep</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_minusp_bash_while_sleep.strace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.docker/Dockerfile</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.txt">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.txt</ns1:Name>
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_short_graphviz_ps.strace.xml</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_short_graphviz_ps</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker/TestProgs">
+    <ns1:FileName>TestProgs</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker/TestProgs</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/ReadDirectoryChanges.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/ReadDirectoryChanges.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>ReadDirectoryChanges</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Linux.py">
+    <ns1:FileName>CTypesStructs_Linux</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Linux.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/lib64/libnss_sss.so.2">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/lib64/libnss_sss.so.2</ns1:Name>
+    <ns1:FileName>libnss_sss</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure">
+    <ns1:FileName>Microsoft_Azure</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Microsoft_Azure</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.txt</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/snifferCore.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/snifferCore.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>snifferCore</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/lib64/libpthread.so.0">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/lib64/libpthread.so.0</ns1:Name>
+    <ns1:FileName>libpthread</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker/TestProgs/sample_shell.sh">
+    <ns1:FileName>sample_shell</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.docker/TestProgs/sample_shell.sh</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/RebuildTests.sh">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>RebuildTests</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/RebuildTests.sh</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/win32_tests.py">
+    <ns1:FileName>win32_tests</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/win32_tests.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0/xe">
+    <ns1:FileName>xe</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0/xe</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/gui_slpform.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/gui_slpform.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>gui_slpform</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/web.config">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>web</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/web.config</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>pyslp_client</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=B64_QzovVXNlcnMvcmNoYXRlYXUvRGV2ZWxvcHBlbWVudC9SZXZlcnNlRW5naW5lZXJpbmdBcHBzL1B5dGhvblN0eWxlL0ludmFsaWQgZGV2aWNl">
+    <ns1:FileName>Invalid device</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/Invalid device</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/lib64/libpcre.so.1">
+    <ns1:Name>C:/lib64/libpcre.so.1</ns1:Name>
+    <ns1:FileName>libpcre</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.xml">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_mysql_show_databases</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.ltrace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests">
+    <ns1:FileName>CTypesTests</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.xml">
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.ltrace.xml</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.xml">
+    <ns1:FileName>mineit_copy_bigfile</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_copy_bigfile.strace.xml</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/usr/share/locale/locale.alias">
+    <ns1:FileName>locale</ns1:FileName>
+    <ns1:Name>C:/usr/share/locale/locale.alias</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.log">
+    <ns1:FileName>mineit_sample_short_shell</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_short_shell.ltrace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/combrowse.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers/combrowse.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>combrowse</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker/TestProgs/write_file_in_perl.pl">
+    <ns1:FileName>write_file_in_perl</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker/TestProgs/write_file_in_perl.pl</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/merge_rdf_inputs_graphviz_only.htm">
+    <ns1:FileName>merge_rdf_inputs_graphviz_only</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/merge_rdf_inputs_graphviz_only.htm</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_oracle_db_schemas</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/write_file_in_perl.pl">
+    <ns1:FileName>write_file_in_perl</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs/write_file_in_perl.pl</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2/pyslp_server.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2/pyslp_server.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>pyslp_server</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23106.log">
+    <ns1:FileName>mineit_firefox</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23106.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/TestPresenceSlp.sh">
+    <ns1:FileName>TestPresenceSlp</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/TestPresenceSlp.sh</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>survol</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.xml</ns1:Name>
+    <ns1:FileName>mineit_ps_ef</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.docker/Dockerfile">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_mysql_show_databases.strace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestRabbitMQ.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestRabbitMQ.py</ns1:Name>
+    <ns1:FileName>TestRabbitMQ</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client_findsrvs.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>pyslp_client_findsrvs</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client_findsrvs.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_proftpd.strace.26299.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_proftpd</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesRegex_Urls.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>CTypesRegex_Urls</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesRegex_Urls.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker/TestProgs">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_simple_perl_file_write.ltrace.5903.docker/TestProgs</ns1:Name>
+    <ns1:FileName>TestProgs</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/TestProgs">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/TestProgs</ns1:Name>
+    <ns1:FileName>TestProgs</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/FileToPackageCache.fedora22.txt">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/FileToPackageCache.fedora22.txt</ns1:Name>
+    <ns1:FileName>FileToPackageCache</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.log">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>mineit_sample_shell</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.log</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestPySmb.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/TestPySmb.py</ns1:Name>
+    <ns1:FileName>TestPySmb</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.log</ns1:Name>
+    <ns1:FileName>mineit_gcc_incomplete</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.docker/Dockerfile">
+    <ns1:FileName>Dockerfile</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_graphviz_ps.strace.docker/Dockerfile</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/etc/nsswitch.conf">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>nsswitch</ns1:FileName>
+    <ns1:Name>C:/etc/nsswitch.conf</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/etc/localtime">
+    <ns1:Name>C:/etc/localtime</ns1:Name>
+    <ns1:FileName>localtime</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so</ns1:Name>
+    <ns1:FileName>libclntsh</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.xml">
+    <ns1:FileName>mineit_plenty_of_clone</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_plenty_of_clone.strace.xml</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23091.log">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23091.log</ns1:Name>
+    <ns1:FileName>mineit_firefox</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/readelf.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/readelf.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>readelf</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/Divers</ns1:Name>
+    <ns1:FileName>Divers</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2/pyslp_client.py">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2/pyslp_client.py</ns1:Name>
+    <ns1:FileName>pyslp_client</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./TestProgs</ns1:Name>
+    <ns1:FileName>TestProgs</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/test_with_cdb.bat">
+    <ns1:FileName>test_with_cdb</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/test_with_cdb.bat</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Oracle.py">
+    <ns1:FileName>CTypesStructs_Oracle</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Oracle.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/TestProgs">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/TestProgs</ns1:Name>
+    <ns1:FileName>TestProgs</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_vim.strace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23395.log">
+    <ns1:FileName>mineit_firefox</ns1:FileName>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_firefox.ltrace.23395.log</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/get_file_owner_windows.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/get_file_owner_windows.py</ns1:Name>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:FileName>get_file_owner_windows</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumClassNamesInstrumented.py">
+    <ns1:FileName>EnumClassNamesInstrumented</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/EnumClassNamesInstrumented.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SqlServerUsersList.sql">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SqlServerUsersList.sql</ns1:Name>
+    <ns1:FileName>SqlServerUsersList</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.log">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_ps_ef.strace.log</ns1:Name>
+    <ns1:FileName>mineit_ps_ef</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_oracle_db_schemas.ltrace.docker/u01/app/oracle</ns1:Name>
+    <ns1:FileName>oracle</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/PrintDescription.py">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/PrintDescription.py</ns1:Name>
+    <ns1:FileName>PrintDescription</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_gcc_incomplete.strace.xml</ns1:Name>
+    <ns1:FileName>mineit_gcc_incomplete</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/GetInstance.py">
+    <ns1:FileName>GetInstance</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_wbem/GetInstance.py</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.txt">
+    <ns1:FileName>mineit_wget_hotmail</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_wget_hotmail.strace.866.txt</ns1:Name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.docker/Dockerfile">
+    <ns1:Category>Others</ns1:Category>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_sample_shell.strace.docker/Dockerfile</ns1:Name>
+    <ns1:FileName>Dockerfile</ns1:FileName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home</ns1:Name>
+    <ns1:FileName>home</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_AC2/Application_Sample.xml">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/tests_AC2/Application_Sample.xml</ns1:Name>
+    <ns1:FileName>Application_Sample</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples">
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples</ns1:Name>
+    <ns1:FileName>SLP_PerlSamples</ns1:FileName>
+    <ns1:Category>Others</ns1:Category>
+  </rdf:Description>
+</rdf:RDF>

@@ -21,6 +21,10 @@ def Usable(entity_type, entity_ids_arr):
     dir_nam = entity_ids_arr[0]
     return os.path.isdir(dir_nam)
 
+# FIXME:
+# http://127.0.0.1:9000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=%2Fmnt%2Fc%2FWindows%2FSystem32
+# AddStat:[Errno 2] No such file or directory: '/mnt/c/Windows/System32/%24Acer%24.cmd'
+# Later correctly displayed as: /mnt/c/Windows/System32/$Acer$.cmd
 
 # This returns an url which displays a directory in HTML.
 # This can work only if the HTTP server allows so. Purely experimental.
@@ -52,8 +56,7 @@ def _uri_directory_direct_script(dir_nam):
     # This should rather have the property pc.property_script, but it must be listed with the files.
     return lib_uris.gUriGen.node_from_script_args(
         '/sources_types/CIM_Directory/file_directory.py',
-        "CIM_Directory", # TODO: NOT SURE: lib_util.ComposeTypes("file","dir"),
-        # pc.property_script,
+        "CIM_Directory",
         lib_util.EncodeUri(dir_nam))
 
 
