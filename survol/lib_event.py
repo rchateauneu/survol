@@ -14,7 +14,7 @@ import lib_util
 import lib_kbase
 
 
-def _json_moniker_to_entity_class_and_dict(entity_type, entity_attributes_dict):
+def json_moniker_to_node(entity_type, entity_attributes_dict):
     assert isinstance(entity_type, (six.binary_type, six.text_type))
     assert isinstance(entity_attributes_dict, dict)
 
@@ -35,17 +35,17 @@ def json_triple_to_rdf_triple(subject_value_json, predicate_value_json, object_v
     """
 
     assert isinstance(subject_value_json, tuple) and len(subject_value_json) == 2
-    subject_value_text = _json_moniker_to_entity_class_and_dict(*subject_value_json)
+    subject_node = json_moniker_to_node(*subject_value_json)
 
     # The object might be another CIM object or a literal.
     # We should check the form: ("string", {})
     if isinstance(object_value_json, tuple) and len(object_value_json) == 2:
-        object_value_text = _json_moniker_to_entity_class_and_dict(*object_value_json)
+        object_node = json_moniker_to_node(*object_value_json)
     else:
-        object_value_text = rdflib.Literal(object_value_json)
+        object_node = rdflib.Literal(object_value_json)
 
     url_predicate = lib_common.MakeProp(predicate_value_json)
-    rdf_triple = (subject_value_text, url_predicate, object_value_text)
+    rdf_triple = (subject_node, url_predicate, object_node)
     return rdf_triple
 
 
