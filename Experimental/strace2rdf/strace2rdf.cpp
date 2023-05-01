@@ -19,6 +19,8 @@ static void append_vector(vector<string> & target, const T & source) {
 	copy(source.begin(), source.end(), back_inserter(target));
 }
 
+enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED}; 
+
 /*
 This extracts the function name so the right parser can be created.
 The line might start or not, with the pid.
@@ -26,7 +28,6 @@ The line might start or not, with the pid.
 [pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>
 */
 class PreparsedLine {
-	int processid; // -1 if this is the current process.
 	// Today's timestamp.
 	double m_seconds;
 
@@ -44,6 +45,12 @@ class PreparsedLine {
 public:
 	string function_name;
 	size_t args_offset; // Points to the open parenthesis after the function name.
+	int processid; // -1 if this is the current process.
+	CallState m_callstate;
+
+	PreparsedLine()
+	: processid(-1)
+	, m_callstate(INVALID) {}
 
 	PreparsedLine(const string & line) {
 		const char * line_start = line.c_str();
@@ -69,15 +76,101 @@ public:
 			throw std::runtime_error("No timestamp:" + line);
 		}
 
+		const char * function_valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789_";
 		const char * function_start = time_end + 1;
-		const char * function_end = strchr(function_start, '(');
-		if(function_end == nullptr) {
-			throw std::runtime_error("No function:" + line);
+		
+		// Maybe this is not a function call.
+		const char sig_chld[] = "--- SIGCHLD";
+		if(0 == strncmp(function_start, sig_chld, sizeof(function_start) - 1)) {
+			m_callstate = SIGNAL;
+			return;
+		}
+		
+		// A regular expression would also work.
+		size_t longest_ascii = strspn(function_start, function_valid_chars);
+		const char * function_end = function_start + longest_ascii;
+		bool is_valid_function = *function_end == '(';
+		// const char * function_end = strchr(function_start, '(');
+		/*
+			[pid  5557] 19:58:35.831752 close(4<pipe:[52233]> <unfinished ...>
+			[pid  5557] 19:58:35.831817 <... close resumed> ) = 0 <0.000041>
+		*/
+		
+		/*
+			[pid  4233] 19:58:35.831781 wait4(-1,  <unfinished ...>
+			19:58:35.841846 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5557 <0.010057>
+			19:58:35.842034 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
+			[pid  4233] 19:58:40.706014 wait4(-1,  <unfinished ...>
+			19:58:46.024321 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5562 <5.318296>
+			19:58:46.024677 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000013>
+			[pid  4233] 19:58:51.281110 wait4(-1,  <unfinished ...>
+			19:58:51.790724 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5573 <0.509606>
+			19:58:51.790942 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
+			[pid  4233] 19:59:02.345211 wait4(-1,  <unfinished ...>
+			19:59:07.208177 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5584 <4.862956>
+			19:59:07.208490 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000010>
+			[pid  4233] 19:59:20.542876 wait4(-1,  <unfinished ...>
+			19:59:20.964701 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5602 <0.421816>
+			19:59:20.964728 wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5601 <0.000032>
+			19:59:20.965024 wait4(-1, 0x7fffa5fca610, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
+		*/
+		bool unfinished = nullptr != strstr(function_start, "<unfinished ...>");
+		const char str_resumed[] = " resumed>";
+		bool resumed = nullptr != strstr(function_start, str_resumed);
+		if(unfinished && resumed) {
+			throw runtime_error("Cannot be unfinished and resumed");
+		}
+		if(resumed) {
+			m_callstate = RESUMED;
+			if(is_valid_function) {
+				throw runtime_error("Function name not be valid if resumed.");
+			}
+			// Extract function from "<... wait4 resumed>", to be sure this is the right call.
+			const char str_dots[] = "<... ";
+			const char * ptr_dots = strstr(function_start, str_dots);
+			if(ptr_dots == nullptr) {
+				throw runtime_error(string("Cannot find:") + str_dots);
+			}
+			function_start += sizeof(str_dots) - 1;
+			//printf("function_start=%s\n", function_start);
+			size_t longest_ascii = strspn(function_start, function_valid_chars);
+			//printf("longest_ascii=%d\n", (int)longest_ascii);
+			function_end = function_start + longest_ascii;
+			//printf("function_end=%s\n", function_end);
+			if(0 != strncmp(function_end, str_resumed, sizeof(str_resumed) - 1)) {
+				throw runtime_error(string("Cannot find:") + str_resumed);
+			}
+		} else {
+			m_callstate = unfinished ? UNFINISHED : PLAIN;
+			if(!is_valid_function) {
+				throw runtime_error(
+					"Function name must be valid if unfinished or ok. longest_ascii=" + to_string(longest_ascii)
+					+ "function_start=" + string(function_start));
+			}
 		}
 		function_name.assign(function_start, function_end);
+		// printf("Line=%s\n",line.c_str());
+		// printf("State=%d function=%s\n", m_callstate, function_name.c_str());
 		args_offset = function_end - line_start;
+		
+		switch(m_callstate) {
+			case UNFINISHED:
+				cout << "UNFINISHED " << function_name << " pid=" << processid << endl;
+				break;
+			case RESUMED:
+				cout << "RESUMED " << function_name << " pid=" << processid << endl;
+				break;
+		}
+	}
+	
+	void MergeWithUnfinished(const PreparsedLine & unfinished) {
+		if(function_name != unfinished.function_name) {
+			throw runtime_error("Cannot merge " + function_name + " with " + unfinished.function_name);
+		}
+		cout << "MERGING " << function_name << endl;
 	}
 };
+
 
 static char closing(char chr) {
 	switch(chr) {
@@ -236,6 +329,11 @@ public:
 	static shared_ptr<STraceCall> factory(const string & line);
 };
 	
+/*******************************************************************************
+**
+** Interesting system calls.
+**
+*******************************************************************************/
 
 // 07:46:32.057886 connect(9<socket:[1552]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110) = -1 ENOENT (No such file or directory) <0.000123>
 class STraceCall_connect : public STraceCall {
@@ -298,7 +396,7 @@ map<string, STraceFactory::Generator> dict = {
 	{"execve", GenerTmpl<STraceCall_execve> },
 	{"exit_group", nullptr },
 	{"fcntl", nullptr },
-	{"fadvise4", nullptr },
+	{"fadvise64", nullptr },
 	{"fchdir", GenerTmpl<STraceCall_fchdir> },
 	{"fstat", nullptr },
 	{"fstatfs", nullptr },
@@ -322,23 +420,61 @@ map<string, STraceFactory::Generator> dict = {
 	{"sendto", nullptr },
 	{"setsockopt", nullptr },
 	{"socket", nullptr },
+	{"wait4", nullptr },
 	{"write", nullptr },
 	{"lseek", nullptr },
 };
 
-shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
-	PreparsedLine preparsedLine(line);
+static map<int, PreparsedLine> unfinished_calls;
+
+
+static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & preparsedLine, const string & line) {
 	auto iter = dict.find(preparsedLine.function_name);
 	if(iter == dict.end()) {
 		throw runtime_error("Cannot find function:" + preparsedLine.function_name);
 	}
-	Generator gener = iter->second;
+	STraceFactory::Generator gener = iter->second;
 	if(gener == nullptr) {
 		// throw runtime_error("Disabled function:" + preparsedLine.function_name);
 		return shared_ptr<STraceCall>();
 	}
 	// printf("INIT after l=%d KEY=%s\n", (int)dict.size(), preparsedLine.function_name.c_str());
 	return gener(line, preparsedLine);
+}
+
+
+shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
+	PreparsedLine preparsedLine(line);
+	switch(preparsedLine.m_callstate) {
+		case UNFINISHED: {
+			auto found_preparsed = unfinished_calls.find(preparsedLine.processid);
+			if(found_preparsed != unfinished_calls.end()) {
+				throw runtime_error("There should not be two unfinished calls for the same pid");
+			}
+			unfinished_calls[preparsedLine.processid] = preparsedLine;
+			return shared_ptr<STraceCall>();
+		}
+		break;
+		case PLAIN: {
+			return GenerateCallFromParsed(preparsedLine, line);
+		}
+		case RESUMED: {
+			auto found_preparsed = unfinished_calls.find(preparsedLine.processid);
+			if(found_preparsed == unfinished_calls.end()) {
+				// This can happen : strace misses some calls.
+				throw runtime_error(
+					"Cannot find unfinished call. Function=" + preparsedLine.function_name
+					+ " Pid=" + to_string(preparsedLine.processid));
+			}
+			preparsedLine.MergeWithUnfinished(found_preparsed->second);
+			unfinished_calls.erase(found_preparsed);
+			return GenerateCallFromParsed(preparsedLine, line);
+		}
+		case SIGNAL: {
+			return shared_ptr<STraceCall>();
+		}
+	}
+	throw runtime_error("Invalid call state");
 }
 
 
@@ -432,16 +568,7 @@ static int popen3(int fd[3], char * const * cmd, bool verbose) {
 
         fd[STDERR_FILENO] = p[STDERR_FILENO][0];
         close(p[STDERR_FILENO][1]);
-		printf("p[STDOUT_FILENO][0]=%d\n", p[STDOUT_FILENO][0]);
-		printf("p[STDOUT_FILENO][1]=%d\n", p[STDOUT_FILENO][1]);
-		printf("STDOUT_FILENO=%d\n", STDOUT_FILENO);
-		printf("p[STDERR_FILENO][0]=%d\n", p[STDERR_FILENO][0]);
-		printf("p[STDERR_FILENO][1]=%d\n", p[STDERR_FILENO][1]);
-		printf("STDERR_FILENO=%d\n", STDERR_FILENO);
 
-		char c;
-
-		printf("END STDERR start\n");
 		for(size_t line_number = 1;; ++line_number) {
 			string ret = readline(fd[STDERR_FILENO]);
 			if(ret.empty()) break;
