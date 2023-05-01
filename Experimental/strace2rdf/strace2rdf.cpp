@@ -8,7 +8,7 @@
 #include <iterator>
 #include <exception>
 #include <map>
-#include <set>
+#include <fstream>
 #include <stack>
 #include <memory>
 
@@ -17,52 +17,6 @@ using namespace std;
 template<class T>
 static void append_vector(vector<string> & target, const T & source) {
 	copy(source.begin(), source.end(), back_inserter(target));
-}
-
-static vector<string> strace_command() {
-/*
-    def build_trace_command(self, external_command, a_pid):
-        # -f  Trace  child  processes as a result of the fork, vfork and clone.
-        trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
-
-        if self.deprecated_version():
-            trace_command += ["-e", "trace=desc,ipc,process,network"]
-        else:
-            trace_command += ["-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
-
-        if external_command:
-            # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
-            # effect of strace by keeping the tracee a direct child of the calling process.
-            # It might fail with the error:
-            # strace: Could not attach to process. If your uid matches the uid of the target process,
-            # check the setting of /proc/sys/kernel/yama/ptrace_scope, or try again as the root user.
-            # For more details, see /etc/sysctl.d/10-ptrace.conf: Operation not permitted
-            # strace: attach: ptrace(PTRACE_ATTACH, 498): Operation not permitted
-            ### trace_command += ["-D"]
-            trace_command += external_command
-        else:
-            trace_command += ["-p", a_pid]
-        return trace_command
-*/
-	vector<string> command{"/usr/bin/strace", "-q", "-qq", "-f", "-tt", "-T", "-s", "10000"};
-	const bool is_deprecated = false;
-	vector<string> dependent_options{is_deprecated
-	? "-e", "trace=desc,ipc,process,network"
-	: "-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"};
-	append_vector(command, dependent_options);
-	return command;
-}
-
-static string readline(int fd) {
-	string result;
-	for(;;) {
-		char c;
-	    ssize_t ret = read(fd, &c, 1);
-		if(ret == 0) break;
-		result += c;
-		if(c == '\n') break;
-	}
-	return result;
 }
 
 /*
@@ -99,7 +53,7 @@ static char closing(char chr) {
 	throw runtime_error(string("Invalid char:") + chr);
 }
 
-vector<string> ArgumentsParser(const string & line, size_t start_offset) {
+static vector<string> ArgumentsParser(const string & line, size_t start_offset) {
 	if(line[start_offset] != '(') {
 		throw std::runtime_error("Wrong offset:" + line);
 	}
@@ -202,13 +156,15 @@ static const test_definition test_args_parsing[] = {
 };
 
 static void test_parsing() {
+	printf("Internal test start.\n");
 	for(auto one_test : test_args_parsing) {
 		one_test.test();
 	}
-	//exit(0);
+	printf("Internal test end : OK.\n");
 }
 
 /*
+Typical line displayed by the command strace:
 17:17:06.968628 fstat(7</usr/share/zoneinfo/Europe/London>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000021>
 */
 class STraceCall {
@@ -258,16 +214,16 @@ class STraceCall_connect : public STraceCall {
 public:
 	STraceCall_connect(const string & line, const PreparsedLine & preparsedLine)
 	: STraceCall(line, preparsedLine) {
-	};
+	}
 	const char * function() const override { return "connect";}
 };
 
-class STraceCall_read : public STraceCall {
+class STraceCall_openat : public STraceCall {
 public:
-	STraceCall_read(const string & line, const PreparsedLine & preparsedLine)
+	STraceCall_openat(const string & line, const PreparsedLine & preparsedLine)
 	: STraceCall(line, preparsedLine) {
-	};
-	const char * function() const override { return "read";}
+	}
+	const char * function() const override { return "openat";}
 };
 
 template<class Derived>
@@ -276,40 +232,109 @@ shared_ptr<STraceCall> GenerTmpl(const string &line, const PreparsedLine & prepa
 }
 
 map<string, STraceFactory::Generator> dict = {
+	{"exit_group", nullptr },
+	{"pread64", nullptr },
+	{"brk", nullptr },
+	{"arch_prctl", nullptr },
+	{"mprotect", nullptr },
+	{"mmap", nullptr },
+	{"munmap", nullptr },
+	{"read", nullptr },
+	{"write", nullptr },
+	{"close", nullptr },
+	{"socket", nullptr },
+	{"getdents64", nullptr },
 	{"fstat", nullptr },
 	{"ioctl", nullptr },
 	{"lseek", nullptr },
-	{"read", GenerTmpl<STraceCall_read> },
+	{"connect", GenerTmpl<STraceCall_connect> },
+	{"openat", GenerTmpl<STraceCall_openat> },
 };
 
 shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 	PreparsedLine preparsedLine(line);
-	printf("INIT after l=%d KEY=%s\n", (int)dict.size(), preparsedLine.function_name.c_str());
 	auto iter = dict.find(preparsedLine.function_name);
 	if(iter == dict.end()) {
 		throw runtime_error("Cannot find function:" + preparsedLine.function_name);
 	}
 	Generator gener = iter->second;
 	if(gener == nullptr) {
-		throw runtime_error("Disabled function:" + preparsedLine.function_name);
+		// throw runtime_error("Disabled function:" + preparsedLine.function_name);
+		return shared_ptr<STraceCall>();
 	}
+	printf("INIT after l=%d KEY=%s\n", (int)dict.size(), preparsedLine.function_name.c_str());
 	return gener(line, preparsedLine);
 }
 
 
-static vector<shared_ptr<STraceCall>> calls;
+//static vector<shared_ptr<STraceCall>> calls;
 
 static void process_line(const string &line) {
 	try {
 		shared_ptr<STraceCall> ptr = STraceFactory::factory(line);
-		// STraceCall call(line);
-		calls.push_back(ptr);
+		if(ptr.get() == nullptr) {
+			return;
+		}
+		//calls.push_back(ptr);
 		printf("Function=%s\n", ptr->function());
 	} catch( const std::exception & exc) {
 		printf("Caught:%s\n", exc.what());
 		printf("RET=%s", line.c_str());
 	}
 }
+
+/*******************************************************************************
+**
+** Execution of strace in a subprocess.
+**
+*******************************************************************************/
+
+static vector<string> strace_command() {
+/*
+    def build_trace_command(self, external_command, a_pid):
+        # -f  Trace  child  processes as a result of the fork, vfork and clone.
+        trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
+
+        if self.deprecated_version():
+            trace_command += ["-e", "trace=desc,ipc,process,network"]
+        else:
+            trace_command += ["-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
+
+        if external_command:
+            # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
+            # effect of strace by keeping the tracee a direct child of the calling process.
+            # It might fail with the error:
+            # strace: Could not attach to process. If your uid matches the uid of the target process,
+            # check the setting of /proc/sys/kernel/yama/ptrace_scope, or try again as the root user.
+            # For more details, see /etc/sysctl.d/10-ptrace.conf: Operation not permitted
+            # strace: attach: ptrace(PTRACE_ATTACH, 498): Operation not permitted
+            ### trace_command += ["-D"]
+            trace_command += external_command
+        else:
+            trace_command += ["-p", a_pid]
+        return trace_command
+*/
+	vector<string> command{"/usr/bin/strace", "-q", "-qq", "-f", "-tt", "-T", "-s", "10000"};
+	const bool is_deprecated = false;
+	vector<string> dependent_options{is_deprecated
+	? "-e", "trace=desc,ipc,process,network"
+	: "-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"};
+	append_vector(command, dependent_options);
+	return command;
+}
+
+static string readline(int fd) {
+	string result;
+	for(;;) {
+		char c;
+	    ssize_t ret = read(fd, &c, 1);
+		if(ret == 0) break;
+		result += c;
+		if(c == '\n') break;
+	}
+	return result;
+}
+
 
 static int popen3(int fd[3],char * const * cmd) {
     int i, e;
@@ -319,21 +344,16 @@ static int popen3(int fd[3],char * const * cmd) {
     for(i=0; i<3; i++)
         p[i][0] = p[i][1] = -1;
     // create the pipes
-//#ifdef DONT
     for(int i=0; i<3; i++)
         if(pipe(p[i]))
             return -1;
-//#endif
     // and fork
     pid = fork();
     if(-1 == pid)
         return -1;
     // in the parent?
     if(pid) {
-        // parent
-//        fd[STDIN_FILENO] = p[STDIN_FILENO][1];
         close(p[STDIN_FILENO][0]);
-       // fd[STDOUT_FILENO] = p[STDOUT_FILENO][0];
         close(p[STDOUT_FILENO][1]);
 
         fd[STDERR_FILENO] = p[STDERR_FILENO][0];
@@ -347,7 +367,6 @@ static int popen3(int fd[3],char * const * cmd) {
 
 		char c;
 
-//#ifdef LATER
 		printf("END STDERR start\n");
 		for(;;) {
 			string ret = readline(fd[STDERR_FILENO]);
@@ -355,7 +374,6 @@ static int popen3(int fd[3],char * const * cmd) {
 			process_line(ret);
 		}
 		printf("END STDERR end\n");
-//#endif
         // success
         return 0;
     } else {
@@ -400,9 +418,6 @@ static int execute_command(const vector<string> & command) {
 	}
 	ptr_chars[command.size()] = nullptr;
 
-	//string strace_command;
-	//append_vector(command, {"/usr/bin/ls", "-l", "-r"});
-	//const char * cmd[] = {"/usr/bin/strace", "/usr/bin/ls", "-l", "-r", nullptr};
 	printf("Command:");
 	fflush(stdout);
 	copy(ptr_chars, ptr_chars + command.size(), ostream_iterator<const char *>(cout, " "));
@@ -413,23 +428,150 @@ static int execute_command(const vector<string> & command) {
 	return ret;
 }
 
+/*******************************************************************************
+**
+** Processing the command line.
+**
+*******************************************************************************/
+static int replay_strace_logfile(const string & replay_log) {
+	ifstream infile(replay_log);
+	string input_line;
+	while(infile.good()){
+		getline(infile, input_line);
+		process_line(input_line);
+	}
+	return 0;
+}
+
+/*******************************************************************************
+**
+** Processing the command line.
+**
+*******************************************************************************/
+
+class CommandExecutor {
+	vector<string> m_command;
+	string m_input_file;
+public:
+	/* The parameters can be a Linux command to execute in strace, or an input file to replay a session.*/
+	CommandExecutor(vector<string> command) : m_command(command) {}
+	
+	/* This is the log of the execution of a previous strace run. */
+	CommandExecutor(string input_file) : m_input_file(input_file) {}
+	
+	void Execute() {
+		if(m_input_file.empty()) {
+			if(m_command.empty()) {
+				throw runtime_error("No command given");
+			}
+			// append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
+			int ret = execute_command(m_command);
+			printf("ret=%d\n", ret);
+		} else {
+			if(!m_command.empty()) {
+				throw runtime_error("Command should be empty");
+			}
+			replay_strace_logfile(m_input_file);
+		}
+	}
+};
+
 /*
 Same input arguments as strace, plus some extra.
 */
-int main(int argc, const char ** argv )
+static CommandExecutor build_command(int argc, const char ** argv )
 {
-	test_parsing();
-    vector<const char *> strace_args;
-
-    strace_args.push_back("strace");
-    for(int index = 1; index < argc; ++index)
+	string input_file;
+	const char * processid = nullptr;
+	
+	/*
+	First come some options, then the command.
+	*/
+	size_t index = 1;
+    for(; index < argc; ++index)
     {
-        strace_args.push_back(argv[index]);
+		const char * arg = argv[index];
+		if(0 == strcmp(arg, "-f")) {
+			if( !input_file.empty()) {
+				throw runtime_error("Input file should be given once only");
+			}
+			++index;
+			if(index == argc) {
+				throw runtime_error("No value for option -i");
+			}
+			if(processid != nullptr) {
+				throw runtime_error("Pid should not be set when -i is set");
+			}
+			input_file = argv[index];
+		}
+		else if(0 == strcmp(arg, "-p")) {
+			if(processid != nullptr) {
+				throw runtime_error("Pid should be given once only");
+			}
+			++index;
+			if(index == argc) {
+				throw runtime_error("No value for option -p");
+			}
+			if(!input_file.empty()) {
+				throw runtime_error("Input file should not be set when -p is set");
+			}
+			int tmp;
+			if(1 != sscanf(argv[index], "%d", &tmp)) {
+				throw runtime_error(string("Invalid pid:") + argv[index]);
+			}
+			processid = argv[index];
+		}
+		else if(0 == strcmp(arg, "-t")) {
+			// Internal optional test.
+			test_parsing();
+		}
+		else if(0 == strcmp(arg, "-h") || 0 == strcmp(arg, "-?")) {
+			printf("%s -f <input file> -t -p <process id> command ....\n", argv[0]);
+			exit(EXIT_SUCCESS);
+		}
+		else {
+			break;
+		}
     }
 
+	if(! input_file.empty()) {
+		if(processid != nullptr) {
+			throw runtime_error("No pid should be given with an input file.");
+		}
+		if(index != argc) {
+			throw runtime_error("No command should be given with an input file.");
+		}
+		return CommandExecutor(input_file);
+	}
+
 	vector<string> command = strace_command();
-	append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
-	int ret = execute_command(command);
-	printf("ret=%d\n", ret);
+	if(processid == nullptr) {
+		if(index == argc) {
+			printf("No command and no pid. Nothing to do\n");
+			exit(0);
+		}
+		for(; index < argc; ++index)
+		{
+			command.push_back(argv[index]);
+		}
+		//append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
+	} else {
+		if(index != argc) {
+			throw runtime_error("A command and a pid are given. Should be one or the other.\n");
+		}
+		append_vector(command, vector<string>({"-p", processid}));
+	}
+	return CommandExecutor(command);
+}
+
+int main(int argc, const char ** argv)
+{
+	try {
+		CommandExecutor executor = build_command(argc, argv);
+		executor.Execute();
+	} catch(const exception & exc) {
+		fprintf(stderr, "Caught:%s\n", exc.what());
+		exit(EXIT_FAILURE);
+	}
 	return 0;
 }
