@@ -21,14 +21,50 @@ static void append_vector(vector<string> & target, const T & source) {
 
 /*
 This extracts the function name so the right parser can be created.
+The line might start or not, with the pid.
+19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>
+[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>
 */
-struct PreparsedLine {
+class PreparsedLine {
+	int processid; // -1 if this is the current process.
+	// Today's timestamp.
+	double m_seconds;
+
+	void ParseTimestamp(const char * time_start) {
+		// It must point to a string like "19:58:35.834615"
+
+		int hour, minutes;
+		double seconds;
+		int ret = sscanf(time_start, "%d:%d:%lf", &hour, &minutes, &seconds);
+		if(ret != 3) {
+			throw std::runtime_error(string("Invalid time format:") + time_start);
+		}
+		m_seconds = hour * 24 * 3600 + minutes * 60 + seconds;
+	};
+public:
 	string function_name;
 	size_t args_offset; // Points to the open parenthesis after the function name.
 
 	PreparsedLine(const string & line) {
 		const char * line_start = line.c_str();
-		const char * time_end = strchr(line_start, ' ');
+		static const char pid_prefix[] = "[pid ";
+		int time_offset; // Beginning of the time-stamp.
+		if(0 == strncmp(line_start, pid_prefix, sizeof(pid_prefix) - 1) ) {
+			int pos_end;
+			int ret_scan = sscanf(line_start + sizeof(pid_prefix), "%d] %n", &processid, &pos_end);
+			if(1 != ret_scan) {
+				throw runtime_error("Cannot parse pid from:" + line);
+			}
+			if(processid < 0) {
+				throw runtime_error("Invalid pid from:" + line);
+			}
+			time_offset = sizeof(pid_prefix) + pos_end;
+		} else {
+			processid = -1;
+			time_offset = 0;
+		}
+		ParseTimestamp(line_start + time_offset);
+		const char * time_end = strchr(line_start + time_offset, ' ');
 		if(time_end == nullptr) {
 			throw std::runtime_error("No timestamp:" + line);
 		}
@@ -168,8 +204,6 @@ Typical line displayed by the command strace:
 17:17:06.968628 fstat(7</usr/share/zoneinfo/Europe/London>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000021>
 */
 class STraceCall {
-	// Today's timestamp.
-	double m_seconds;
 	vector<string> parsed_arguments;
 
 public:
@@ -179,7 +213,6 @@ public:
 		if(time_end == nullptr) {
 			throw std::runtime_error("No timestamp:" + line);
 		}
-		ParseTimestamp(line);
 		try {
 			parsed_arguments = ArgumentsParser(line, preparsedLine.args_offset);
 		} catch(const exception & exc) {
@@ -188,17 +221,12 @@ public:
 		}
 	}
 	
-	void ParseTimestamp(const string & time_start) {
-		int hour, minutes;
-		double seconds;
-		int ret = sscanf(time_start.c_str(), "%d:%d:%lf", &hour, &minutes, &seconds);
-		if(ret != 3) {
-			throw std::runtime_error("Invalid time format:" + time_start);
-		}
-		m_seconds = hour * 24 * 3600 + minutes * 60 + seconds;
-	};
-	
 	virtual const char * function() const = 0;
+	void Display() const {
+		for(const string & arg: parsed_arguments) {
+			cout << "\t" << arg << endl;
+		}
+	}
 };
 
 class STraceFactory {
@@ -218,6 +246,33 @@ public:
 	const char * function() const override { return "connect";}
 };
 
+// [pid  5562] 19:58:40.706447 execve("/usr/bin/top", ["top"], [/* 36 vars */]) = 0 <0.031053>
+class STraceCall_execve : public STraceCall {
+public:
+	STraceCall_execve(const string & line, const PreparsedLine & preparsedLine)
+	: STraceCall(line, preparsedLine) {
+	}
+	const char * function() const override { return "execve";}
+};
+
+class STraceCall_fchdir : public STraceCall {
+public:
+	STraceCall_fchdir(const string & line, const PreparsedLine & preparsedLine)
+	: STraceCall(line, preparsedLine) {
+	}
+	const char * function() const override { return "fchdir";}
+};
+
+
+class STraceCall_open : public STraceCall {
+public:
+	STraceCall_open(const string & line, const PreparsedLine & preparsedLine)
+	: STraceCall(line, preparsedLine) {
+	}
+	const char * function() const override { return "open";}
+};
+
+// [pid  5562] 19:58:40.737710 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000011>
 class STraceCall_openat : public STraceCall {
 public:
 	STraceCall_openat(const string & line, const PreparsedLine & preparsedLine)
@@ -232,23 +287,43 @@ shared_ptr<STraceCall> GenerTmpl(const string &line, const PreparsedLine & prepa
 }
 
 map<string, STraceFactory::Generator> dict = {
-	{"exit_group", nullptr },
-	{"pread64", nullptr },
-	{"brk", nullptr },
 	{"arch_prctl", nullptr },
-	{"mprotect", nullptr },
-	{"mmap", nullptr },
-	{"munmap", nullptr },
-	{"read", nullptr },
-	{"write", nullptr },
+	{"brk", nullptr },
+	{"clone", nullptr },
 	{"close", nullptr },
-	{"socket", nullptr },
-	{"getdents64", nullptr },
-	{"fstat", nullptr },
-	{"ioctl", nullptr },
-	{"lseek", nullptr },
 	{"connect", GenerTmpl<STraceCall_connect> },
+	{"dup", nullptr },
+	{"dup2", nullptr },
+	{"dup3", nullptr },
+	{"execve", GenerTmpl<STraceCall_execve> },
+	{"exit_group", nullptr },
+	{"fcntl", nullptr },
+	{"fadvise4", nullptr },
+	{"fchdir", GenerTmpl<STraceCall_fchdir> },
+	{"fstat", nullptr },
+	{"fstatfs", nullptr },
+	{"fchown", nullptr },
+	{"getdents", nullptr },
+	{"getdents64", nullptr },
+	{"ioctl", nullptr },
+	{"mmap", nullptr },
+	{"mprotect", nullptr },
+	{"munmap", nullptr },
+	{"newfstatat", nullptr },
+	{"open", GenerTmpl<STraceCall_open> },
 	{"openat", GenerTmpl<STraceCall_openat> },
+	{"pipe", nullptr },
+	{"poll", nullptr },
+	{"pread64", nullptr },
+	{"pselect6", nullptr },
+	{"read", nullptr },
+	{"recvfrom", nullptr },
+	{"select", nullptr },
+	{"sendto", nullptr },
+	{"setsockopt", nullptr },
+	{"socket", nullptr },
+	{"write", nullptr },
+	{"lseek", nullptr },
 };
 
 shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
@@ -262,24 +337,24 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 		// throw runtime_error("Disabled function:" + preparsedLine.function_name);
 		return shared_ptr<STraceCall>();
 	}
-	printf("INIT after l=%d KEY=%s\n", (int)dict.size(), preparsedLine.function_name.c_str());
+	// printf("INIT after l=%d KEY=%s\n", (int)dict.size(), preparsedLine.function_name.c_str());
 	return gener(line, preparsedLine);
 }
 
 
-//static vector<shared_ptr<STraceCall>> calls;
-
-static void process_line(const string &line) {
+static void process_line(const string &line, size_t line_number, bool verbose) {
 	try {
 		shared_ptr<STraceCall> ptr = STraceFactory::factory(line);
 		if(ptr.get() == nullptr) {
 			return;
 		}
-		//calls.push_back(ptr);
-		printf("Function=%s\n", ptr->function());
+		if(verbose) {
+			cout << "Function=" << ptr->function() << endl;
+			ptr->Display();
+		}
 	} catch( const std::exception & exc) {
-		printf("Caught:%s\n", exc.what());
-		printf("RET=%s", line.c_str());
+		printf("Line %d Caught:%s\n", (int)line_number, exc.what());
+		printf("RET=%s\n", line.c_str());
 	}
 }
 
@@ -335,8 +410,7 @@ static string readline(int fd) {
 	return result;
 }
 
-
-static int popen3(int fd[3],char * const * cmd) {
+static int popen3(int fd[3], char * const * cmd, bool verbose) {
     int i, e;
     int p[3][2];
     pid_t pid;
@@ -368,10 +442,10 @@ static int popen3(int fd[3],char * const * cmd) {
 		char c;
 
 		printf("END STDERR start\n");
-		for(;;) {
+		for(size_t line_number = 1;; ++line_number) {
 			string ret = readline(fd[STDERR_FILENO]);
 			if(ret.empty()) break;
-			process_line(ret);
+			process_line(ret, line_number, verbose);
 		}
 		printf("END STDERR end\n");
         // success
@@ -410,7 +484,7 @@ static int popen3(int fd[3],char * const * cmd) {
     return -1;
 }
 
-static int execute_command(const vector<string> & command) {
+static int execute_command(const vector<string> & command, bool verbose) {
 	int fd[3];
 	const char ** ptr_chars = new const char *[command.size() + 1];
 	for(size_t index = 0; index < command.size(); ++index) {
@@ -423,7 +497,7 @@ static int execute_command(const vector<string> & command) {
 	copy(ptr_chars, ptr_chars + command.size(), ostream_iterator<const char *>(cout, " "));
 	cout.flush();
 	printf("\n");
-	int ret = popen3(fd, (char * const *)ptr_chars);
+	int ret = popen3(fd, (char * const *)ptr_chars, verbose);
 	delete[] ptr_chars;
 	return ret;
 }
@@ -433,12 +507,14 @@ static int execute_command(const vector<string> & command) {
 ** Processing the command line.
 **
 *******************************************************************************/
-static int replay_strace_logfile(const string & replay_log) {
+static int replay_strace_logfile(const string & replay_log, bool verbose) {
 	ifstream infile(replay_log);
 	string input_line;
+	size_t line_number = 0;
 	while(infile.good()){
 		getline(infile, input_line);
-		process_line(input_line);
+		process_line(input_line, line_number, verbose);
+		++line_number;
 	}
 	return 0;
 }
@@ -452,12 +528,13 @@ static int replay_strace_logfile(const string & replay_log) {
 class CommandExecutor {
 	vector<string> m_command;
 	string m_input_file;
+	bool m_verbose;
 public:
 	/* The parameters can be a Linux command to execute in strace, or an input file to replay a session.*/
-	CommandExecutor(vector<string> command) : m_command(command) {}
+	CommandExecutor(vector<string> command, bool verbose) : m_command(command), m_verbose(verbose) {}
 	
 	/* This is the log of the execution of a previous strace run. */
-	CommandExecutor(string input_file) : m_input_file(input_file) {}
+	CommandExecutor(string input_file, bool verbose) : m_input_file(input_file), m_verbose(verbose) {}
 	
 	void Execute() {
 		if(m_input_file.empty()) {
@@ -465,13 +542,13 @@ public:
 				throw runtime_error("No command given");
 			}
 			// append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
-			int ret = execute_command(m_command);
+			int ret = execute_command(m_command, m_verbose);
 			printf("ret=%d\n", ret);
 		} else {
 			if(!m_command.empty()) {
 				throw runtime_error("Command should be empty");
 			}
-			replay_strace_logfile(m_input_file);
+			replay_strace_logfile(m_input_file, m_verbose);
 		}
 	}
 };
@@ -488,6 +565,7 @@ static CommandExecutor build_command(int argc, const char ** argv )
 	First come some options, then the command.
 	*/
 	size_t index = 1;
+	bool verbose = false;
     for(; index < argc; ++index)
     {
 		const char * arg = argv[index];
@@ -525,6 +603,9 @@ static CommandExecutor build_command(int argc, const char ** argv )
 			// Internal optional test.
 			test_parsing();
 		}
+		else if(0 == strcmp(arg, "-v")) {
+			verbose = true;
+		}
 		else if(0 == strcmp(arg, "-h") || 0 == strcmp(arg, "-?")) {
 			printf("%s -f <input file> -t -p <process id> command ....\n", argv[0]);
 			exit(EXIT_SUCCESS);
@@ -541,7 +622,7 @@ static CommandExecutor build_command(int argc, const char ** argv )
 		if(index != argc) {
 			throw runtime_error("No command should be given with an input file.");
 		}
-		return CommandExecutor(input_file);
+		return CommandExecutor(input_file, verbose);
 	}
 
 	vector<string> command = strace_command();
@@ -561,7 +642,7 @@ static CommandExecutor build_command(int argc, const char ** argv )
 		}
 		append_vector(command, vector<string>({"-p", processid}));
 	}
-	return CommandExecutor(command);
+	return CommandExecutor(command, verbose);
 }
 
 int main(int argc, const char ** argv)
@@ -570,7 +651,10 @@ int main(int argc, const char ** argv)
 		CommandExecutor executor = build_command(argc, argv);
 		executor.Execute();
 	} catch(const exception & exc) {
+		const char * bar = "********************************************************************************\n";
+		fprintf(stderr, "%s", bar);
 		fprintf(stderr, "Caught:%s\n", exc.what());
+		fprintf(stderr, "%s", bar);
 		exit(EXIT_FAILURE);
 	}
 	return 0;
