@@ -21,6 +21,55 @@ static void append_vector(vector<string> & target, const T & source) {
 
 enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED}; 
 
+static const size_t NOT_UNFINISHED = size_t(~0);
+
+/*
+If it finishes with the string indicating an unfinished call.
+This returns the offset just after the end of the last argument.
+*/
+static size_t isUnfinished(const char * line) {
+	static const char strUnfinished[] = "<unfinished ...>";
+	size_t len = strlen(line);
+	/*
+	cout << "isUnfinished Line:" << line << endl;
+	cout << "isUnfinished len:" << len << endl;
+	cout << "isUnfinished sizeof(strUnfinished):" << sizeof(strUnfinished) << endl;
+	cout << "isUnfinished Offset:" << (line + len - sizeof(strUnfinished) + 1) << endl;
+	*/
+
+	// The string is too short.
+	if(len < sizeof(strUnfinished) - 1) return NOT_UNFINISHED;
+	size_t end_offset = len - sizeof(strUnfinished) + 1;
+	if(0 != strcmp(strUnfinished, line + end_offset)) {
+		// It does not end with "<unfinished ...";
+		return NOT_UNFINISHED;
+	}
+
+	//cout << "START end_offset len:" << end_offset << endl;
+	//cout << "end_offset len:" << end_offset << endl;
+	// Now, step back until finding the last non-space and non-comma char,
+	// Which is the last char of the last argument.
+	if(end_offset) {
+		for(--end_offset; end_offset; --end_offset) {
+			char chr = line[end_offset];
+			//cout << "    chr=" << chr << endl;
+			if(chr == ' ') continue;
+			if(chr == ',') {
+				if(end_offset > 0)
+					--end_offset;
+			}
+			break;
+		}
+		if(end_offset > 0)
+			++end_offset;
+	}
+	if( (line[end_offset] != ' ') && (line[end_offset] != ',') && (line[end_offset] != '<')) {
+		throw runtime_error("InUnfinished inconsistency");
+	}
+	//cout << "END   end_offset len:" << end_offset << " returning:" << (len - end_offset) << endl;
+	return end_offset;
+}
+
 /*
 This extracts the function name so the right parser can be created.
 The line might start or not, with the pid.
@@ -114,7 +163,7 @@ public:
 			19:59:20.964728 wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5601 <0.000032>
 			19:59:20.965024 wait4(-1, 0x7fffa5fca610, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
 		*/
-		bool unfinished = nullptr != strstr(function_start, "<unfinished ...>");
+		bool unfinished = isUnfinished(function_start) != NOT_UNFINISHED;
 		const char str_resumed[] = " resumed>";
 		bool resumed = nullptr != strstr(function_start, str_resumed);
 		if(unfinished && resumed) {
@@ -162,15 +211,7 @@ public:
 				break;
 		}
 	}
-	
-	void MergeWithUnfinished(const PreparsedLine & unfinished) {
-		if(function_name != unfinished.function_name) {
-			throw runtime_error("Cannot merge " + function_name + " with " + unfinished.function_name);
-		}
-		cout << "MERGING " << function_name << endl;
-	}
 };
-
 
 static char closing(char chr) {
 	switch(chr) {
@@ -183,9 +224,21 @@ static char closing(char chr) {
 }
 
 static vector<string> ArgumentsParser(const string & line, size_t start_offset) {
+	cout << "LINE=" << line << "\n";
 	if(line[start_offset] != '(') {
 		throw std::runtime_error("Wrong offset:" + line);
 	}
+
+	const char * args_start = line.c_str() + start_offset;
+	size_t end_offset = isUnfinished(args_start);
+	//cout << "start_offset=" << start_offset << endl;
+	//cout << "end_offset=" << end_offset << endl;
+	if(end_offset == NOT_UNFINISHED) {
+		// end_offset must be the last closing parenthesis. We can find it anyway.
+	} else {
+		cout << "UNFINISHED STRIPPED:" << string(args_start, args_start + end_offset) << "." << endl;
+	}
+
 	bool in_quotes = false;
 	int balance_parenthesis = 1;
 	vector<string> args;
@@ -193,8 +246,8 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset) 
 	bool still_running = true;
 	stack<char> enclosers;
 	enclosers.push(')');
-	for(size_t index = start_offset + 1; still_running && (index != line.size()); ++index) {
-		const char chr = line[index];
+	for(size_t index = 1; still_running && (index < end_offset); ++index) {
+		const char chr = args_start[index];
 		if(in_quotes) {
 			if(chr == '"') {
 				in_quotes = false;
@@ -237,13 +290,26 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset) 
 				break;
 		}
 	}
+	
+	// It might be unfinished like "[pid  4233] 19:58:35.831781 wait4(-1,  <unfinished ...>"
+	// or "[pid  5557] 19:58:35.831752 close(4<pipe:[52233]> <unfinished ...>"
+	if(balance_parenthesis == 1) {
+		cout << "Unfinished" << endl;
+	}
 	args.push_back(current_arg);
+	cout << "ARGS" << endl;
+	for(auto arg : args) {
+		cout << "    " << arg << "." << endl;
+	}
 	return args;
 }
 
-/*
-Internal test for a very important feature.
-*/
+/*******************************************************************************
+**
+** Internal tests.
+**
+*******************************************************************************/
+
 struct test_definition {
 	const char * input;
 	const vector<const char *> outputs;
@@ -289,16 +355,84 @@ static void test_parsing() {
 	for(auto one_test : test_args_parsing) {
 		one_test.test();
 	}
+	printf("Parsing test end : OK.\n");
+}
+
+static const struct {
+	size_t unfinished;
+	const char * line;
+} tests_unfinished[] = {
+	{ 0, "<unfinished ...>"},
+	{ 3, "xyz<unfinished ...>"},
+	{ 3, "xyz <unfinished ...>"},
+	{ 3, "xyz  <unfinished ...>"},
+	{ 3, "xyz, <unfinished ...>"},
+	{ 4, "xyz , <unfinished ...>"},
+	{ 8, "wait4(-1,  <unfinished ...>"},
+	{ 21, "close(4<pipe:[52233]> <unfinished ...>"},
+	{ 0, " <unfinished ...>"},
+	{ 0, ", <unfinished ...>"},
+	{ NOT_UNFINISHED, "<unfinished ...> "},
+	{ NOT_UNFINISHED, "<unfinished>"},
+	{ NOT_UNFINISHED, "abc"},
+};
+
+static void test_unfinished() {
+	for(auto tst : tests_unfinished) {
+		size_t ret = isUnfinished(tst.line);
+		cout << "TST:" << tst.line << " Expected=" << tst.unfinished << " Actual=" << ret << endl;
+		if(tst.unfinished == ret && ret != NOT_UNFINISHED) {
+			cout << "[" << string(tst.line, tst.line + ret) << "]" << endl;
+		}
+		if( ret != tst.unfinished) {
+			throw runtime_error(string("Wrong unfinished value:") + tst.line);
+		}
+	}
+	printf("Unfinished detection test end : OK.\n");
+}
+
+static const struct {
+	int pid;
+	string function_name;
+	string line;
+} tests_preparsed[] = {
+	{ -1, "clone", "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>"  },
+	{ 4233, "close", "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
+};
+
+static void test_preparsed() {
+	for(auto tst : tests_preparsed) {
+		cout << "PreparsedLine:" << tst.line << endl;
+		PreparsedLine preparsed(tst.line);
+		if(preparsed.processid != tst.pid) {
+			throw runtime_error("Wrong pid:" + to_string(preparsed.processid));
+		}
+		if(preparsed.function_name != tst.function_name) {
+			throw runtime_error("Wrong function:" + preparsed.function_name);
+		}
+	}
+	printf("Preparsed test end : OK.\n");
+}
+
+static void test_internal() {
+	test_parsing();
+	test_unfinished();
+	test_preparsed();
 	printf("Internal test end : OK.\n");
 }
 
+/*******************************************************************************
+**
+** Base class of system calls.
+**
+*******************************************************************************/
 /*
 Typical line displayed by the command strace:
 17:17:06.968628 fstat(7</usr/share/zoneinfo/Europe/London>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000021>
 */
 class STraceCall {
+protected:
 	vector<string> parsed_arguments;
-
 public:
 	STraceCall(const string & line, const PreparsedLine & preparsedLine) {
 		const char * line_start = line.c_str();
@@ -319,6 +453,13 @@ public:
 		for(const string & arg: parsed_arguments) {
 			cout << "\t" << arg << endl;
 		}
+	}
+	
+	void MergeWithResumed(const PreparsedLine & resumed) {
+		if(resumed.function_name != function()) {
+			throw runtime_error(string("Cannot merge ") + function() + " with " + resumed.function_name);
+		}
+		cout << "MERGING " << function() << endl;
 	}
 };
 
@@ -379,6 +520,23 @@ public:
 	const char * function() const override { return "openat";}
 };
 
+/* This call is a special case because if it is unfishied in a process,
+it is resumed in the process given as first parameter. */
+class STraceCall_wait4 : public STraceCall {
+public:
+	STraceCall_wait4(const string & line, const PreparsedLine & preparsedLine)
+	: STraceCall(line, preparsedLine) {
+	}
+	const char * function() const override { return "wait4";}
+	
+	int expected_resuming_pid() const {
+		if(parsed_arguments.size() != 1) {
+			throw runtime_error("No argument for wait4");
+		}
+		return stoi(parsed_arguments[0]);
+	}
+};
+
 template<class Derived>
 shared_ptr<STraceCall> GenerTmpl(const string &line, const PreparsedLine & preparsedLine) {
 	return make_shared<Derived>(line, preparsedLine);
@@ -420,12 +578,12 @@ map<string, STraceFactory::Generator> dict = {
 	{"sendto", nullptr },
 	{"setsockopt", nullptr },
 	{"socket", nullptr },
-	{"wait4", nullptr },
+	{"wait4", GenerTmpl<STraceCall_wait4> },
 	{"write", nullptr },
 	{"lseek", nullptr },
 };
 
-static map<int, PreparsedLine> unfinished_calls;
+static map<int, shared_ptr<STraceCall>> unfinished_calls;
 
 
 static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & preparsedLine, const string & line) {
@@ -451,7 +609,22 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 			if(found_preparsed != unfinished_calls.end()) {
 				throw runtime_error("There should not be two unfinished calls for the same pid");
 			}
-			unfinished_calls[preparsedLine.processid] = preparsedLine;
+			shared_ptr<STraceCall> ptrUnfinished = GenerateCallFromParsed(preparsedLine, line);
+
+			// Special case for "wait4" because if it is unfinished in a given process,
+			// it might be resumed in the process given as first parameter of wait4().
+			const STraceCall_wait4 * ptrWait4 = dynamic_cast<const STraceCall_wait4 *>(ptrUnfinished.get());
+			int resuming_pid;
+			if(ptrWait4 != nullptr) {
+				if(preparsedLine.function_name != "wait4") {
+					throw runtime_error("Inconsistency with wait4");
+				}
+				resuming_pid = ptrWait4->expected_resuming_pid();
+			} else {
+				resuming_pid = preparsedLine.processid;
+			}
+			unfinished_calls[resuming_pid] = ptrUnfinished;
+			// Do not return a finished call.
 			return shared_ptr<STraceCall>();
 		}
 		break;
@@ -466,9 +639,10 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 					"Cannot find unfinished call. Function=" + preparsedLine.function_name
 					+ " Pid=" + to_string(preparsedLine.processid));
 			}
-			preparsedLine.MergeWithUnfinished(found_preparsed->second);
+			shared_ptr<STraceCall> ptrUnfinished = found_preparsed->second;
+			ptrUnfinished->MergeWithResumed(preparsedLine);
 			unfinished_calls.erase(found_preparsed);
-			return GenerateCallFromParsed(preparsedLine, line);
+			return ptrUnfinished;
 		}
 		case SIGNAL: {
 			return shared_ptr<STraceCall>();
@@ -479,6 +653,9 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 
 
 static void process_line(const string &line, size_t line_number, bool verbose) {
+	if(verbose) {
+		cout << line_number << "\t" << line << endl;
+	}
 	try {
 		shared_ptr<STraceCall> ptr = STraceFactory::factory(line);
 		if(ptr.get() == nullptr) {
@@ -540,8 +717,8 @@ static string readline(int fd) {
 		char c;
 	    ssize_t ret = read(fd, &c, 1);
 		if(ret == 0) break;
-		result += c;
 		if(c == '\n') break;
+		result += c;
 	}
 	return result;
 }
@@ -590,8 +767,8 @@ static int popen3(int fd[3], char * const * cmd, bool verbose) {
         dup2(p[STDERR_FILENO][1],STDERR_FILENO);
         close(p[STDERR_FILENO][0]);
         // here we try and run it
-		fprintf(stdout, "=================== STDOUT IN FORK\n");
-		fprintf(stderr, "=================== STDERR IN FORK\n");
+		//fprintf(stdout, "=================== STDOUT IN FORK\n");
+		//fprintf(stderr, "=================== STDERR IN FORK\n");
 
 		// exit(0);
         execv(cmd[0], cmd);
@@ -728,7 +905,7 @@ static CommandExecutor build_command(int argc, const char ** argv )
 		}
 		else if(0 == strcmp(arg, "-t")) {
 			// Internal optional test.
-			test_parsing();
+			test_internal();
 		}
 		else if(0 == strcmp(arg, "-v")) {
 			verbose = true;
