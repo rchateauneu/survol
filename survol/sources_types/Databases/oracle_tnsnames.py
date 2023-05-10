@@ -29,13 +29,6 @@ def parse_one(grph, database_dicts, database):
     names_and_values = re.findall(r'(?i)([a-z]+)\s*=\s*([a-z0-9-\.]+)', database)
         
     # Build a dictionary from them, and if it has a HOST, add the IP.
-    #'veyx': {'HOST': 'nykcmss3059.us.net.intra',
-    #         'NAME': 'U016US',
-    #         'PORT': '1521',
-    #         'PROTOCOL': 'TCP',
-    #         'SID': 'abcd',
-    #         'SERVER': 'DEDICATED'},
-    # The same pair host+socket can host several databases.
     database_dict = dict(names_and_values)
 
     try:
@@ -83,27 +76,6 @@ def parse_all(grph, text):
 
 ###########################################################################################    
 
-# EXAMPLE = """\
-# # www.virginia.edu/integratedsystem 1/16/04
-# 
-# # Production 11.0.3 Apps instance
-# prod = (DESCRIPTION=
-#           (ADDRESS=(PROTOCOL=tcp)(HOST=isp-db.admin.Virginia.EDU)(PORT=1565))
-#           (CONNECT_DATA=(SID=isp01))
-#        )
-# # Production 11.0.3 ODS instance
-# ods = (DESCRIPTION=
-#          (ADDRESS=(PROTOCOL=tcp)
-#               (  HOST =
-#                         isp-ods.admin.Virginia.EDU   )  # Whitespace test
-#                   (PORT=1565))
-#          (CONNECT_DATA=(SID=isp01))
-#       )
-# """
-
-# ORAC_HOME=F:\ORAC\CLNT0010203NEN005\
-# F:\ORAC\Config\tnsnames.ora
-# "C:\Users\UK936025\AppData\Roaming\Microsoft\Windows\Recent\tnsnames.ora.lnk"
 # http://www.dba-oracle.com/t_windows_tnsnames.ora_file_location.htm
 # According to the docs, the precedence in which Oracle Net
 # Configuration files are resolved is:
