@@ -64,7 +64,7 @@ static size_t isUnfinished(const char * line) {
 			++end_offset;
 	}
 	if( (line[end_offset] != ' ') && (line[end_offset] != ',') && (line[end_offset] != '<')) {
-		throw runtime_error(__FUNCTION__ " inconsistency");
+		throw runtime_error(" inconsistency");
 	}
 	return end_offset;
 }
@@ -86,7 +86,7 @@ class PreparsedLine {
 		double seconds;
 		int ret = sscanf(time_start, "%d:%d:%lf", &hour, &minutes, &seconds);
 		if(ret != 3) {
-			throw std::runtime_error(string(__FUNCTION__ " Invalid time format:") + time_start);
+			throw std::runtime_error(string(" Invalid time format:") + time_start);
 		}
 		m_seconds = hour * 24 * 3600 + minutes * 60 + seconds;
 	};
