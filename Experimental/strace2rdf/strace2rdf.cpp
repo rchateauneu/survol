@@ -1,3 +1,11 @@
+/*********************************************************************
+** Strace To RDF
+**
+** "Survol : The map is the territory".
+**
+** Copyright Primhill Computers 2023
+**********************************************************************/
+
 #include <unistd.h>
 #include <sys/time.h>
 #include <string.h>
@@ -30,12 +38,6 @@ This returns the offset just after the end of the last argument.
 static size_t isUnfinished(const char * line) {
 	static const char strUnfinished[] = "<unfinished ...>";
 	size_t len = strlen(line);
-	/*
-	cout << "isUnfinished Line:" << line << endl;
-	cout << "isUnfinished len:" << len << endl;
-	cout << "isUnfinished sizeof(strUnfinished):" << sizeof(strUnfinished) << endl;
-	cout << "isUnfinished Offset:" << (line + len - sizeof(strUnfinished) + 1) << endl;
-	*/
 
 	// The string is too short.
 	if(len < sizeof(strUnfinished) - 1) return NOT_UNFINISHED;
@@ -45,8 +47,6 @@ static size_t isUnfinished(const char * line) {
 		return NOT_UNFINISHED;
 	}
 
-	//cout << "START end_offset len:" << end_offset << endl;
-	//cout << "end_offset len:" << end_offset << endl;
 	// Now, step back until finding the last non-space and non-comma char,
 	// Which is the last char of the last argument.
 	if(end_offset) {
@@ -64,9 +64,8 @@ static size_t isUnfinished(const char * line) {
 			++end_offset;
 	}
 	if( (line[end_offset] != ' ') && (line[end_offset] != ',') && (line[end_offset] != '<')) {
-		throw runtime_error("InUnfinished inconsistency");
+		throw runtime_error(__FUNCTION__ " inconsistency");
 	}
-	//cout << "END   end_offset len:" << end_offset << " returning:" << (len - end_offset) << endl;
 	return end_offset;
 }
 
@@ -87,7 +86,7 @@ class PreparsedLine {
 		double seconds;
 		int ret = sscanf(time_start, "%d:%d:%lf", &hour, &minutes, &seconds);
 		if(ret != 3) {
-			throw std::runtime_error(string("Invalid time format:") + time_start);
+			throw std::runtime_error(string(__FUNCTION__ " Invalid time format:") + time_start);
 		}
 		m_seconds = hour * 24 * 3600 + minutes * 60 + seconds;
 	};
@@ -181,11 +180,8 @@ public:
 				throw runtime_error(string("Cannot find:") + str_dots);
 			}
 			function_start += sizeof(str_dots) - 1;
-			//printf("function_start=%s\n", function_start);
 			size_t longest_ascii = strspn(function_start, function_valid_chars);
-			//printf("longest_ascii=%d\n", (int)longest_ascii);
 			function_end = function_start + longest_ascii;
-			//printf("function_end=%s\n", function_end);
 			if(0 != strncmp(function_end, str_resumed, sizeof(str_resumed) - 1)) {
 				throw runtime_error(string("Cannot find:") + str_resumed);
 			}
@@ -198,8 +194,6 @@ public:
 			}
 		}
 		function_name.assign(function_start, function_end);
-		// printf("Line=%s\n",line.c_str());
-		// printf("State=%d function=%s\n", m_callstate, function_name.c_str());
 		args_offset = function_end - line_start;
 		
 		switch(m_callstate) {
@@ -231,8 +225,6 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset) 
 
 	const char * args_start = line.c_str() + start_offset;
 	size_t end_offset = isUnfinished(args_start);
-	//cout << "start_offset=" << start_offset << endl;
-	//cout << "end_offset=" << end_offset << endl;
 	if(end_offset == NOT_UNFINISHED) {
 		// end_offset must be the last closing parenthesis. We can find it anyway.
 	} else {
@@ -423,6 +415,116 @@ static void test_internal() {
 
 /*******************************************************************************
 **
+** Writing triples.
+**
+*******************************************************************************/
+
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:love="http://love.com#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <rdf:Description rdf:about="http://love.com/lovers/john">
+    <love:hasCuteName>Johnny Boy</love:hasCuteName>
+  </rdf:Description>
+</rdf:RDF>
+
+
+
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/entity_dirmenu_only.py">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_CIM_Process.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="RabbitMQ%20concepts?mode=cluster"/>
+  </rdf:Description>
+
+"http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home">
+    <ns1:Category>Others</ns1:Category>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home</ns1:Name>
+    <ns1:FileName>home</ns1:FileName>
+  </rdf:Description>
+
+*/
+
+
+class RdfOutput {
+	ostream *m_ostream;
+	ofstream m_ofstream;
+	bool m_must_close;
+public:
+	RdfOutput(const string &output_file) {
+		if(output_file.empty() ) {
+			m_ostream = &cout;
+			m_must_close = false;
+		} else {
+			m_ofstream.open(output_file);
+			m_ostream = &m_ofstream;
+			m_must_close = true;
+		}
+		
+		*m_ostream << R"(\
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:survol="http://www.primhillcomputers.com/survol#"
+>
+)";
+	}
+
+	~RdfOutput() {
+		*m_ostream << R"(\
+</rdf:RDF>
+)";
+		if(m_must_close) {
+			m_ofstream.close();
+		}
+	}
+
+	void WriteTriple(const string &subject, const string &property, const string &object) {
+/*
+		*m_ostream <<     "<rdf:Description rdf:about=\"" << subject << "\">" << endl;
+    <love:hasCuteName>Johnny Boy</love:hasCuteName>
+		*m_ostream <<     "</rdf:Description>" << endl;	
+*/
+	}
+};
+
+/*******************************************************************************
+**
+** Types of arguments of system calls.
+**
+*******************************************************************************/
+struct ArgumentType {
+	virtual string ToRdf(const string & input_txt) const = 0;
+};
+
+struct SystemCallArgument_ProcessId : public ArgumentType {
+	string ToRdf(const string & input_txt) const override {
+		return string();
+	}
+};
+struct SystemCallArgument_IntPtr : public ArgumentType {
+	string ToRdf(const string & input_txt) const override {
+		return string();
+	}
+};
+struct SystemCallArgument_Int : public ArgumentType {
+	string ToRdf(const string & input_txt) const override {
+		return string();
+	}
+};
+struct SystemCallArgument_RusagePtr : public ArgumentType {
+	string ToRdf(const string & input_txt) const override {
+		return string();
+	}
+};
+
+
+typedef initializer_list< pair<const char *, const ArgumentType &> > FunctionSignature;
+
+/*******************************************************************************
+**
 ** Base class of system calls.
 **
 *******************************************************************************/
@@ -449,6 +551,31 @@ public:
 	}
 	
 	virtual const char * function() const = 0;
+	virtual const FunctionSignature & Signature() const {
+		static const FunctionSignature tmp;
+		return tmp; // throw runtime_error("Not implemented yet");
+	}
+	
+	virtual void WriteTriples(RdfOutput & rdfOutput) const {
+		throw runtime_error("Not implemented yet");
+	};
+
+	virtual void WriteCall(RdfOutput & rdfOutput) {
+		const auto & argsDefs = Signature();
+		size_t index = 0;
+		for(const auto & oneArg : argsDefs) {
+			if(index >= parsed_arguments.size()) {
+				throw runtime_error("Not enough arguments");
+			}
+			cout << oneArg.first;
+			string value = parsed_arguments[index];
+			cout << value;
+			string asStr = oneArg.second.ToRdf(value);
+			cout << asStr;
+		}
+	}
+
+
 	void Display() const {
 		for(const string & arg: parsed_arguments) {
 			cout << "\t" << arg << endl;
@@ -483,6 +610,8 @@ public:
 	: STraceCall(line, preparsedLine) {
 	}
 	const char * function() const override { return "connect";}
+	
+	// int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 };
 
 // [pid  5562] 19:58:40.706447 execve("/usr/bin/top", ["top"], [/* 36 vars */]) = 0 <0.031053>
@@ -529,6 +658,17 @@ public:
 	}
 	const char * function() const override { return "wait4";}
 	
+	// pid_t wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
+	const FunctionSignature & Signature() const override {
+		static const FunctionSignature sign {
+			{ "pid", SystemCallArgument_ProcessId() },
+			{ "wstatus", SystemCallArgument_IntPtr() },
+			{ "options", SystemCallArgument_Int() },
+			{ "rusage", SystemCallArgument_RusagePtr() },
+		};
+		return sign;
+	}
+	
 	int expected_resuming_pid() const {
 		if(parsed_arguments.size() != 1) {
 			throw runtime_error("No argument for wait4");
@@ -562,6 +702,7 @@ map<string, STraceFactory::Generator> dict = {
 	{"getdents", nullptr },
 	{"getdents64", nullptr },
 	{"ioctl", nullptr },
+	{"lseek", nullptr },
 	{"mmap", nullptr },
 	{"mprotect", nullptr },
 	{"munmap", nullptr },
@@ -578,9 +719,9 @@ map<string, STraceFactory::Generator> dict = {
 	{"sendto", nullptr },
 	{"setsockopt", nullptr },
 	{"socket", nullptr },
+	{"vfork", nullptr },
 	{"wait4", GenerTmpl<STraceCall_wait4> },
 	{"write", nullptr },
-	{"lseek", nullptr },
 };
 
 static map<int, shared_ptr<STraceCall>> unfinished_calls;
@@ -640,7 +781,9 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 					+ " Pid=" + to_string(preparsedLine.processid));
 			}
 			shared_ptr<STraceCall> ptrUnfinished = found_preparsed->second;
-			ptrUnfinished->MergeWithResumed(preparsedLine);
+			if(!ptrUnfinished) {
+				ptrUnfinished->MergeWithResumed(preparsedLine);
+			}
 			unfinished_calls.erase(found_preparsed);
 			return ptrUnfinished;
 		}
@@ -652,7 +795,7 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 }
 
 
-static void process_line(const string &line, size_t line_number, bool verbose) {
+static void process_line(RdfOutput & rdfOutput, const string &line, size_t line_number, bool verbose) {
 	if(verbose) {
 		cout << line_number << "\t" << line << endl;
 	}
@@ -665,6 +808,7 @@ static void process_line(const string &line, size_t line_number, bool verbose) {
 			cout << "Function=" << ptr->function() << endl;
 			ptr->Display();
 		}
+		ptr->WriteCall(rdfOutput);
 	} catch( const std::exception & exc) {
 		printf("Line %d Caught:%s\n", (int)line_number, exc.what());
 		printf("RET=%s\n", line.c_str());
@@ -723,7 +867,7 @@ static string readline(int fd) {
 	return result;
 }
 
-static int popen3(int fd[3], char * const * cmd, bool verbose) {
+static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd, bool verbose) {
     int i, e;
     int p[3][2];
     pid_t pid;
@@ -749,7 +893,7 @@ static int popen3(int fd[3], char * const * cmd, bool verbose) {
 		for(size_t line_number = 1;; ++line_number) {
 			string ret = readline(fd[STDERR_FILENO]);
 			if(ret.empty()) break;
-			process_line(ret, line_number, verbose);
+			process_line(rdfOutput, ret, line_number, verbose);
 		}
 		printf("END STDERR end\n");
         // success
@@ -766,11 +910,7 @@ static int popen3(int fd[3], char * const * cmd, bool verbose) {
 		printf("+++++++++++++++++ STDERR_FILENO=%d\n", STDERR_FILENO);
         dup2(p[STDERR_FILENO][1],STDERR_FILENO);
         close(p[STDERR_FILENO][0]);
-        // here we try and run it
-		//fprintf(stdout, "=================== STDOUT IN FORK\n");
-		//fprintf(stderr, "=================== STDERR IN FORK\n");
 
-		// exit(0);
         execv(cmd[0], cmd);
         // if we are there, then we failed to launch our program
         perror("Could not launch");
@@ -788,7 +928,7 @@ static int popen3(int fd[3], char * const * cmd, bool verbose) {
     return -1;
 }
 
-static int execute_command(const vector<string> & command, bool verbose) {
+static int execute_command(RdfOutput & rdfOutput, const vector<string> & command, bool verbose) {
 	int fd[3];
 	const char ** ptr_chars = new const char *[command.size() + 1];
 	for(size_t index = 0; index < command.size(); ++index) {
@@ -801,23 +941,23 @@ static int execute_command(const vector<string> & command, bool verbose) {
 	copy(ptr_chars, ptr_chars + command.size(), ostream_iterator<const char *>(cout, " "));
 	cout.flush();
 	printf("\n");
-	int ret = popen3(fd, (char * const *)ptr_chars, verbose);
+	int ret = popen3(rdfOutput, fd, (char * const *)ptr_chars, verbose);
 	delete[] ptr_chars;
 	return ret;
 }
 
 /*******************************************************************************
 **
-** Processing the command line.
+** Replaying a log file.
 **
 *******************************************************************************/
-static int replay_strace_logfile(const string & replay_log, bool verbose) {
+static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_log, bool verbose) {
 	ifstream infile(replay_log);
 	string input_line;
 	size_t line_number = 0;
 	while(infile.good()){
 		getline(infile, input_line);
-		process_line(input_line, line_number, verbose);
+		process_line(rdfOutput, input_line, line_number, verbose);
 		++line_number;
 	}
 	return 0;
@@ -833,6 +973,8 @@ class CommandExecutor {
 	vector<string> m_command;
 	string m_input_file;
 	bool m_verbose;
+
+
 public:
 	/* The parameters can be a Linux command to execute in strace, or an input file to replay a session.*/
 	CommandExecutor(vector<string> command, bool verbose) : m_command(command), m_verbose(verbose) {}
@@ -840,120 +982,147 @@ public:
 	/* This is the log of the execution of a previous strace run. */
 	CommandExecutor(string input_file, bool verbose) : m_input_file(input_file), m_verbose(verbose) {}
 	
-	void Execute() {
+	void Execute(RdfOutput & rdfOutput) {
 		if(m_input_file.empty()) {
 			if(m_command.empty()) {
 				throw runtime_error("No command given");
 			}
 			// append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
-			int ret = execute_command(m_command, m_verbose);
+			int ret = execute_command(rdfOutput, m_command, m_verbose);
 			printf("ret=%d\n", ret);
 		} else {
 			if(!m_command.empty()) {
 				throw runtime_error("Command should be empty");
 			}
-			replay_strace_logfile(m_input_file, m_verbose);
+			replay_strace_logfile(rdfOutput, m_input_file, m_verbose);
 		}
 	}
 };
 
-/*
-Same input arguments as strace, plus some extra.
-*/
-static CommandExecutor build_command(int argc, const char ** argv )
-{
+
+
+class CommandCreator {
+	int argc;
+	const char ** argv;
 	string input_file;
+	string output_file;
 	const char * processid = nullptr;
-	
-	/*
-	First come some options, then the command.
-	*/
-	size_t index = 1;
-	bool verbose = false;
-    for(; index < argc; ++index)
-    {
-		const char * arg = argv[index];
-		if(0 == strcmp(arg, "-f")) {
-			if( !input_file.empty()) {
-				throw runtime_error("Input file should be given once only");
-			}
-			++index;
-			if(index == argc) {
-				throw runtime_error("No value for option -i");
-			}
-			if(processid != nullptr) {
-				throw runtime_error("Pid should not be set when -i is set");
-			}
-			input_file = argv[index];
-		}
-		else if(0 == strcmp(arg, "-p")) {
-			if(processid != nullptr) {
-				throw runtime_error("Pid should be given once only");
-			}
-			++index;
-			if(index == argc) {
-				throw runtime_error("No value for option -p");
-			}
-			if(!input_file.empty()) {
-				throw runtime_error("Input file should not be set when -p is set");
-			}
-			int tmp;
-			if(1 != sscanf(argv[index], "%d", &tmp)) {
-				throw runtime_error(string("Invalid pid:") + argv[index]);
-			}
-			processid = argv[index];
-		}
-		else if(0 == strcmp(arg, "-t")) {
-			// Internal optional test.
-			test_internal();
-		}
-		else if(0 == strcmp(arg, "-v")) {
-			verbose = true;
-		}
-		else if(0 == strcmp(arg, "-h") || 0 == strcmp(arg, "-?")) {
-			printf("%s -f <input file> -t -p <process id> command ....\n", argv[0]);
-			exit(EXIT_SUCCESS);
-		}
-		else {
-			break;
-		}
-    }
-
-	if(! input_file.empty()) {
-		if(processid != nullptr) {
-			throw runtime_error("No pid should be given with an input file.");
-		}
-		if(index != argc) {
-			throw runtime_error("No command should be given with an input file.");
-		}
-		return CommandExecutor(input_file, verbose);
-	}
-
-	vector<string> command = strace_command();
-	if(processid == nullptr) {
-		if(index == argc) {
-			printf("No command and no pid. Nothing to do\n");
-			exit(0);
-		}
+	size_t index ;
+	bool verbose;
+public:
+	CommandCreator(int input_argc, const char ** input_argv)
+	: argc(input_argc)
+	, argv(input_argv) {
+		/*
+		First come some options, then the command.
+		*/
+		index = 1;
+		verbose = false;
 		for(; index < argc; ++index)
 		{
-			command.push_back(argv[index]);
+			const char * arg = argv[index];
+			if(0 == strcmp(arg, "-f")) {
+				if( !input_file.empty()) {
+					throw runtime_error("Input file should be given once only");
+				}
+				++index;
+				if(index == argc) {
+					throw runtime_error("No value for option -i");
+				}
+				if(processid != nullptr) {
+					throw runtime_error("Pid should not be set when -i is set");
+				}
+				input_file = argv[index];
+			}
+			else if(0 == strcmp(arg, "-p")) {
+				if(processid != nullptr) {
+					throw runtime_error("Pid should be given once only");
+				}
+				++index;
+				if(index == argc) {
+					throw runtime_error("No value for option -p");
+				}
+				if(!input_file.empty()) {
+					throw runtime_error("Input file should not be set when -p is set");
+				}
+				int tmp;
+				if(1 != sscanf(argv[index], "%d", &tmp)) {
+					throw runtime_error(string("Invalid pid:") + argv[index]);
+				}
+				processid = argv[index];
+			}
+			else if(0 == strcmp(arg, "-o")) {
+				if(!output_file.empty()) {
+					throw runtime_error("Output should be given once only");
+				}
+				++index;
+				if(index == argc) {
+					throw runtime_error("No value for option -p");
+				}
+				output_file = argv[index];
+			}
+			else if(0 == strcmp(arg, "-t")) {
+				// Internal optional test.
+				test_internal();
+			}
+			else if(0 == strcmp(arg, "-v")) {
+				verbose = true;
+			}
+			else if(0 == strcmp(arg, "-h") || 0 == strcmp(arg, "-?")) {
+				printf("%s <options> command ....\n", argv[0]);
+				printf("    -f <input file>\n");
+				printf("    -t              : test mode\n");
+				printf("    -v              : verbose mode\n");
+				printf("    -p <process id>\n");
+				exit(EXIT_SUCCESS);
+			}
+			else {
+				break;
+			}
 		}
-		//append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
-	} else {
-		if(index != argc) {
-			throw runtime_error("A command and a pid are given. Should be one or the other.\n");
-		}
-		append_vector(command, vector<string>({"-p", processid}));
 	}
-	return CommandExecutor(command, verbose);
-}
+	
+	CommandExecutor CreateExecutor() {
+		if(! input_file.empty()) {
+			if(processid != nullptr) {
+				throw runtime_error("No pid should be given with an input file.");
+			}
+			if(index != argc) {
+				throw runtime_error("No command should be given with an input file.");
+			}
+			return CommandExecutor(input_file, verbose);
+		} else {
+			vector<string> command = strace_command();
+			if(processid == nullptr) {
+				if(index == argc) {
+					printf("No command and no pid. Nothing to do\n");
+					exit(0);
+				}
+				for(; index < argc; ++index)
+				{
+					command.push_back(argv[index]);
+				}
+			} else {
+				if(index != argc) {
+					throw runtime_error("A command and a pid are given. Should be one or the other.\n");
+				}
+				append_vector(command, vector<string>({"-p", processid}));
+			}
+			return CommandExecutor(command, verbose);
+		}
+	}
+	
+	string output() const { return output_file; }
+};
+
 
 int main(int argc, const char ** argv)
 {
 	try {
-		CommandExecutor executor = build_command(argc, argv);
-		executor.Execute();
+		CommandCreator creator(argc, argv);
+		CommandExecutor executor = creator.CreateExecutor();
+		RdfOutput rdfOutput(creator.output());
+		executor.Execute(rdfOutput);
 	} catch(const exception & exc) {
 		const char * bar = "********************************************************************************\n";
 		fprintf(stderr, "%s", bar);
