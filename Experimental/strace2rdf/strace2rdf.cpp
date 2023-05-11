@@ -291,10 +291,12 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 		cout << "Unfinished" << endl;
 	}
 	args.push_back(current_arg);
+	/*
 	cout << "ARGS" << endl;
 	for(auto arg : args) {
 		cout << "    " << arg << "." << endl;
 	}
+	*/
 	return args;
 }
 
@@ -498,7 +500,7 @@ public:
 **
 *******************************************************************************/
 struct ArgumentType {
-	virtual string ToRdf(const string & input_txt) const = 0;
+	virtual string ToRdf(const string & property, const string & input_txt) const = 0;
 };
 
 template<class DerivedArgument>
@@ -510,63 +512,63 @@ struct ArgumentTypeWrapper : public ArgumentType {
 };
 
 struct SystemCallArgument_ProcessId : public ArgumentTypeWrapper<SystemCallArgument_ProcessId> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_IntPtr : public ArgumentTypeWrapper<SystemCallArgument_IntPtr> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_Int : public ArgumentTypeWrapper<SystemCallArgument_Int> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_RusagePtr : public ArgumentTypeWrapper<SystemCallArgument_RusagePtr> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_Fd : public ArgumentTypeWrapper<SystemCallArgument_Fd> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_Addr : public ArgumentTypeWrapper<SystemCallArgument_Addr> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_AddrLen : public ArgumentTypeWrapper<SystemCallArgument_AddrLen> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_PathName : public ArgumentTypeWrapper<SystemCallArgument_PathName> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_ArgV : public ArgumentTypeWrapper<SystemCallArgument_ArgV> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_EnvP : public ArgumentTypeWrapper<SystemCallArgument_EnvP> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_Flags : public ArgumentTypeWrapper<SystemCallArgument_Flags> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 struct SystemCallArgument_Mode : public ArgumentTypeWrapper<SystemCallArgument_Mode> {
-	string ToRdf(const string & input_txt) const override {
-		return "Input=" + input_txt;
+	string ToRdf(const string & property, const string & input_txt) const override {
+		return property + "=" + input_txt;
 	}
 };
 
@@ -631,8 +633,8 @@ public:
 			if(verbose) {
 				cout << "First / Value=" << oneArg.first << " " << value << endl;
 			}
-			string asStr = oneArg.second.ToRdf(value);
-			cout << asStr << endl;
+			string asStr = oneArg.second.ToRdf(oneArg.first, value);
+			cout << "    " << asStr << endl;
 			++index;
 		}
 	}
