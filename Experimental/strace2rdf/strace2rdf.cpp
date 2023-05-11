@@ -217,8 +217,10 @@ static char closing(char chr) {
 	throw runtime_error(string("Invalid char:") + chr);
 }
 
-static vector<string> ArgumentsParser(const string & line, size_t start_offset) {
-	cout << "LINE=" << line << "\n";
+static vector<string> ArgumentsParser(const string & line, size_t start_offset, bool verbose) {
+	if(verbose) {
+		cout << "LINE=" << line << "\n";
+	}
 	if(line[start_offset] != '(') {
 		throw std::runtime_error("Wrong offset:" + line);
 	}
@@ -312,7 +314,7 @@ struct test_definition {
 	
 	void test() {
 		cout << "Input=" << input << endl;
-		vector<string> args = ArgumentsParser(input, 0);
+		vector<string> args = ArgumentsParser(input, 0, true);
 		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(cout, "+"));
 		cout << endl;
 		copy(args.begin(), args.end(), ostream_iterator<const string &>(cout, "+"));
@@ -499,27 +501,74 @@ struct ArgumentType {
 	virtual string ToRdf(const string & input_txt) const = 0;
 };
 
-struct SystemCallArgument_ProcessId : public ArgumentType {
-	string ToRdf(const string & input_txt) const override {
-		return string();
-	}
-};
-struct SystemCallArgument_IntPtr : public ArgumentType {
-	string ToRdf(const string & input_txt) const override {
-		return string();
-	}
-};
-struct SystemCallArgument_Int : public ArgumentType {
-	string ToRdf(const string & input_txt) const override {
-		return string();
-	}
-};
-struct SystemCallArgument_RusagePtr : public ArgumentType {
-	string ToRdf(const string & input_txt) const override {
-		return string();
+template<class DerivedArgument>
+struct ArgumentTypeWrapper : public ArgumentType {
+	static const ArgumentType & ArgDef() {
+		static const DerivedArgument arg;
+		return arg;
 	}
 };
 
+struct SystemCallArgument_ProcessId : public ArgumentTypeWrapper<SystemCallArgument_ProcessId> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_IntPtr : public ArgumentTypeWrapper<SystemCallArgument_IntPtr> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_Int : public ArgumentTypeWrapper<SystemCallArgument_Int> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_RusagePtr : public ArgumentTypeWrapper<SystemCallArgument_RusagePtr> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_Fd : public ArgumentTypeWrapper<SystemCallArgument_Fd> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_Addr : public ArgumentTypeWrapper<SystemCallArgument_Addr> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_AddrLen : public ArgumentTypeWrapper<SystemCallArgument_AddrLen> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_PathName : public ArgumentTypeWrapper<SystemCallArgument_PathName> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_ArgV : public ArgumentTypeWrapper<SystemCallArgument_ArgV> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_EnvP : public ArgumentTypeWrapper<SystemCallArgument_EnvP> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_Flags : public ArgumentTypeWrapper<SystemCallArgument_Flags> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
+struct SystemCallArgument_Mode : public ArgumentTypeWrapper<SystemCallArgument_Mode> {
+	string ToRdf(const string & input_txt) const override {
+		return "Input=" + input_txt;
+	}
+};
 
 typedef initializer_list< pair<const char *, const ArgumentType &> > FunctionSignature;
 
@@ -543,7 +592,7 @@ public:
 			throw std::runtime_error("No timestamp:" + line);
 		}
 		try {
-			parsed_arguments = ArgumentsParser(line, preparsedLine.args_offset);
+			parsed_arguments = ArgumentsParser(line, preparsedLine.args_offset, true);
 		} catch(const exception & exc) {
 			cerr << "Line=" << line << endl;
 			throw;
@@ -555,23 +604,36 @@ public:
 		static const FunctionSignature tmp;
 		return tmp; // throw runtime_error("Not implemented yet");
 	}
+	virtual size_t MinimumArgumentsNumber() const {
+		return Signature().size();
+	}
 	
 	virtual void WriteTriples(RdfOutput & rdfOutput) const {
 		throw runtime_error("Not implemented yet");
 	};
 
-	virtual void WriteCall(RdfOutput & rdfOutput) {
+	virtual void WriteCall(RdfOutput & rdfOutput, bool verbose) {
 		const auto & argsDefs = Signature();
+		size_t minArgs = MinimumArgumentsNumber();
+		if(verbose) {
+			printf("Signature=%d Minimum=%d\n", (int)argsDefs.size(), (int)minArgs);
+		}
 		size_t index = 0;
 		for(const auto & oneArg : argsDefs) {
 			if(index >= parsed_arguments.size()) {
-				throw runtime_error("Not enough arguments");
+				if(index >= minArgs) {
+					break;
+				} else {
+					throw runtime_error("Not enough arguments");
+				}
 			}
-			cout << oneArg.first;
 			string value = parsed_arguments[index];
-			cout << value;
+			if(verbose) {
+				cout << "First / Value=" << oneArg.first << " " << value << endl;
+			}
 			string asStr = oneArg.second.ToRdf(value);
-			cout << asStr;
+			cout << asStr << endl;
+			++index;
 		}
 	}
 
@@ -612,6 +674,14 @@ public:
 	const char * function() const override { return "connect";}
 	
 	// int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+	const FunctionSignature & Signature() const override {
+		static const FunctionSignature sign {
+			{ "sockfd",  SystemCallArgument_Fd::ArgDef() },
+			{ "addr",    SystemCallArgument_Addr::ArgDef() },
+			{ "addrlen", SystemCallArgument_AddrLen::ArgDef() },
+		};
+		return sign;
+	}
 };
 
 // [pid  5562] 19:58:40.706447 execve("/usr/bin/top", ["top"], [/* 36 vars */]) = 0 <0.031053>
@@ -621,6 +691,15 @@ public:
 	: STraceCall(line, preparsedLine) {
 	}
 	const char * function() const override { return "execve";}
+	// int execve(const char *pathname, char *const argv[], char *const envp[]);
+	const FunctionSignature & Signature() const override {
+		static const FunctionSignature sign {
+			{ "pathname", SystemCallArgument_PathName::ArgDef() },
+			{ "argv",     SystemCallArgument_ArgV::ArgDef() },
+			{ "envp",     SystemCallArgument_EnvP::ArgDef() },
+		};
+		return sign;
+	}
 };
 
 class STraceCall_fchdir : public STraceCall {
@@ -629,6 +708,13 @@ public:
 	: STraceCall(line, preparsedLine) {
 	}
 	const char * function() const override { return "fchdir";}
+	// int fchdir(int fildes);
+	const FunctionSignature & Signature() const override {
+		static const FunctionSignature sign {
+			{ "fildes", SystemCallArgument_Fd::ArgDef() },
+		};
+		return sign;
+	}
 };
 
 
@@ -638,6 +724,19 @@ public:
 	: STraceCall(line, preparsedLine) {
 	}
 	const char * function() const override { return "open";}
+	// int open(const char *pathname, int flags);
+	// int open(const char *pathname, int flags, mode_t mode);
+	const FunctionSignature & Signature() const override {
+		static const FunctionSignature sign {
+			{ "pathname", SystemCallArgument_PathName::ArgDef() },
+			{ "flags",    SystemCallArgument_Flags::ArgDef() },
+			{ "mode",     SystemCallArgument_Mode::ArgDef() },
+		};
+		return sign;
+	}
+	size_t MinimumArgumentsNumber() const override {
+		return 2;
+	}
 };
 
 // [pid  5562] 19:58:40.737710 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000011>
@@ -647,6 +746,19 @@ public:
 	: STraceCall(line, preparsedLine) {
 	}
 	const char * function() const override { return "openat";}
+	// int openat(int fd, const char *path, int oflag, ...);
+	const FunctionSignature & Signature() const override {
+		static const FunctionSignature sign {
+			{ "fd", SystemCallArgument_Fd::ArgDef() },
+			{ "pathname", SystemCallArgument_PathName::ArgDef() },
+			{ "oflag",    SystemCallArgument_Flags::ArgDef() },
+			{ "mode",     SystemCallArgument_Mode::ArgDef() },
+		};
+		return sign;
+	}
+	size_t MinimumArgumentsNumber() const override {
+		return 2;
+	}
 };
 
 /* This call is a special case because if it is unfishied in a process,
@@ -661,10 +773,10 @@ public:
 	// pid_t wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
-			{ "pid", SystemCallArgument_ProcessId() },
-			{ "wstatus", SystemCallArgument_IntPtr() },
-			{ "options", SystemCallArgument_Int() },
-			{ "rusage", SystemCallArgument_RusagePtr() },
+			{ "pid", SystemCallArgument_ProcessId::ArgDef() },
+			{ "wstatus", SystemCallArgument_IntPtr::ArgDef() },
+			{ "options", SystemCallArgument_Int::ArgDef() },
+			{ "rusage",  SystemCallArgument_RusagePtr::ArgDef() },
 		};
 		return sign;
 	}
@@ -682,8 +794,11 @@ shared_ptr<STraceCall> GenerTmpl(const string &line, const PreparsedLine & prepa
 	return make_shared<Derived>(line, preparsedLine);
 }
 
+// Most system calls are not taken into account. However, their list might suggest more dependencies.
 map<string, STraceFactory::Generator> dict = {
+	{"accept", nullptr },
 	{"arch_prctl", nullptr },
+	{"bind", nullptr },
 	{"brk", nullptr },
 	{"clone", nullptr },
 	{"close", nullptr },
@@ -691,18 +806,36 @@ map<string, STraceFactory::Generator> dict = {
 	{"dup", nullptr },
 	{"dup2", nullptr },
 	{"dup3", nullptr },
+	{"epoll_create1", nullptr },
+	{"epoll_ctl", nullptr },
+	{"epoll_wait", nullptr },
+	{"eventfd2", nullptr },
 	{"execve", GenerTmpl<STraceCall_execve> },
+	{"exit", nullptr },
 	{"exit_group", nullptr },
-	{"fcntl", nullptr },
+	{"faccessat", nullptr },
 	{"fadvise64", nullptr },
+	{"fallocate", nullptr },
 	{"fchdir", GenerTmpl<STraceCall_fchdir> },
+	{"fchmod", nullptr },
+	{"fchown", nullptr },
+	{"fcntl", nullptr },
 	{"fstat", nullptr },
 	{"fstatfs", nullptr },
-	{"fchown", nullptr },
+	{"fsync", nullptr },
+	{"ftruncate", nullptr },
 	{"getdents", nullptr },
 	{"getdents64", nullptr },
+	{"getpeername", nullptr },
+	{"getsockname", nullptr },
+	{"getsockopt", nullptr },
+	{"inotify_add_watch", nullptr },
+	{"inotify_init1", nullptr },
 	{"ioctl", nullptr },
+	{"listen", nullptr },
 	{"lseek", nullptr },
+	{"madvise", nullptr },
+	{"mlock", nullptr },
 	{"mmap", nullptr },
 	{"mprotect", nullptr },
 	{"munmap", nullptr },
@@ -710,18 +843,32 @@ map<string, STraceFactory::Generator> dict = {
 	{"open", GenerTmpl<STraceCall_open> },
 	{"openat", GenerTmpl<STraceCall_openat> },
 	{"pipe", nullptr },
+	{"pipe2", nullptr },
 	{"poll", nullptr },
+	{"ppoll", nullptr },
 	{"pread64", nullptr },
 	{"pselect6", nullptr },
+	{"pwrite64", nullptr },
 	{"read", nullptr },
+	{"readahead", nullptr },
 	{"recvfrom", nullptr },
+	{"recvmsg", nullptr },
+	{"shmat", nullptr },
+	{"shmdt", nullptr },
+	{"shmget", nullptr },
+	{"shutdown", nullptr },
 	{"select", nullptr },
+	{"sendmmsg", nullptr },
+	{"sendmsg", nullptr },
 	{"sendto", nullptr },
 	{"setsockopt", nullptr },
 	{"socket", nullptr },
+	{"socketpair", nullptr },
+	{"unshare", nullptr },
 	{"vfork", nullptr },
 	{"wait4", GenerTmpl<STraceCall_wait4> },
 	{"write", nullptr },
+	{"writev", nullptr },
 };
 
 static map<int, shared_ptr<STraceCall>> unfinished_calls;
@@ -781,7 +928,7 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 					+ " Pid=" + to_string(preparsedLine.processid));
 			}
 			shared_ptr<STraceCall> ptrUnfinished = found_preparsed->second;
-			if(!ptrUnfinished) {
+			if(ptrUnfinished) {
 				ptrUnfinished->MergeWithResumed(preparsedLine);
 			}
 			unfinished_calls.erase(found_preparsed);
@@ -808,7 +955,7 @@ static void process_line(RdfOutput & rdfOutput, const string &line, size_t line_
 			cout << "Function=" << ptr->function() << endl;
 			ptr->Display();
 		}
-		ptr->WriteCall(rdfOutput);
+		ptr->WriteCall(rdfOutput, verbose);
 	} catch( const std::exception & exc) {
 		printf("Line %d Caught:%s\n", (int)line_number, exc.what());
 		printf("RET=%s\n", line.c_str());
