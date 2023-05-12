@@ -29,15 +29,17 @@ static void append_vector(vector<string> & target, const T & source) {
 
 enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED}; 
 
+// Largest possible string offset.
 static const size_t NOT_UNFINISHED = size_t(~0);
 
 /*
-If it finishes with the string indicating an unfinished call.
-This returns the offset just after the end of the last argument.
+If this is a normal call, not unfinished, it returns NOT_UNFINISHED.
+Otherwise, this returns the offset just after the end of the last argument,
+that is, just before the marker string "<unfinished ...>" which must be at the end of the line.
 */
 static size_t isUnfinished(const char * line) {
 	static const char strUnfinished[] = "<unfinished ...>";
-	size_t len = strlen(line);
+	const size_t len = strlen(line);
 
 	// The string is too short.
 	if(len < sizeof(strUnfinished) - 1) return NOT_UNFINISHED;
@@ -93,6 +95,7 @@ class PreparsedLine {
 public:
 	string function_name;
 	size_t args_offset; // Points to the open parenthesis after the function name.
+	size_t unfinished_offset;
 	int processid; // -1 if this is the current process.
 	CallState m_callstate;
 
@@ -162,7 +165,9 @@ public:
 			19:59:20.964728 wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5601 <0.000032>
 			19:59:20.965024 wait4(-1, 0x7fffa5fca610, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
 		*/
-		bool unfinished = isUnfinished(function_start) != NOT_UNFINISHED;
+		unfinished_offset = isUnfinished(function_start);
+		bool unfinished = unfinished_offset != NOT_UNFINISHED;
+
 		const char str_resumed[] = " resumed>";
 		bool resumed = nullptr != strstr(function_start, str_resumed);
 		if(unfinished && resumed) {
@@ -217,21 +222,24 @@ static char closing(char chr) {
 	throw runtime_error(string("Invalid char:") + chr);
 }
 
-static vector<string> ArgumentsParser(const string & line, size_t start_offset, bool verbose) {
+static vector<string> ArgumentsParser(const string & line, size_t start_offset, size_t end_offset, bool verbose) {
 	if(verbose) {
 		cout << "LINE=" << line << "\n";
 	}
+	// Internal consistency check, which must be removed when parsing unfinished calls.
 	if(line[start_offset] != '(') {
 		throw std::runtime_error("Wrong offset:" + line);
 	}
 
 	const char * args_start = line.c_str() + start_offset;
+	/*
 	size_t end_offset = isUnfinished(args_start);
 	if(end_offset == NOT_UNFINISHED) {
 		// end_offset must be the last closing parenthesis. We can find it anyway.
 	} else {
 		cout << "UNFINISHED STRIPPED:" << string(args_start, args_start + end_offset) << "." << endl;
 	}
+	*/
 
 	bool in_quotes = false;
 	int balance_parenthesis = 1;
@@ -291,6 +299,8 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 		cout << "Unfinished" << endl;
 	}
 	args.push_back(current_arg);
+	
+	// cout << "RETURN:" << line.substring(
 	/*
 	cout << "ARGS" << endl;
 	for(auto arg : args) {
@@ -306,52 +316,35 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 **
 *******************************************************************************/
 
-struct test_definition {
-	const char * input;
-	const vector<const char *> outputs;
-	test_definition(const char * the_input, initializer_list<const char *> the_outputs)
-	: input(the_input)
-	, outputs(the_outputs)
-	{}
-	
-	void test() {
-		cout << "Input=" << input << endl;
-		vector<string> args = ArgumentsParser(input, 0, true);
-		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(cout, "+"));
-		cout << endl;
-		copy(args.begin(), args.end(), ostream_iterator<const string &>(cout, "+"));
-		cout << endl;
-		
-		if(args.size() != outputs.size() ) {
-			throw runtime_error("Different sizes");
-		}
-		for(size_t index = 0; index < outputs.size(); ++index) {
-			if( args[index] != outputs[index]) {
-				throw runtime_error("Different args");
-			}
-		}
-	}
-};
-static const test_definition test_args_parsing[] = {
-	{"(xyz)", {"xyz"}},
-	{"(x,y,z)", {"x", "y", "z"}},
-	{"(x,\"y\",z)", {"x", "\"y\"", "z"}},
-	{"(x,(y),z)", {"x", "(y)", "z"}},
-	{"(x,(y1,y2),z)", {"x", "(y1,y2)", "z"}},
-	{"(7</usr/share>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000059>",
-		{"7</usr/share>", " {st_mode=S_IFREG|0644, st_size=3678, ...}"}},
-	{"(AT_FDCWD, \"/usr/coreutils.moz\", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000031>",
-		{"AT_FDCWD", " \"/usr/coreutils.moz\"", " O_RDONLY"}},
-	{"(x,\"y[a\",z)", {"x", "\"y[a\"", "z"}},
-	{"(x,\"y}a\",z)", {"x", "\"y}a\"", "z"}},
+static const struct {
+	int pid;
+	string function_name;
+	string line;
+} tests_preparsed[] = {
+	{ -1, "clone", "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>"  },
+	{ 4233, "close", "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
+	{ 1338, "wait4", "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>"},
+	{ 22672, "open", "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>"},
+	{ 22560, "close", "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>"},
+	{ -1, "poll", "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
+	{ -1, "wait4", "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>"},
 };
 
-static void test_parsing() {
-	printf("Internal test start.\n");
-	for(auto one_test : test_args_parsing) {
-		one_test.test();
+/*
+This extracts the beginning of a line displayed by strace. Notably, the pid is extracted.
+*/
+static void test_preparsed() {
+	for(auto tst : tests_preparsed) {
+		cout << "PreparsedLine:" << tst.line << endl;
+		PreparsedLine preparsed(tst.line);
+		if(preparsed.processid != tst.pid) {
+			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.pid));
+		}
+		if(preparsed.function_name != tst.function_name) {
+			throw runtime_error("Wrong function:" + preparsed.function_name);
+		}
 	}
-	printf("Parsing test end : OK.\n");
+	printf("Preparsed test end : OK.\n");
 }
 
 static const struct {
@@ -373,6 +366,7 @@ static const struct {
 	{ NOT_UNFINISHED, "abc"},
 };
 
+/* This tests the detection of the end of thearguments, and if the call is unfinished. */
 static void test_unfinished() {
 	for(auto tst : tests_unfinished) {
 		size_t ret = isUnfinished(tst.line);
@@ -387,33 +381,85 @@ static void test_unfinished() {
 	printf("Unfinished detection test end : OK.\n");
 }
 
-static const struct {
-	int pid;
-	string function_name;
-	string line;
-} tests_preparsed[] = {
-	{ -1, "clone", "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>"  },
-	{ 4233, "close", "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
-};
-
-static void test_preparsed() {
-	for(auto tst : tests_preparsed) {
-		cout << "PreparsedLine:" << tst.line << endl;
-		PreparsedLine preparsed(tst.line);
-		if(preparsed.processid != tst.pid) {
-			throw runtime_error("Wrong pid:" + to_string(preparsed.processid));
+struct test_def_parsing_args {
+	const char * input;
+	const vector<const char *> outputs;
+	const char * call_return;
+	test_def_parsing_args(const char * the_input, initializer_list<const char *> the_outputs, const char * the_ret)
+	: input(the_input)
+	, outputs(the_outputs)
+	, call_return(the_ret)
+	{}
+	
+	void test() {
+		cout << "Input=" << input << endl;
+		vector<string> args = ArgumentsParser(input, 0, NOT_UNFINISHED, true);
+		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(cout, "+"));
+		cout << endl;
+		copy(args.begin(), args.end(), ostream_iterator<const string &>(cout, "+"));
+		cout << endl;
+		
+		if(args.size() != outputs.size() ) {
+			throw runtime_error("Different sizes");
 		}
-		if(preparsed.function_name != tst.function_name) {
-			throw runtime_error("Wrong function:" + preparsed.function_name);
+		for(size_t index = 0; index < outputs.size(); ++index) {
+			if( args[index] != outputs[index]) {
+				throw runtime_error("Different args");
+			}
 		}
 	}
-	printf("Preparsed test end : OK.\n");
+};
+static const test_def_parsing_args test_args_parsing[] = {
+	{"(xyz)",
+		{"xyz"},
+		""},
+	{"(x,y,z)",
+		{"x", "y", "z"},
+		""},
+	{"(x,\"y\",z)",
+		{"x", "\"y\"", "z"},
+		""},
+	{"(x,(y),z)",
+		{"x", "(y)", "z"},
+		""},
+	{"(x,(y1,y2),z)",
+		{"x", "(y1,y2)", "z"},
+		""},
+	{"(7</usr/share>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000059>",
+		{"7</usr/share>", " {st_mode=S_IFREG|0644, st_size=3678, ...}"},
+		" 0 <0.000059>"},
+	{"(AT_FDCWD, \"/usr/coreutils.moz\", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000031>",
+		{"AT_FDCWD", " \"/usr/coreutils.moz\"", " O_RDONLY"},
+		" -1 ENOENT (No such file or directory) <0.000031>"},
+	{"(x,\"y[a\",z)",
+		{"x", "\"y[a\"", "z"},
+		""},
+	{"(x,\"y}a\",z)",
+		{"x", "\"y}a\"", "z"},
+		""},
+	{"wait4(-1,  <unfinished ...>",
+		{"-1"},
+		""},
+	{"<... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 1345 <0.079248>",
+		{"-1"},
+		""},
+	{"<... vfork resumed> ) = 1350 <0.001543>",
+		{""},
+		"1350 <0.001543>"},
+};
+
+static void test_parsing() {
+	printf("Internal test start.\n");
+	for(auto one_test : test_args_parsing) {
+		one_test.test();
+	}
+	printf("Parsing test end : OK.\n");
 }
 
 static void test_internal() {
-	test_parsing();
-	test_unfinished();
 	test_preparsed();
+	test_unfinished();
+	test_parsing();
 	printf("Internal test end : OK.\n");
 }
 
@@ -594,7 +640,7 @@ public:
 			throw std::runtime_error("No timestamp:" + line);
 		}
 		try {
-			parsed_arguments = ArgumentsParser(line, preparsedLine.args_offset, true);
+			parsed_arguments = ArgumentsParser(line, preparsedLine.args_offset, preparsedLine.unfinished_offset, true);
 		} catch(const exception & exc) {
 			cerr << "Line=" << line << endl;
 			throw;
@@ -602,18 +648,13 @@ public:
 	}
 	
 	virtual const char * function() const = 0;
-	virtual const FunctionSignature & Signature() const {
-		static const FunctionSignature tmp;
-		return tmp; // throw runtime_error("Not implemented yet");
-	}
+	virtual const FunctionSignature & Signature() const  = 0;
+
+	// Some system calls have optional arguments.
 	virtual size_t MinimumArgumentsNumber() const {
 		return Signature().size();
 	}
 	
-	virtual void WriteTriples(RdfOutput & rdfOutput) const {
-		throw runtime_error("Not implemented yet");
-	};
-
 	virtual void WriteCall(RdfOutput & rdfOutput, bool verbose) {
 		const auto & argsDefs = Signature();
 		size_t minArgs = MinimumArgumentsNumber();
@@ -626,7 +667,7 @@ public:
 				if(index >= minArgs) {
 					break;
 				} else {
-					throw runtime_error("Not enough arguments");
+					throw runtime_error(string("Not enough arguments for:") + oneArg.first);
 				}
 			}
 			string value = parsed_arguments[index];
@@ -639,7 +680,7 @@ public:
 		}
 	}
 
-
+	// Debugging only.
 	void Display() const {
 		for(const string & arg: parsed_arguments) {
 			cout << "\t" << arg << endl;
@@ -798,79 +839,79 @@ shared_ptr<STraceCall> GenerTmpl(const string &line, const PreparsedLine & prepa
 
 // Most system calls are not taken into account. However, their list might suggest more dependencies.
 map<string, STraceFactory::Generator> dict = {
-	{"accept", nullptr },
-	{"arch_prctl", nullptr },
-	{"bind", nullptr },
-	{"brk", nullptr },
-	{"clone", nullptr },
-	{"close", nullptr },
-	{"connect", GenerTmpl<STraceCall_connect> },
-	{"dup", nullptr },
-	{"dup2", nullptr },
-	{"dup3", nullptr },
-	{"epoll_create1", nullptr },
-	{"epoll_ctl", nullptr },
-	{"epoll_wait", nullptr },
-	{"eventfd2", nullptr },
-	{"execve", GenerTmpl<STraceCall_execve> },
-	{"exit", nullptr },
-	{"exit_group", nullptr },
-	{"faccessat", nullptr },
-	{"fadvise64", nullptr },
-	{"fallocate", nullptr },
-	{"fchdir", GenerTmpl<STraceCall_fchdir> },
-	{"fchmod", nullptr },
-	{"fchown", nullptr },
-	{"fcntl", nullptr },
-	{"fstat", nullptr },
-	{"fstatfs", nullptr },
-	{"fsync", nullptr },
-	{"ftruncate", nullptr },
-	{"getdents", nullptr },
-	{"getdents64", nullptr },
-	{"getpeername", nullptr },
-	{"getsockname", nullptr },
-	{"getsockopt", nullptr },
+	{"accept",            nullptr },
+	{"arch_prctl",        nullptr },
+	{"bind",              nullptr },
+	{"brk",               nullptr },
+	{"clone",             nullptr },
+	{"close",             nullptr },
+	{"connect",           GenerTmpl<STraceCall_connect> },
+	{"dup",               nullptr },
+	{"dup2",              nullptr },
+	{"dup3",              nullptr },
+	{"epoll_create1",     nullptr },
+	{"epoll_ctl",         nullptr },
+	{"epoll_wait",        nullptr },
+	{"eventfd2",          nullptr },
+	{"execve",            GenerTmpl<STraceCall_execve> },
+	{"exit",              nullptr },
+	{"exit_group",        nullptr },
+	{"faccessat",         nullptr },
+	{"fadvise64",         nullptr },
+	{"fallocate",         nullptr },
+	{"fchdir",            GenerTmpl<STraceCall_fchdir> },
+	{"fchmod",            nullptr },
+	{"fchown",            nullptr },
+	{"fcntl",             nullptr },
+	{"fstat",             nullptr },
+	{"fstatfs",           nullptr },
+	{"fsync",             nullptr },
+	{"ftruncate",         nullptr },
+	{"getdents",          nullptr },
+	{"getdents64",        nullptr },
+	{"getpeername",       nullptr },
+	{"getsockname",       nullptr },
+	{"getsockopt",        nullptr },
 	{"inotify_add_watch", nullptr },
-	{"inotify_init1", nullptr },
-	{"ioctl", nullptr },
-	{"listen", nullptr },
-	{"lseek", nullptr },
-	{"madvise", nullptr },
-	{"mlock", nullptr },
-	{"mmap", nullptr },
-	{"mprotect", nullptr },
-	{"munmap", nullptr },
-	{"newfstatat", nullptr },
-	{"open", GenerTmpl<STraceCall_open> },
-	{"openat", GenerTmpl<STraceCall_openat> },
-	{"pipe", nullptr },
-	{"pipe2", nullptr },
-	{"poll", nullptr },
-	{"ppoll", nullptr },
-	{"pread64", nullptr },
-	{"pselect6", nullptr },
-	{"pwrite64", nullptr },
-	{"read", nullptr },
-	{"readahead", nullptr },
-	{"recvfrom", nullptr },
-	{"recvmsg", nullptr },
-	{"shmat", nullptr },
-	{"shmdt", nullptr },
-	{"shmget", nullptr },
-	{"shutdown", nullptr },
-	{"select", nullptr },
-	{"sendmmsg", nullptr },
-	{"sendmsg", nullptr },
-	{"sendto", nullptr },
-	{"setsockopt", nullptr },
-	{"socket", nullptr },
-	{"socketpair", nullptr },
-	{"unshare", nullptr },
-	{"vfork", nullptr },
-	{"wait4", GenerTmpl<STraceCall_wait4> },
-	{"write", nullptr },
-	{"writev", nullptr },
+	{"inotify_init1",     nullptr },
+	{"ioctl",             nullptr },
+	{"listen",            nullptr },
+	{"lseek",             nullptr },
+	{"madvise",           nullptr },
+	{"mlock",             nullptr },
+	{"mmap",              nullptr },
+	{"mprotect",          nullptr },
+	{"munmap",            nullptr },
+	{"newfstatat",        nullptr },
+	{"open",              GenerTmpl<STraceCall_open> },
+	{"openat",            GenerTmpl<STraceCall_openat> },
+	{"pipe",              nullptr },
+	{"pipe2",             nullptr },
+	{"poll",              nullptr },
+	{"ppoll",             nullptr },
+	{"pread64",           nullptr },
+	{"pselect6",          nullptr },
+	{"pwrite64",          nullptr },
+	{"read",              nullptr },
+	{"readahead",         nullptr },
+	{"recvfrom",          nullptr },
+	{"recvmsg",           nullptr },
+	{"shmat",             nullptr },
+	{"shmdt",             nullptr },
+	{"shmget",            nullptr },
+	{"shutdown",          nullptr },
+	{"select",            nullptr },
+	{"sendmmsg",          nullptr },
+	{"sendmsg",           nullptr },
+	{"sendto",            nullptr },
+	{"setsockopt",        nullptr },
+	{"socket",            nullptr },
+	{"socketpair",        nullptr },
+	{"unshare",           nullptr },
+	{"vfork",             nullptr },
+	{"wait4",             GenerTmpl<STraceCall_wait4> },
+	{"write",             nullptr },
+	{"writev",            nullptr },
 };
 
 static map<int, shared_ptr<STraceCall>> unfinished_calls;
@@ -971,30 +1012,17 @@ static void process_line(RdfOutput & rdfOutput, const string &line, size_t line_
 *******************************************************************************/
 
 static vector<string> strace_command() {
-/*
-    def build_trace_command(self, external_command, a_pid):
-        # -f  Trace  child  processes as a result of the fork, vfork and clone.
-        trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
-
-        if self.deprecated_version():
-            trace_command += ["-e", "trace=desc,ipc,process,network"]
-        else:
-            trace_command += ["-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
-
-        if external_command:
-            # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
-            # effect of strace by keeping the tracee a direct child of the calling process.
-            # It might fail with the error:
-            # strace: Could not attach to process. If your uid matches the uid of the target process,
-            # check the setting of /proc/sys/kernel/yama/ptrace_scope, or try again as the root user.
-            # For more details, see /etc/sysctl.d/10-ptrace.conf: Operation not permitted
-            # strace: attach: ptrace(PTRACE_ATTACH, 498): Operation not permitted
+	/*
+	# Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
+	# effect of strace by keeping the tracee a direct child of the calling process.
+	# On WSL, it might fail with the error:
+	# strace: Could not attach to process. If your uid matches the uid of the target process,
+	# check the setting of /proc/sys/kernel/yama/ptrace_scope, or try again as the root user.
+	# For more details, see /etc/sysctl.d/10-ptrace.conf: Operation not permitted
+	# strace: attach: ptrace(PTRACE_ATTACH, 498): Operation not permitted
             ### trace_command += ["-D"]
-            trace_command += external_command
-        else:
-            trace_command += ["-p", a_pid]
-        return trace_command
-*/
+	*/
+
 	vector<string> command{"/usr/bin/strace", "-q", "-qq", "-f", "-tt", "-T", "-s", "10000"};
 	const bool is_deprecated = false;
 	vector<string> dependent_options{is_deprecated
@@ -1147,7 +1175,6 @@ public:
 		}
 	}
 };
-
 
 
 class CommandCreator {
