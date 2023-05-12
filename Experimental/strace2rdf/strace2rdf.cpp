@@ -551,10 +551,7 @@ struct ArgumentType {
 
 template<class DerivedArgument>
 struct ArgumentTypeWrapper : public ArgumentType {
-	static const ArgumentType & ArgDef() {
-		static const DerivedArgument arg;
-		return arg;
-	}
+	static constexpr const DerivedArgument ArgSingleton = DerivedArgument{};
 };
 
 struct SystemCallArgument_ProcessId : public ArgumentTypeWrapper<SystemCallArgument_ProcessId> {
@@ -719,9 +716,9 @@ public:
 	// int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
-			{ "sockfd",  SystemCallArgument_Fd::ArgDef() },
-			{ "addr",    SystemCallArgument_Addr::ArgDef() },
-			{ "addrlen", SystemCallArgument_AddrLen::ArgDef() },
+			{ "sockfd",  SystemCallArgument_Fd::ArgSingleton },
+			{ "addr",    SystemCallArgument_Addr::ArgSingleton },
+			{ "addrlen", SystemCallArgument_AddrLen::ArgSingleton },
 		};
 		return sign;
 	}
@@ -737,9 +734,9 @@ public:
 	// int execve(const char *pathname, char *const argv[], char *const envp[]);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
-			{ "pathname", SystemCallArgument_PathName::ArgDef() },
-			{ "argv",     SystemCallArgument_ArgV::ArgDef() },
-			{ "envp",     SystemCallArgument_EnvP::ArgDef() },
+			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
+			{ "argv",     SystemCallArgument_ArgV::ArgSingleton },
+			{ "envp",     SystemCallArgument_EnvP::ArgSingleton },
 		};
 		return sign;
 	}
@@ -754,7 +751,7 @@ public:
 	// int fchdir(int fildes);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
-			{ "fildes", SystemCallArgument_Fd::ArgDef() },
+			{ "fildes", SystemCallArgument_Fd::ArgSingleton },
 		};
 		return sign;
 	}
@@ -771,9 +768,9 @@ public:
 	// int open(const char *pathname, int flags, mode_t mode);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
-			{ "pathname", SystemCallArgument_PathName::ArgDef() },
-			{ "flags",    SystemCallArgument_Flags::ArgDef() },
-			{ "mode",     SystemCallArgument_Mode::ArgDef() },
+			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
+			{ "flags",    SystemCallArgument_Flags::ArgSingleton },
+			{ "mode",     SystemCallArgument_Mode::ArgSingleton },
 		};
 		return sign;
 	}
@@ -792,10 +789,10 @@ public:
 	// int openat(int fd, const char *path, int oflag, ...);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
-			{ "fd", SystemCallArgument_Fd::ArgDef() },
-			{ "pathname", SystemCallArgument_PathName::ArgDef() },
-			{ "oflag",    SystemCallArgument_Flags::ArgDef() },
-			{ "mode",     SystemCallArgument_Mode::ArgDef() },
+			{ "fd", SystemCallArgument_Fd::ArgSingleton },
+			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
+			{ "oflag",    SystemCallArgument_Flags::ArgSingleton },
+			{ "mode",     SystemCallArgument_Mode::ArgSingleton },
 		};
 		return sign;
 	}
@@ -816,10 +813,10 @@ public:
 	// pid_t wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
-			{ "pid", SystemCallArgument_ProcessId::ArgDef() },
-			{ "wstatus", SystemCallArgument_IntPtr::ArgDef() },
-			{ "options", SystemCallArgument_Int::ArgDef() },
-			{ "rusage",  SystemCallArgument_RusagePtr::ArgDef() },
+			{ "pid", SystemCallArgument_ProcessId::ArgSingleton },
+			{ "wstatus", SystemCallArgument_IntPtr::ArgSingleton },
+			{ "options", SystemCallArgument_Int::ArgSingleton },
+			{ "rusage",  SystemCallArgument_RusagePtr::ArgSingleton },
 		};
 		return sign;
 	}
