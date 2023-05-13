@@ -19,6 +19,7 @@
 #include <fstream>
 #include <stack>
 #include <memory>
+#include <numeric>
 
 using namespace std;
 
@@ -71,6 +72,105 @@ static size_t isUnfinished(const char * line) {
 	return end_offset;
 }
 
+static char closing(char chr) {
+	switch(chr) {
+		case '(': return ')';
+		case '{': return '}';
+		case '[': return ']';
+		case '<': return '>';
+	}
+	throw runtime_error(string("Invalid char:") + chr);
+}
+
+#define VERBOSE_LOG   1
+#define VERBOSE_DEBUG 2
+static int verbose_mode = 0;
+
+static vector<string> ArgumentsParser(const string & line, size_t start_offset, size_t end_offset) {
+	if(verbose_mode >= VERBOSE_LOG) {
+		cout << "ArgumentsParser LINE=" << line << "\n";
+	}
+	if(verbose_mode >= VERBOSE_DEBUG) {
+		cout << "ArgumentsParser end_offset=" << end_offset << "\n";
+		if(end_offset != NOT_UNFINISHED) {
+			cout << "ArgumentsParser line.substr(start_offset, end_offset-start_offset)=" << line.substr(start_offset, end_offset-start_offset) << "\n";
+		}
+	}
+
+	bool in_quotes = false;
+	int balance_parenthesis = 1;
+	vector<string> args;
+	string current_arg;
+	bool still_running = true;
+	stack<char> enclosers;
+	enclosers.push(')');
+	for(size_t index = start_offset + 1; still_running && (index < end_offset); ++index) {
+		const char chr = line[index];
+		if(in_quotes) {
+			if(chr == '"') {
+				in_quotes = false;
+			}
+			current_arg += chr;
+			continue;
+		}
+		switch(chr) {
+			case ')': case '}': case ']': case '>':
+				--balance_parenthesis;
+				if(enclosers.top() != chr) {
+					throw runtime_error(string("Should be closing characters:") + enclosers.top() + string(" instead of:") + chr
+						+ string(" index=") + to_string(index) + string(" end_offset=") + to_string(end_offset));
+				}
+				enclosers.pop();
+				if(balance_parenthesis == 0) {
+					still_running = false;
+				} else {
+					current_arg += chr;
+				}
+				break;
+			case '(': case '{': case '[': case '<':
+				++balance_parenthesis;
+				enclosers.push(closing(chr));
+				current_arg += chr;
+				break;
+			case '"':
+				in_quotes = true;
+				current_arg += chr;
+				break;
+			case ',':
+				if(balance_parenthesis == 1) {
+					if(verbose_mode >= VERBOSE_DEBUG) {
+						cout << "\t" << "PUSH:" << current_arg << endl;
+					}
+					args.push_back(current_arg);
+					current_arg.clear();
+				} else {
+					current_arg += chr;
+				}
+				break;
+			default:
+				current_arg += chr;
+				break;
+		}
+	}
+	
+	// It might be unfinished like "[pid  4233] 19:58:35.831781 wait4(-1,  <unfinished ...>"
+	// or "[pid  5557] 19:58:35.831752 close(4<pipe:[52233]> <unfinished ...>"
+	if(verbose_mode >= VERBOSE_DEBUG) {
+		if(balance_parenthesis == 1) {
+			cout << "Unfinished" << endl;
+		}
+		cout << "ArgumentsParser balance_parenthesis=" << balance_parenthesis << "\n";
+		cout << "ArgumentsParser end_offset=" << end_offset << "\n";
+		cout << "ArgumentsParser still_running=" << still_running << "\n";
+		cout << "\t" << "LAST:" << current_arg << endl;
+	}
+	if(!current_arg.empty()) {
+		args.push_back(current_arg);
+	}
+	
+	return args;
+}
+
 /*
 This extracts the function name so the right parser can be created.
 The line might start or not, with the pid.
@@ -98,6 +198,8 @@ public:
 	size_t unfinished_offset;
 	int processid; // -1 if this is the current process.
 	CallState m_callstate;
+	vector<string> m_parsed_arguments;
+	string call_return;
 
 	PreparsedLine()
 	: processid(-1)
@@ -109,7 +211,7 @@ public:
 		int time_offset; // Beginning of the time-stamp.
 		if(0 == strncmp(line_start, pid_prefix, sizeof(pid_prefix) - 1) ) {
 			int pos_end;
-			int ret_scan = sscanf(line_start + sizeof(pid_prefix), "%d] %n", &processid, &pos_end);
+			int ret_scan = sscanf(line_start + sizeof(pid_prefix) - 1, "%d] %n", &processid, &pos_end);
 			if(1 != ret_scan) {
 				throw runtime_error("Cannot parse pid from:" + line);
 			}
@@ -121,13 +223,16 @@ public:
 			processid = -1;
 			time_offset = 0;
 		}
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			cout << "PROCESSID=" << processid << endl;
+		}
 		ParseTimestamp(line_start + time_offset);
 		const char * time_end = strchr(line_start + time_offset, ' ');
 		if(time_end == nullptr) {
 			throw std::runtime_error("No timestamp:" + line);
 		}
 
-		const char * function_valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789_";
+		static const char * function_valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789_";
 		const char * function_start = time_end + 1;
 		
 		// Maybe this is not a function call.
@@ -141,11 +246,6 @@ public:
 		size_t longest_ascii = strspn(function_start, function_valid_chars);
 		const char * function_end = function_start + longest_ascii;
 		bool is_valid_function = *function_end == '(';
-		// const char * function_end = strchr(function_start, '(');
-		/*
-			[pid  5557] 19:58:35.831752 close(4<pipe:[52233]> <unfinished ...>
-			[pid  5557] 19:58:35.831817 <... close resumed> ) = 0 <0.000041>
-		*/
 		
 		/*
 			[pid  4233] 19:58:35.831781 wait4(-1,  <unfinished ...>
@@ -165,8 +265,15 @@ public:
 			19:59:20.964728 wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5601 <0.000032>
 			19:59:20.965024 wait4(-1, 0x7fffa5fca610, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
 		*/
-		unfinished_offset = isUnfinished(function_start);
+		unfinished_offset = isUnfinished(line.c_str());
 		bool unfinished = unfinished_offset != NOT_UNFINISHED;
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			if(unfinished) {
+				cout << "After isUnfinished: NOT_UNFINISHED" << endl;
+			} else {
+				cout << "After isUnfinished: NOT_UNFINISHED" << endl;
+			}
+		}
 
 		const char str_resumed[] = " resumed>";
 		bool resumed = nullptr != strstr(function_start, str_resumed);
@@ -174,12 +281,13 @@ public:
 			throw runtime_error("Cannot be unfinished and resumed");
 		}
 		if(resumed) {
+			// The line is something like "[pid 22560] 10:43:33.601340 <... wait4 resumed> ) = 0 <0.000021>"
 			m_callstate = RESUMED;
 			if(is_valid_function) {
 				throw runtime_error("Function name not be valid if resumed.");
 			}
-			// Extract function from "<... wait4 resumed>", to be sure this is the right call.
-			const char str_dots[] = "<... ";
+			// Extract function to be sure this is the right call.
+			static const char str_dots[] = "<... ";
 			const char * ptr_dots = strstr(function_start, str_dots);
 			if(ptr_dots == nullptr) {
 				throw runtime_error(string("Cannot find:") + str_dots);
@@ -190,6 +298,11 @@ public:
 			if(0 != strncmp(function_end, str_resumed, sizeof(str_resumed) - 1)) {
 				throw runtime_error(string("Cannot find:") + str_resumed);
 			}
+
+			// The first arguments of the call are in the "unfinished" line, maybe none of them.
+			// The rest of these arguments - possibly none - comes in the "resumed" line.
+			// The beginning of the arguments of the resumed call come after "resumed>".
+			args_offset = function_end - line_start + sizeof(str_resumed) - 1;
 		} else {
 			m_callstate = unfinished ? UNFINISHED : PLAIN;
 			if(!is_valid_function) {
@@ -197,9 +310,9 @@ public:
 					"Function name must be valid if unfinished or ok. longest_ascii=" + to_string(longest_ascii)
 					+ "function_start=" + string(function_start));
 			}
+			args_offset = function_end - line_start;
 		}
 		function_name.assign(function_start, function_end);
-		args_offset = function_end - line_start;
 		
 		switch(m_callstate) {
 			case UNFINISHED:
@@ -209,106 +322,26 @@ public:
 				cout << "RESUMED " << function_name << " pid=" << processid << endl;
 				break;
 		}
+
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			cout << "BEFORE ArgumentsParser: args_offset=" << args_offset << endl;
+			cout << "BEFORE ArgumentsParser: line + args_offset=" << (line.c_str() + args_offset) << endl;
+		}
+		try {
+			m_parsed_arguments = ArgumentsParser(line, args_offset, unfinished_offset);
+		} catch(const exception & exc) {
+			cerr << "Line=" << line << endl;
+			throw;
+		}
+		if(!unfinished) {
+			// TODO: This should be faster by using the len.
+			const char * ptr_return_start = strrchr(line.c_str(), '=');
+			if(ptr_return_start != nullptr) {
+				call_return = ptr_return_start + 1; // After the "=" equal sign.
+			}
+		}
 	}
 };
-
-static char closing(char chr) {
-	switch(chr) {
-		case '(': return ')';
-		case '{': return '}';
-		case '[': return ']';
-		case '<': return '>';
-	}
-	throw runtime_error(string("Invalid char:") + chr);
-}
-
-static vector<string> ArgumentsParser(const string & line, size_t start_offset, size_t end_offset, bool verbose) {
-	if(verbose) {
-		cout << "LINE=" << line << "\n";
-	}
-	// Internal consistency check, which must be removed when parsing unfinished calls.
-	if(line[start_offset] != '(') {
-		throw std::runtime_error("Wrong offset:" + line);
-	}
-
-	const char * args_start = line.c_str() + start_offset;
-	/*
-	size_t end_offset = isUnfinished(args_start);
-	if(end_offset == NOT_UNFINISHED) {
-		// end_offset must be the last closing parenthesis. We can find it anyway.
-	} else {
-		cout << "UNFINISHED STRIPPED:" << string(args_start, args_start + end_offset) << "." << endl;
-	}
-	*/
-
-	bool in_quotes = false;
-	int balance_parenthesis = 1;
-	vector<string> args;
-	string current_arg;
-	bool still_running = true;
-	stack<char> enclosers;
-	enclosers.push(')');
-	for(size_t index = 1; still_running && (index < end_offset); ++index) {
-		const char chr = args_start[index];
-		if(in_quotes) {
-			if(chr == '"') {
-				in_quotes = false;
-			}
-			current_arg += chr;
-			continue;
-		}
-		switch(chr) {
-			case ')': case '}': case ']': case '>':
-				--balance_parenthesis;
-				if(enclosers.top() != chr) {
-					throw runtime_error(string("Should be closing characters:") + enclosers.top() + string(" instead of:") + chr);
-				}
-				enclosers.pop();
-				if(balance_parenthesis == 0) {
-					still_running = false;
-				} else {
-					current_arg += chr;
-				}
-				break;
-			case '(': case '{': case '[': case '<':
-				++balance_parenthesis;
-				enclosers.push(closing(chr));
-				current_arg += chr;
-				break;
-			case '"':
-				in_quotes = true;
-				current_arg += chr;
-				break;
-			case ',':
-				if(balance_parenthesis == 1) {
-					args.push_back(current_arg);
-					current_arg.clear();
-				} else {
-					current_arg += chr;
-				}
-				break;
-			default:
-				current_arg += chr;
-				break;
-		}
-	}
-	
-	// It might be unfinished like "[pid  4233] 19:58:35.831781 wait4(-1,  <unfinished ...>"
-	// or "[pid  5557] 19:58:35.831752 close(4<pipe:[52233]> <unfinished ...>"
-	if(balance_parenthesis == 1) {
-		cout << "Unfinished" << endl;
-	}
-	args.push_back(current_arg);
-	
-	// cout << "RETURN:" << line.substring(
-	/*
-	cout << "ARGS" << endl;
-	for(auto arg : args) {
-		cout << "    " << arg << "." << endl;
-	}
-	*/
-	return args;
-}
 
 /*******************************************************************************
 **
@@ -325,7 +358,7 @@ static const struct {
 	{ 4233, "close", "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
 	{ 1338, "wait4", "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>"},
 	{ 22672, "open", "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>"},
-	{ 22560, "close", "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>"},
+	{ 22560, "connect", "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>"},
 	{ -1, "poll", "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
 	{ -1, "wait4", "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>"},
 };
@@ -347,6 +380,122 @@ static void test_preparsed() {
 	printf("Preparsed test end : OK.\n");
 }
 
+
+static const struct {
+	const string line;
+	int processid;
+	const string function_name;
+	const vector<string> m_parsed_arguments;
+	const string call_return;
+} tests_preparsed2[] = {
+	{ "19:58:35.830656 ioctl(0</dev/pts/2>, SNDCTL_TMR_STOP or TCSETSW, {B38400 opost isig icanon echo ...}) = 0 <0.000017>",
+		-1,
+		"ioctl",
+		{"0</dev/pts/2>", " SNDCTL_TMR_STOP or TCSETSW", " {B38400 opost isig icanon echo ...}"},
+		" 0 <0.000017>"},
+	{ "[pid  5557] 19:58:35.833161 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7fb6a4518000 <0.000015>",
+		5557,
+		"mmap",
+		{"NULL", " 124494", " PROT_READ", " MAP_PRIVATE", " 3</etc/ld.so.cache>", " 0"},
+		" 0x7fb6a4518000 <0.000015>"},
+	{ "[pid  5557] 19:58:35.833374 fstat(3</usr/lib64/libselinux.so.1>, {st_mode=S_IFREG|0755, st_size=142112, ...}) = 0 <0.000012>",
+		5557,
+		"fstat",
+		{"3</usr/lib64/libselinux.so.1>", " {st_mode=S_IFREG|0755, st_size=142112, ...}"},
+		" 0 <0.000012>"},
+	{ "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>",
+		-1,
+		"clone",
+		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
+		" 5557 <0.000185>"},
+	{ "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>",
+		4233,
+		"close",
+		{"3<pipe:[52233]>"},
+		" 0 <0.000016>"},
+	{ "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>",
+		-1,
+		"wait4",
+		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " 0", " NULL"},
+		" 869 <0.307670>"},
+	{ "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>",
+		22672,
+		"open",
+		{"\"/lib64/libnsssysinit.so\"", " O_RDONLY|O_CLOEXEC"},
+		""},
+	{ "19:58:46.024321 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5562 <5.318296>",
+		-1,
+		"wait4",
+		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
+		" 5562 <5.318296>"},
+	{ "[pid  4233] 19:58:40.705564 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5562 <0.000564>",
+		4233,
+		"clone",
+		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
+		" 5562 <0.000564>"},
+	{ "19:58:35.841846 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5557 <0.010057>",
+		-1,
+		"wait4",
+		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
+		" 5557 <0.010057>"},
+	{ "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>",
+		1338,
+		"wait4",
+		{"-1"},
+		""},
+	{ "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>",
+		22560,
+		"connect",
+		{},
+		" 0 <0.000021>"},
+	{ "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>",
+		-1,
+		"poll",
+		{},
+		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
+};
+
+template<class Type>
+string to_string(const vector<Type> &vec) {
+	if(vec.empty()) {
+		return "[]";
+	}
+	return "[" + accumulate(next(vec.begin()), vec.end(),
+        vec[0],
+        [](const Type& a, const Type & b) { return a + "#" + b;	}
+	) + "]";
+}
+
+
+/*
+This extracts the beginning of a line displayed by strace. Notably, the pid is extracted.
+TODO: Test merge.
+*/
+static void test_preparsed2() {
+	for(auto tst : tests_preparsed2) {
+		cout << "=================================================================" << endl;
+		cout << "PreparsedLine:" << tst.line << endl;
+		PreparsedLine preparsed(tst.line);
+		if(preparsed.processid != tst.processid) {
+			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.processid));
+		}
+		if(preparsed.function_name != tst.function_name) {
+			throw runtime_error("Wrong function:" + preparsed.function_name + "!=" + tst.function_name);
+		}
+		if(preparsed.m_parsed_arguments != tst.m_parsed_arguments) {
+			cout << "ACTUAL:" << preparsed.m_parsed_arguments.size() << endl;
+			cout << "EXPECT:" << tst.m_parsed_arguments.size() << endl;
+			cout << "ACTUAL:" << to_string(preparsed.m_parsed_arguments) << endl;
+			cout << "EXPECT:" << to_string(tst.m_parsed_arguments) << endl;
+			throw runtime_error("Wrong arguments:" + to_string(preparsed.m_parsed_arguments) + "!=" + to_string(tst.m_parsed_arguments));
+		}
+		if(preparsed.call_return != tst.call_return) {
+			throw runtime_error("Wrong return:[" + preparsed.call_return + "]!=[" + tst.call_return + "]");
+		}
+	}
+	printf("Preparsed test end : OK.\n");
+}
+
 static const struct {
 	size_t unfinished;
 	const char * line;
@@ -361,6 +510,7 @@ static const struct {
 	{ 21, "close(4<pipe:[52233]> <unfinished ...>"},
 	{ 0, " <unfinished ...>"},
 	{ 0, ", <unfinished ...>"},
+	{ NOT_UNFINISHED, "close(4<pipe:[52233]> < unfinished ...>"},
 	{ NOT_UNFINISHED, "<unfinished ...> "},
 	{ NOT_UNFINISHED, "<unfinished>"},
 	{ NOT_UNFINISHED, "abc"},
@@ -393,7 +543,7 @@ struct test_def_parsing_args {
 	
 	void test() {
 		cout << "Input=" << input << endl;
-		vector<string> args = ArgumentsParser(input, 0, NOT_UNFINISHED, true);
+		vector<string> args = ArgumentsParser(input, 0, NOT_UNFINISHED);
 		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(cout, "+"));
 		cout << endl;
 		copy(args.begin(), args.end(), ostream_iterator<const string &>(cout, "+"));
@@ -431,21 +581,6 @@ static const test_def_parsing_args test_args_parsing[] = {
 	{"(AT_FDCWD, \"/usr/coreutils.moz\", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000031>",
 		{"AT_FDCWD", " \"/usr/coreutils.moz\"", " O_RDONLY"},
 		" -1 ENOENT (No such file or directory) <0.000031>"},
-	{"(x,\"y[a\",z)",
-		{"x", "\"y[a\"", "z"},
-		""},
-	{"(x,\"y}a\",z)",
-		{"x", "\"y}a\"", "z"},
-		""},
-	{"wait4(-1,  <unfinished ...>",
-		{"-1"},
-		""},
-	{"<... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 1345 <0.079248>",
-		{"-1"},
-		""},
-	{"<... vfork resumed> ) = 1350 <0.001543>",
-		{""},
-		"1350 <0.001543>"},
 };
 
 static void test_parsing() {
@@ -457,8 +592,9 @@ static void test_parsing() {
 }
 
 static void test_internal() {
-	test_preparsed();
 	test_unfinished();
+	test_preparsed();
+	test_preparsed2();
 	test_parsing();
 	printf("Internal test end : OK.\n");
 }
@@ -630,18 +766,8 @@ class STraceCall {
 protected:
 	vector<string> parsed_arguments;
 public:
-	STraceCall(const string & line, const PreparsedLine & preparsedLine) {
-		const char * line_start = line.c_str();
-		const char * time_end = strchr(line_start, ' ');
-		if(time_end == nullptr) {
-			throw std::runtime_error("No timestamp:" + line);
-		}
-		try {
-			parsed_arguments = ArgumentsParser(line, preparsedLine.args_offset, preparsedLine.unfinished_offset, true);
-		} catch(const exception & exc) {
-			cerr << "Line=" << line << endl;
-			throw;
-		}
+	STraceCall(const string & line, const PreparsedLine & preparsedLine)
+	: parsed_arguments(preparsedLine.m_parsed_arguments) {
 	}
 	
 	virtual const char * function() const = 0;
@@ -652,10 +778,10 @@ public:
 		return Signature().size();
 	}
 	
-	virtual void WriteCall(RdfOutput & rdfOutput, bool verbose) {
+	virtual void WriteCall(RdfOutput & rdfOutput) {
 		const auto & argsDefs = Signature();
 		size_t minArgs = MinimumArgumentsNumber();
-		if(verbose) {
+		if(verbose_mode >= VERBOSE_DEBUG) {
 			printf("Signature=%d Minimum=%d\n", (int)argsDefs.size(), (int)minArgs);
 		}
 		size_t index = 0;
@@ -668,11 +794,13 @@ public:
 				}
 			}
 			string value = parsed_arguments[index];
-			if(verbose) {
+			if(verbose_mode >= VERBOSE_DEBUG) {
 				cout << "First / Value=" << oneArg.first << " " << value << endl;
 			}
 			string asStr = oneArg.second.ToRdf(oneArg.first, value);
-			cout << "    " << asStr << endl;
+			if(verbose_mode >= VERBOSE_LOG) {
+				cout << "    " << asStr << endl;
+			}
 			++index;
 		}
 	}
@@ -685,10 +813,13 @@ public:
 	}
 	
 	void MergeWithResumed(const PreparsedLine & resumed) {
+		cout << "MERGING " << function() << endl;
 		if(resumed.function_name != function()) {
 			throw runtime_error(string("Cannot merge ") + function() + " with " + resumed.function_name);
 		}
-		cout << "MERGING " << function() << endl;
+		//parsed_arguments.insert(0, resumed.m_parsed_arguments.begin(), resumed.m_parsed_arguments.end());
+		// The other way around.
+		// Check valid number of arguments.
 	}
 };
 
@@ -981,23 +1112,25 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 	throw runtime_error("Invalid call state");
 }
 
+static size_t processed_lines = 0;
 
-static void process_line(RdfOutput & rdfOutput, const string &line, size_t line_number, bool verbose) {
-	if(verbose) {
-		cout << line_number << "\t" << line << endl;
+static void process_line(RdfOutput & rdfOutput, const string &line) {
+	if(verbose_mode >= VERBOSE_LOG) {
+		cout << processed_lines << "\t" << line << endl;
 	}
 	try {
 		shared_ptr<STraceCall> ptr = STraceFactory::factory(line);
 		if(ptr.get() == nullptr) {
 			return;
 		}
-		if(verbose) {
+		if(verbose_mode >= VERBOSE_DEBUG) {
 			cout << "Function=" << ptr->function() << endl;
 			ptr->Display();
 		}
-		ptr->WriteCall(rdfOutput, verbose);
+		ptr->WriteCall(rdfOutput);
+		++processed_lines;
 	} catch( const std::exception & exc) {
-		printf("Line %d Caught:%s\n", (int)line_number, exc.what());
+		printf("Line %d Caught:%s\n", (int)processed_lines, exc.what());
 		printf("RET=%s\n", line.c_str());
 	}
 }
@@ -1041,7 +1174,7 @@ static string readline(int fd) {
 	return result;
 }
 
-static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd, bool verbose) {
+static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd) {
     int i, e;
     int p[3][2];
     pid_t pid;
@@ -1064,10 +1197,10 @@ static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd, bool ver
         fd[STDERR_FILENO] = p[STDERR_FILENO][0];
         close(p[STDERR_FILENO][1]);
 
-		for(size_t line_number = 1;; ++line_number) {
+		for(;;) {
 			string ret = readline(fd[STDERR_FILENO]);
 			if(ret.empty()) break;
-			process_line(rdfOutput, ret, line_number, verbose);
+			process_line(rdfOutput, ret);
 		}
 		printf("END STDERR end\n");
         // success
@@ -1102,7 +1235,7 @@ static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd, bool ver
     return -1;
 }
 
-static int execute_command(RdfOutput & rdfOutput, const vector<string> & command, bool verbose) {
+static int execute_command(RdfOutput & rdfOutput, const vector<string> & command) {
 	int fd[3];
 	const char ** ptr_chars = new const char *[command.size() + 1];
 	for(size_t index = 0; index < command.size(); ++index) {
@@ -1115,7 +1248,7 @@ static int execute_command(RdfOutput & rdfOutput, const vector<string> & command
 	copy(ptr_chars, ptr_chars + command.size(), ostream_iterator<const char *>(cout, " "));
 	cout.flush();
 	printf("\n");
-	int ret = popen3(rdfOutput, fd, (char * const *)ptr_chars, verbose);
+	int ret = popen3(rdfOutput, fd, (char * const *)ptr_chars);
 	delete[] ptr_chars;
 	return ret;
 }
@@ -1125,14 +1258,12 @@ static int execute_command(RdfOutput & rdfOutput, const vector<string> & command
 ** Replaying a log file.
 **
 *******************************************************************************/
-static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_log, bool verbose) {
+static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_log) {
 	ifstream infile(replay_log);
 	string input_line;
-	size_t line_number = 0;
 	while(infile.good()){
 		getline(infile, input_line);
-		process_line(rdfOutput, input_line, line_number, verbose);
-		++line_number;
+		process_line(rdfOutput, input_line);
 	}
 	return 0;
 }
@@ -1146,30 +1277,31 @@ static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_lo
 class CommandExecutor {
 	vector<string> m_command;
 	string m_input_file;
-	bool m_verbose;
-
 
 public:
 	/* The parameters can be a Linux command to execute in strace, or an input file to replay a session.*/
-	CommandExecutor(vector<string> command, bool verbose) : m_command(command), m_verbose(verbose) {}
+	CommandExecutor(vector<string> command) : m_command(command) {}
 	
 	/* This is the log of the execution of a previous strace run. */
-	CommandExecutor(string input_file, bool verbose) : m_input_file(input_file), m_verbose(verbose) {}
+	CommandExecutor(string input_file) : m_input_file(input_file) {}
 	
 	void Execute(RdfOutput & rdfOutput) {
+		processed_lines = 0;
 		if(m_input_file.empty()) {
 			if(m_command.empty()) {
 				throw runtime_error("No command given");
 			}
 			// append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
-			int ret = execute_command(rdfOutput, m_command, m_verbose);
+			int ret = execute_command(rdfOutput, m_command);
 			printf("ret=%d\n", ret);
 		} else {
 			if(!m_command.empty()) {
 				throw runtime_error("Command should be empty");
 			}
-			replay_strace_logfile(rdfOutput, m_input_file, m_verbose);
+			replay_strace_logfile(rdfOutput, m_input_file);
 		}
+		
+		cout << "Processed lines:" << processed_lines << endl;
 	}
 };
 
@@ -1181,7 +1313,6 @@ class CommandCreator {
 	string output_file;
 	const char * processid = nullptr;
 	size_t index ;
-	bool verbose;
 public:
 	CommandCreator(int input_argc, const char ** input_argv)
 	: argc(input_argc)
@@ -1190,7 +1321,7 @@ public:
 		First come some options, then the command.
 		*/
 		index = 1;
-		verbose = false;
+		verbose_mode = 0;
 		for(; index < argc; ++index)
 		{
 			const char * arg = argv[index];
@@ -1239,7 +1370,7 @@ public:
 				test_internal();
 			}
 			else if(0 == strcmp(arg, "-v")) {
-				verbose = true;
+				++verbose_mode;
 			}
 			else if(0 == strcmp(arg, "-h") || 0 == strcmp(arg, "-?")) {
 				printf("%s <options> command ....\n", argv[0]);
@@ -1263,7 +1394,7 @@ public:
 			if(index != argc) {
 				throw runtime_error("No command should be given with an input file.");
 			}
-			return CommandExecutor(input_file, verbose);
+			return CommandExecutor(input_file);
 		} else {
 			vector<string> command = strace_command();
 			if(processid == nullptr) {
@@ -1281,7 +1412,7 @@ public:
 				}
 				append_vector(command, vector<string>({"-p", processid}));
 			}
-			return CommandExecutor(command, verbose);
+			return CommandExecutor(command);
 		}
 	}
 	
