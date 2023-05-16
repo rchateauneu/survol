@@ -102,15 +102,41 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 	vector<string> args;
 	string current_arg;
 	bool still_running = true;
+	bool escaped = false;
 	stack<char> enclosers;
 	enclosers.push(')');
 	for(size_t index = start_offset + 1; still_running && (index < end_offset); ++index) {
 		const char chr = line[index];
 		if(in_quotes) {
-			if(chr == '"') {
-				in_quotes = false;
+			// If in a string.
+			switch(chr) {
+				case '\\':
+					if(escaped) {
+						// TODO: It might be followed with a non-ascii char.
+						current_arg += '\\';
+						escaped = false;
+					} else {
+						escaped = true;
+					}
+					break;
+				case '"':
+					// strace might embed a double-quote in a string.
+					if(escaped) {
+						current_arg += '\\';
+						escaped = false;
+					} else {
+						in_quotes = false;
+					}
+					current_arg += '"';
+					break;
+				default:
+					if(escaped) {
+						current_arg += '\\';
+						escaped = false;
+					}
+					current_arg += chr;
+					break;
 			}
-			current_arg += chr;
 			continue;
 		}
 		switch(chr) {
@@ -453,7 +479,49 @@ static const struct {
 		"poll",
 		{},
 		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
+	{ "22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, \"ABC\", 832) = 832 <0.000031>",
+		-1,
+		"read",
+		{"7</usr/libpcre2-8.so.0.9.0>", " \"ABC\"", " 832"},
+		" 832 <0.000031>"
+	},
+	{ R"(22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, "\177ELF\340\"\0\0\222\2@T\18\4\1&", 832) = 832 <0.000031>)",
+		-1,
+		"read",
+		{"7</usr/libpcre2-8.so.0.9.0>", R"( "\177ELF\340\"\0\0\222\2@T\18\4\1&")", " 832"},
+		" 832 <0.000031>"
+	},
+	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
+		-1,
+		"execve",
+		{"\"/usr/bin/ls\"", " [\"ls\"]", " 0x7fffde63bf28 /* 18 vars */"},
+		" 0 <0.003298>"
+	},
+	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls", "-l"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
+		-1,
+		"execve",
+		{"\"/usr/bin/ls\"", " [\"ls\", \"-l\"]", " 0x7fffde63bf28 /* 18 vars */"},
+		" 0 <0.003298>"
+	},
 };
+
+#ifdef TEST_THIS
+
+[pid 22568] 10:43:27.981223 recvmsg(51<UNIX:[15588905->15588906]>,  <unfinished ...>
+
+[pid 22568] 10:43:27.993342 close(49<UNIX:[15589437->15589436]>) = 0 <0.000006>
+
+[pid 22526] 10:43:25.744972 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, 0x7f7794efc9e7, 1, MSG_PEEK, NULL, NULL) = -1 EAGAIN (Resource temporarily unavailable) <0.000012>
+
+[pid 22526] 10:43:25.744679 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"..., 32768, 0, NULL, NULL) = 384 <0.000012>
+
+[pid 22526] 10:43:25.737922 poll([{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}], 2, -1 <unfinished ...>
+
+[pid 22526] 10:43:25.737840 sendto(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"..., 296, 0, NULL, 0) = 296 <0.000033>
+
+[pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>
+
+#endif
 
 template<class Type>
 string to_string(const vector<Type> &vec) {
@@ -623,6 +691,7 @@ static void test_internal() {
     <rdfs:seeAlso rdf:resource="RabbitMQ%20concepts?mode=cluster"/>
   </rdf:Description>
 
+  <rdf:Description rdf:about=
 "http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home">
     <ns1:Category>Others</ns1:Category>
     <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
@@ -631,6 +700,9 @@ static void test_internal() {
   </rdf:Description>
 
 */
+
+static const string survolUrl = "http://www.primhillcomputers.com/survol";
+
 
 
 class RdfOutput {
@@ -648,31 +720,23 @@ public:
 			m_must_close = true;
 		}
 		
-		*m_ostream << R"(\
-<?xml version="1.0" encoding="UTF-8"?>
-<rdf:RDF
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-   xmlns:survol="http://www.primhillcomputers.com/survol#"
->
-)";
+		*m_ostream << R"(<?xml version="1.0" encoding="UTF-8"?>)" << endl;
+		*m_ostream << R"(<rdf:RDF)" << endl;
+		*m_ostream << R"(   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#")" << endl;
+		*m_ostream << R"(   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#")" << endl;
+		*m_ostream << R"(   xmlns:survol=")" << survolUrl << R"(#")" << endl;
+		*m_ostream << R"(>)" << endl;
 	}
 
 	~RdfOutput() {
-		*m_ostream << R"(\
-</rdf:RDF>
-)";
+		*m_ostream << "</rdf:RDF>" << endl;
 		if(m_must_close) {
 			m_ofstream.close();
 		}
 	}
 
-	void WriteTriple(const string &subject, const string &property, const string &object) {
-/*
-		*m_ostream <<     "<rdf:Description rdf:about=\"" << subject << "\">" << endl;
-    <love:hasCuteName>Johnny Boy</love:hasCuteName>
-		*m_ostream <<     "</rdf:Description>" << endl;	
-*/
+	void WriteLine(const string &outputLine) {
+		*m_ostream << outputLine << endl;
 	}
 };
 
@@ -680,8 +744,41 @@ public:
 **
 ** Types of arguments of system calls.
 **
+    <ns1:Category>Others</ns1:Category>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home</ns1:Name>
+    <ns1:FileName>home</ns1:FileName>
+	
+	
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1237">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_Process"/>
+    <ldt:pid>1237</ldt:pid>
+    <rdfs:label>oracle</rdfs:label>
+    <ldt:LMI_Account>oracle</ldt:LMI_Account>
+    <ldt:Handle>1237</ldt:Handle>
+    <ldt:ppid rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1"/>
+  </rdf:Description>
+  
 *******************************************************************************/
+
+static string tag_open(const string & property) {
+	return "<survol:" + property + ">";
+}
+
+static string tag_close(const string & property) {
+	return "</survol:" + property + ">";
+}
+
+static string tag_resource(const string & property, const string & resource) {
+	return "<survol:" + property + " rdf:resource=\"" + survolUrl + "/" + property + ".TheKey=" + resource + "/>";
+}
+
+static string tag_write(const string & property, const string & input_txt) {
+	return tag_open(property) + input_txt + tag_close(property);
+}
+
 struct ArgumentType {
+	// FIXME : property is never used.
 	virtual string ToRdf(const string & property, const string & input_txt) const = 0;
 };
 
@@ -692,66 +789,100 @@ struct ArgumentTypeWrapper : public ArgumentType {
 
 struct SystemCallArgument_ProcessId : public ArgumentTypeWrapper<SystemCallArgument_ProcessId> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("ProcessHandle", input_txt);
 	}
 };
 struct SystemCallArgument_IntPtr : public ArgumentTypeWrapper<SystemCallArgument_IntPtr> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("MemoryAddress", input_txt);
 	}
 };
 struct SystemCallArgument_Int : public ArgumentTypeWrapper<SystemCallArgument_Int> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("DummyInteger", input_txt);
 	}
 };
 struct SystemCallArgument_RusagePtr : public ArgumentTypeWrapper<SystemCallArgument_RusagePtr> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("MemoryAddress", input_txt);
 	}
 };
 struct SystemCallArgument_Fd : public ArgumentTypeWrapper<SystemCallArgument_Fd> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("FileDescriptor", input_txt);
 	}
 };
 struct SystemCallArgument_Addr : public ArgumentTypeWrapper<SystemCallArgument_Addr> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("IPAddress", input_txt);
 	}
 };
 struct SystemCallArgument_AddrLen : public ArgumentTypeWrapper<SystemCallArgument_AddrLen> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("IPAddressLen", input_txt);
 	}
 };
 struct SystemCallArgument_PathName : public ArgumentTypeWrapper<SystemCallArgument_PathName> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_resource("CIM_PathName", input_txt);
 	}
 };
 struct SystemCallArgument_ArgV : public ArgumentTypeWrapper<SystemCallArgument_ArgV> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("MemoryAddress", input_txt);
 	}
 };
 struct SystemCallArgument_EnvP : public ArgumentTypeWrapper<SystemCallArgument_EnvP> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("MemoryAddress", input_txt);
 	}
 };
 struct SystemCallArgument_Flags : public ArgumentTypeWrapper<SystemCallArgument_Flags> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("DummyInteger", input_txt);
 	}
 };
 struct SystemCallArgument_Mode : public ArgumentTypeWrapper<SystemCallArgument_Mode> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return property + "=" + input_txt;
+		return tag_write("DummyInteger", input_txt);
 	}
 };
 
 typedef initializer_list< pair<const char *, const ArgumentType &> > FunctionSignature;
+
+
+class ObjectStart {
+	RdfOutput & rm_dfOutput;
+public:
+	ObjectStart(RdfOutput & rdfOutput, const string &func)
+	: rm_dfOutput(rdfOutput) {
+		rm_dfOutput.WriteLine("<rdf:Description about=\"" + survolUrl + "/" + func + "\">");
+	}
+	
+	~ObjectStart() {
+		rm_dfOutput.WriteLine("</rdf:Description>");
+	}
+};
+
+class PropertyStart {
+	RdfOutput & rm_dfOutput;
+public:
+	PropertyStart(RdfOutput & rdfOutput, const pair<const char *, const ArgumentType &> & oneArg, const string & value )
+	: rm_dfOutput(rdfOutput) {
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			cout << "First / Value=" << oneArg.first << " " << value << endl;
+		}
+		string trimedValue = value;
+		trimedValue.erase(0, trimedValue.find_first_not_of("\t\n\v\f\r ")); // left trim
+		trimedValue.erase(trimedValue.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+		const string & rdfOut = oneArg.second.ToRdf(oneArg.first, trimedValue);
+		rm_dfOutput.WriteLine("    " + rdfOut);
+		if(verbose_mode >= VERBOSE_LOG) {
+			cout << "    " << rdfOut << endl;
+		}
+	}
+};
+
 
 /*******************************************************************************
 **
@@ -778,12 +909,26 @@ public:
 		return Signature().size();
 	}
 	
+	/*
+  <rdf:Description rdf:about=
+"http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home">
+    <ns1:Category>Others</ns1:Category>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home</ns1:Name>
+    <ns1:FileName>home</ns1:FileName>
+  </rdf:Description>
+	*/
 	virtual void WriteCall(RdfOutput & rdfOutput) {
 		const auto & argsDefs = Signature();
+		if(parsed_arguments.size() > argsDefs.size()) {
+			throw runtime_error("Too many arguments when writing");
+		}
+
 		size_t minArgs = MinimumArgumentsNumber();
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			printf("Signature=%d Minimum=%d\n", (int)argsDefs.size(), (int)minArgs);
 		}
+		ObjectStart start(rdfOutput, function());
 		size_t index = 0;
 		for(const auto & oneArg : argsDefs) {
 			if(index >= parsed_arguments.size()) {
@@ -794,13 +939,7 @@ public:
 				}
 			}
 			string value = parsed_arguments[index];
-			if(verbose_mode >= VERBOSE_DEBUG) {
-				cout << "First / Value=" << oneArg.first << " " << value << endl;
-			}
-			string asStr = oneArg.second.ToRdf(oneArg.first, value);
-			if(verbose_mode >= VERBOSE_LOG) {
-				cout << "    " << asStr << endl;
-			}
+			PropertyStart val(rdfOutput, oneArg, value);
 			++index;
 		}
 	}
@@ -817,9 +956,13 @@ public:
 		if(resumed.function_name != function()) {
 			throw runtime_error(string("Cannot merge ") + function() + " with " + resumed.function_name);
 		}
-		//parsed_arguments.insert(0, resumed.m_parsed_arguments.begin(), resumed.m_parsed_arguments.end());
-		// The other way around.
-		// Check valid number of arguments.
+		parsed_arguments.insert(parsed_arguments.end(), resumed.m_parsed_arguments.begin(), resumed.m_parsed_arguments.end());
+		if(parsed_arguments.size() <= MinimumArgumentsNumber()) {
+			throw runtime_error("Not enough arguments after merging");
+		}
+		if(parsed_arguments.size() > Signature().size()) {
+			throw runtime_error("Too many arguments after merging");
+		}
 	}
 };
 
@@ -1130,8 +1273,8 @@ static void process_line(RdfOutput & rdfOutput, const string &line) {
 		ptr->WriteCall(rdfOutput);
 		++processed_lines;
 	} catch( const std::exception & exc) {
-		printf("Line %d Caught:%s\n", (int)processed_lines, exc.what());
-		printf("RET=%s\n", line.c_str());
+		cerr << "Line:" << processed_lines << ". Caught:" <<  exc.what() << endl;
+		cerr << "RET=" << line << endl;
 	}
 }
 
