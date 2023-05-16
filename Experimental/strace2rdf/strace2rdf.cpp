@@ -33,6 +33,10 @@ enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED};
 // Largest possible string offset.
 static const size_t NOT_UNFINISHED = size_t(~0);
 
+static ostream & logger() {
+	return cerr;
+}
+
 /*
 If this is a normal call, not unfinished, it returns NOT_UNFINISHED.
 Otherwise, this returns the offset just after the end of the last argument,
@@ -72,12 +76,13 @@ static size_t isUnfinished(const char * line) {
 	return end_offset;
 }
 
+/* These are the valid enclosing characters for the arguments of a system call, as dosplayed by strace.
+This function is used to expect the proper enclosing char when the opening one is met. */
 static char closing(char chr) {
 	switch(chr) {
 		case '(': return ')';
 		case '{': return '}';
 		case '[': return ']';
-		case '<': return '>';
 	}
 	throw runtime_error(string("Invalid char:") + chr);
 }
@@ -86,14 +91,14 @@ static char closing(char chr) {
 #define VERBOSE_DEBUG 2
 static int verbose_mode = 0;
 
-static vector<string> ArgumentsParser(const string & line, size_t start_offset, size_t end_offset) {
+static vector<string> ArgumentsParser(const string & line, size_t start_offset, size_t end_offset, size_t & args_end) {
 	if(verbose_mode >= VERBOSE_LOG) {
-		cout << "ArgumentsParser LINE=" << line << "\n";
+		logger() << "ArgumentsParser LINE=" << line << "\n";
 	}
 	if(verbose_mode >= VERBOSE_DEBUG) {
-		cout << "ArgumentsParser end_offset=" << end_offset << "\n";
+		logger() << "ArgumentsParser end_offset=" << end_offset << "\n";
 		if(end_offset != NOT_UNFINISHED) {
-			cout << "ArgumentsParser line.substr(start_offset, end_offset-start_offset)=" << line.substr(start_offset, end_offset-start_offset) << "\n";
+			logger() << "ArgumentsParser line.substr(start_offset, end_offset-start_offset)=" << line.substr(start_offset, end_offset-start_offset) << "\n";
 		}
 	}
 
@@ -105,8 +110,8 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 	bool escaped = false;
 	stack<char> enclosers;
 	enclosers.push(')');
-	for(size_t index = start_offset + 1; still_running && (index < end_offset); ++index) {
-		const char chr = line[index];
+	for(args_end = start_offset + 1; still_running && (args_end < end_offset); ++args_end) {
+		const char chr = line[args_end];
 		if(in_quotes) {
 			// If in a string.
 			switch(chr) {
@@ -140,11 +145,11 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 			continue;
 		}
 		switch(chr) {
-			case ')': case '}': case ']': case '>':
+			case ')': case '}': case ']':
 				--balance_parenthesis;
 				if(enclosers.top() != chr) {
 					throw runtime_error(string("Should be closing characters:") + enclosers.top() + string(" instead of:") + chr
-						+ string(" index=") + to_string(index) + string(" end_offset=") + to_string(end_offset));
+						+ string(" args_end=") + to_string(args_end) + string(" end_offset=") + to_string(end_offset));
 				}
 				enclosers.pop();
 				if(balance_parenthesis == 0) {
@@ -153,7 +158,7 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 					current_arg += chr;
 				}
 				break;
-			case '(': case '{': case '[': case '<':
+			case '(': case '{': case '[':
 				++balance_parenthesis;
 				enclosers.push(closing(chr));
 				current_arg += chr;
@@ -165,7 +170,7 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 			case ',':
 				if(balance_parenthesis == 1) {
 					if(verbose_mode >= VERBOSE_DEBUG) {
-						cout << "\t" << "PUSH:" << current_arg << endl;
+						logger() << "\t" << "PUSH:" << current_arg << endl;
 					}
 					args.push_back(current_arg);
 					current_arg.clear();
@@ -183,12 +188,12 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 	// or "[pid  5557] 19:58:35.831752 close(4<pipe:[52233]> <unfinished ...>"
 	if(verbose_mode >= VERBOSE_DEBUG) {
 		if(balance_parenthesis == 1) {
-			cout << "Unfinished" << endl;
+			logger() << "Unfinished" << endl;
 		}
-		cout << "ArgumentsParser balance_parenthesis=" << balance_parenthesis << "\n";
-		cout << "ArgumentsParser end_offset=" << end_offset << "\n";
-		cout << "ArgumentsParser still_running=" << still_running << "\n";
-		cout << "\t" << "LAST:" << current_arg << endl;
+		logger() << "ArgumentsParser balance_parenthesis=" << balance_parenthesis << "\n";
+		logger() << "ArgumentsParser end_offset=" << end_offset << "\n";
+		logger() << "ArgumentsParser still_running=" << still_running << "\n";
+		logger() << "\t" << "LAST:" << current_arg << endl;
 	}
 	if(!current_arg.empty()) {
 		args.push_back(current_arg);
@@ -250,7 +255,7 @@ public:
 			time_offset = 0;
 		}
 		if(verbose_mode >= VERBOSE_DEBUG) {
-			cout << "PROCESSID=" << processid << endl;
+			logger() << "PROCESSID=" << processid << endl;
 		}
 		ParseTimestamp(line_start + time_offset);
 		const char * time_end = strchr(line_start + time_offset, ' ');
@@ -273,31 +278,13 @@ public:
 		const char * function_end = function_start + longest_ascii;
 		bool is_valid_function = *function_end == '(';
 		
-		/*
-			[pid  4233] 19:58:35.831781 wait4(-1,  <unfinished ...>
-			19:58:35.841846 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5557 <0.010057>
-			19:58:35.842034 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
-			[pid  4233] 19:58:40.706014 wait4(-1,  <unfinished ...>
-			19:58:46.024321 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5562 <5.318296>
-			19:58:46.024677 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000013>
-			[pid  4233] 19:58:51.281110 wait4(-1,  <unfinished ...>
-			19:58:51.790724 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5573 <0.509606>
-			19:58:51.790942 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
-			[pid  4233] 19:59:02.345211 wait4(-1,  <unfinished ...>
-			19:59:07.208177 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5584 <4.862956>
-			19:59:07.208490 wait4(-1, 0x7fffa5fca650, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000010>
-			[pid  4233] 19:59:20.542876 wait4(-1,  <unfinished ...>
-			19:59:20.964701 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5602 <0.421816>
-			19:59:20.964728 wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5601 <0.000032>
-			19:59:20.965024 wait4(-1, 0x7fffa5fca610, WNOHANG|WSTOPPED|WCONTINUED, NULL) = -1 ECHILD (No child processes) <0.000007>
-		*/
 		unfinished_offset = isUnfinished(line.c_str());
 		bool unfinished = unfinished_offset != NOT_UNFINISHED;
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			if(unfinished) {
-				cout << "After isUnfinished: NOT_UNFINISHED" << endl;
+				logger() << "After isUnfinished: NOT_UNFINISHED" << endl;
 			} else {
-				cout << "After isUnfinished: NOT_UNFINISHED" << endl;
+				logger() << "After isUnfinished: NOT_UNFINISHED" << endl;
 			}
 		}
 
@@ -340,30 +327,50 @@ public:
 		}
 		function_name.assign(function_start, function_end);
 		
-		switch(m_callstate) {
-			case UNFINISHED:
-				cout << "UNFINISHED " << function_name << " pid=" << processid << endl;
-				break;
-			case RESUMED:
-				cout << "RESUMED " << function_name << " pid=" << processid << endl;
-				break;
-		}
-
 		if(verbose_mode >= VERBOSE_DEBUG) {
-			cout << "BEFORE ArgumentsParser: args_offset=" << args_offset << endl;
-			cout << "BEFORE ArgumentsParser: line + args_offset=" << (line.c_str() + args_offset) << endl;
+			switch(m_callstate) {
+				case UNFINISHED:
+					logger() << "UNFINISHED " << function_name << " pid=" << processid << endl;
+					break;
+				case RESUMED:
+					logger() << "RESUMED " << function_name << " pid=" << processid << endl;
+					break;
+			}
+
+			logger() << "BEFORE ArgumentsParser: args_offset=" << args_offset << endl;
+			logger() << "BEFORE ArgumentsParser: line + args_offset=" << (line.c_str() + args_offset) << endl;
 		}
+		size_t args_end;
 		try {
-			m_parsed_arguments = ArgumentsParser(line, args_offset, unfinished_offset);
+			m_parsed_arguments = ArgumentsParser(line, args_offset, unfinished_offset, args_end);
 		} catch(const exception & exc) {
-			cerr << "Line=" << line << endl;
+			logger() << "Line=" << line << endl;
 			throw;
 		}
 		if(!unfinished) {
 			// TODO: This should be faster by using the len.
+			
+			/*
+			It is not possible to detect the return value with the last "=" equal sign. Example:
+			[pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>
+			*/
+			/*
 			const char * ptr_return_start = strrchr(line.c_str(), '=');
 			if(ptr_return_start != nullptr) {
 				call_return = ptr_return_start + 1; // After the "=" equal sign.
+			}
+			*/
+			if(verbose_mode >= VERBOSE_DEBUG) {
+				logger() << "args_end=" << args_end << " len=" << line.size() << ":" << line.substr(args_end) << endl;
+			}
+			if( args_end < line.size() - 4) {
+				size_t offsetEqual = line.find('=', args_end);
+				if(offsetEqual == string::npos) {
+					throw runtime_error("Invalid end of arguments");
+				}
+				call_return = line.substr(offsetEqual + 1); // After "=" equal sign.
+			} else {
+				call_return.clear();
 			}
 		}
 	}
@@ -394,7 +401,7 @@ This extracts the beginning of a line displayed by strace. Notably, the pid is e
 */
 static void test_preparsed() {
 	for(auto tst : tests_preparsed) {
-		cout << "PreparsedLine:" << tst.line << endl;
+		logger() << "PreparsedLine:" << tst.line << endl;
 		PreparsedLine preparsed(tst.line);
 		if(preparsed.processid != tst.pid) {
 			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.pid));
@@ -407,6 +414,10 @@ static void test_preparsed() {
 }
 
 
+/* This contains typical lines displayed by strace. Each line represents a call to a system function.
+Some calls are unfinished then resumed, possibly due to the reception of a signal.
+In this case, two lines are displayed. The arguments might be split between the two lines.
+The return value is at the end of the second line. */
 static const struct {
 	const string line;
 	int processid;
@@ -503,25 +514,49 @@ static const struct {
 		{"\"/usr/bin/ls\"", " [\"ls\", \"-l\"]", " 0x7fffde63bf28 /* 18 vars */"},
 		" 0 <0.003298>"
 	},
+	{ R"([pid 22568] 10:43:27.981223 recvmsg(51<UNIX:[15588905->15588906]>,  <unfinished ...>)",
+		22568,
+		"recvmsg",
+		{"51<UNIX:[15588905->15588906]>"},
+		""
+	},
+	{ R"([pid 22568] 10:43:27.993342 close(49<UNIX:[15589437->15589436]>) = 0 <0.000006>)",
+		22568,
+		"close",
+		{"49<UNIX:[15589437->15589436]>"},
+		" 0 <0.000006>"
+	},
+	{ R"([pid 22526] 10:43:25.744972 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, 0x7f7794efc9e7, 1, MSG_PEEK, NULL, NULL) = -1 EAGAIN (Resource temporarily unavailable) <0.000012>)",
+		22526,
+		"recvfrom",
+		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", " 0x7f7794efc9e7", " 1", " MSG_PEEK", " NULL", " NULL"},
+		" -1 EAGAIN (Resource temporarily unavailable) <0.000012>"
+	},
+	{ R"([pid 22526] 10:43:25.744679 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"..., 32768, 0, NULL, NULL) = 384 <0.000012>)",
+		22526,
+		"recvfrom",
+		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"...)", " 32768", " 0", " NULL", " NULL"},
+		" 384 <0.000012>"
+	},
+	{ R"([pid 22526] 10:43:25.737922 poll([{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}], 2, -1 <unfinished ...>)",
+		22526,
+		"poll",
+		{"[{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}]", " 2", " -1"},
+		""
+	},
+	{ R"([pid 22526] 10:43:25.737840 sendto(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"..., 296, 0, NULL, 0) = 296 <0.000033>)",
+		22526,
+		"sendto",
+		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"...)", " 296", " 0", " NULL", " 0"},
+		" 296 <0.000033>"
+	},
+	{ R"([pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>)",
+		22560,
+		"poll",
+		{"[{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}]", " 1", " 4999"},
+		" 1 ([{fd=65, revents=POLLIN}]) <0.000009>"
+	},
 };
-
-#ifdef TEST_THIS
-
-[pid 22568] 10:43:27.981223 recvmsg(51<UNIX:[15588905->15588906]>,  <unfinished ...>
-
-[pid 22568] 10:43:27.993342 close(49<UNIX:[15589437->15589436]>) = 0 <0.000006>
-
-[pid 22526] 10:43:25.744972 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, 0x7f7794efc9e7, 1, MSG_PEEK, NULL, NULL) = -1 EAGAIN (Resource temporarily unavailable) <0.000012>
-
-[pid 22526] 10:43:25.744679 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"..., 32768, 0, NULL, NULL) = 384 <0.000012>
-
-[pid 22526] 10:43:25.737922 poll([{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}], 2, -1 <unfinished ...>
-
-[pid 22526] 10:43:25.737840 sendto(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"..., 296, 0, NULL, 0) = 296 <0.000033>
-
-[pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>
-
-#endif
 
 template<class Type>
 string to_string(const vector<Type> &vec) {
@@ -541,8 +576,8 @@ TODO: Test merge.
 */
 static void test_preparsed2() {
 	for(auto tst : tests_preparsed2) {
-		cout << "=================================================================" << endl;
-		cout << "PreparsedLine:" << tst.line << endl;
+		logger() << "=================================================================" << endl;
+		logger() << "PreparsedLine:" << tst.line << endl;
 		PreparsedLine preparsed(tst.line);
 		if(preparsed.processid != tst.processid) {
 			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.processid));
@@ -551,10 +586,10 @@ static void test_preparsed2() {
 			throw runtime_error("Wrong function:" + preparsed.function_name + "!=" + tst.function_name);
 		}
 		if(preparsed.m_parsed_arguments != tst.m_parsed_arguments) {
-			cout << "ACTUAL:" << preparsed.m_parsed_arguments.size() << endl;
-			cout << "EXPECT:" << tst.m_parsed_arguments.size() << endl;
-			cout << "ACTUAL:" << to_string(preparsed.m_parsed_arguments) << endl;
-			cout << "EXPECT:" << to_string(tst.m_parsed_arguments) << endl;
+			logger() << "ACTUAL:" << preparsed.m_parsed_arguments.size() << endl;
+			logger() << "EXPECT:" << tst.m_parsed_arguments.size() << endl;
+			logger() << "ACTUAL:" << to_string(preparsed.m_parsed_arguments) << endl;
+			logger() << "EXPECT:" << to_string(tst.m_parsed_arguments) << endl;
 			throw runtime_error("Wrong arguments:" + to_string(preparsed.m_parsed_arguments) + "!=" + to_string(tst.m_parsed_arguments));
 		}
 		if(preparsed.call_return != tst.call_return) {
@@ -588,9 +623,9 @@ static const struct {
 static void test_unfinished() {
 	for(auto tst : tests_unfinished) {
 		size_t ret = isUnfinished(tst.line);
-		cout << "TST:" << tst.line << " Expected=" << tst.unfinished << " Actual=" << ret << endl;
+		logger() << "TST:" << tst.line << " Expected=" << tst.unfinished << " Actual=" << ret << endl;
 		if(tst.unfinished == ret && ret != NOT_UNFINISHED) {
-			cout << "[" << string(tst.line, tst.line + ret) << "]" << endl;
+			logger() << "[" << string(tst.line, tst.line + ret) << "]" << endl;
 		}
 		if( ret != tst.unfinished) {
 			throw runtime_error(string("Wrong unfinished value:") + tst.line);
@@ -603,19 +638,23 @@ struct test_def_parsing_args {
 	const char * input;
 	const vector<const char *> outputs;
 	const char * call_return;
-	test_def_parsing_args(const char * the_input, initializer_list<const char *> the_outputs, const char * the_ret)
+	const size_t m_args_end;
+	/*
+	test_def_parsing_args(const char * the_input, initializer_list<const char *> the_outputs, const char * the_ret, size_t args_end)
 	: input(the_input)
 	, outputs(the_outputs)
 	, call_return(the_ret)
 	{}
+	*/
 	
 	void test() {
-		cout << "Input=" << input << endl;
-		vector<string> args = ArgumentsParser(input, 0, NOT_UNFINISHED);
-		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(cout, "+"));
-		cout << endl;
-		copy(args.begin(), args.end(), ostream_iterator<const string &>(cout, "+"));
-		cout << endl;
+		logger() << "Input=" << input << endl;
+		size_t args_end;
+		vector<string> args = ArgumentsParser(input, 0, NOT_UNFINISHED, args_end);
+		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(logger(), "+"));
+		logger() << endl;
+		copy(args.begin(), args.end(), ostream_iterator<const string &>(logger(), "+"));
+		logger() << endl;
 		
 		if(args.size() != outputs.size() ) {
 			throw runtime_error("Different sizes");
@@ -625,30 +664,40 @@ struct test_def_parsing_args {
 				throw runtime_error("Different args");
 			}
 		}
+		if(args_end != m_args_end ) {
+			throw runtime_error("Different args end:" + to_string(args_end) + " should be " + to_string(m_args_end));
+		}
 	}
 };
 static const test_def_parsing_args test_args_parsing[] = {
 	{"(xyz)",
 		{"xyz"},
-		""},
+		"",
+		5},
 	{"(x,y,z)",
 		{"x", "y", "z"},
-		""},
+		"",
+		7},
 	{"(x,\"y\",z)",
 		{"x", "\"y\"", "z"},
-		""},
+		"",
+		9},
 	{"(x,(y),z)",
 		{"x", "(y)", "z"},
-		""},
+		"",
+		9},
 	{"(x,(y1,y2),z)",
 		{"x", "(y1,y2)", "z"},
-		""},
+		"",
+		13},
 	{"(7</usr/share>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000059>",
 		{"7</usr/share>", " {st_mode=S_IFREG|0644, st_size=3678, ...}"},
-		" 0 <0.000059>"},
+		" 0 <0.000059>",
+		58},
 	{"(AT_FDCWD, \"/usr/coreutils.moz\", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000031>",
 		{"AT_FDCWD", " \"/usr/coreutils.moz\"", " O_RDONLY"},
-		" -1 ENOENT (No such file or directory) <0.000031>"},
+		" -1 ENOENT (No such file or directory) <0.000031>",
+		42},
 };
 
 static void test_parsing() {
@@ -870,7 +919,7 @@ public:
 	PropertyStart(RdfOutput & rdfOutput, const pair<const char *, const ArgumentType &> & oneArg, const string & value )
 	: rm_dfOutput(rdfOutput) {
 		if(verbose_mode >= VERBOSE_DEBUG) {
-			cout << "First / Value=" << oneArg.first << " " << value << endl;
+			logger() << "First / Value=" << oneArg.first << " " << value << endl;
 		}
 		string trimedValue = value;
 		trimedValue.erase(0, trimedValue.find_first_not_of("\t\n\v\f\r ")); // left trim
@@ -878,7 +927,7 @@ public:
 		const string & rdfOut = oneArg.second.ToRdf(oneArg.first, trimedValue);
 		rm_dfOutput.WriteLine("    " + rdfOut);
 		if(verbose_mode >= VERBOSE_LOG) {
-			cout << "    " << rdfOut << endl;
+			logger() << "    " << rdfOut << endl;
 		}
 	}
 };
@@ -947,12 +996,12 @@ public:
 	// Debugging only.
 	void Display() const {
 		for(const string & arg: parsed_arguments) {
-			cout << "\t" << arg << endl;
+			logger() << "\t" << arg << endl;
 		}
 	}
 	
 	void MergeWithResumed(const PreparsedLine & resumed) {
-		cout << "MERGING " << function() << endl;
+		logger() << "MERGING " << function() << endl;
 		if(resumed.function_name != function()) {
 			throw runtime_error(string("Cannot merge ") + function() + " with " + resumed.function_name);
 		}
@@ -963,6 +1012,7 @@ public:
 		if(parsed_arguments.size() > Signature().size()) {
 			throw runtime_error("Too many arguments after merging");
 		}
+		logger() << "MERGED " << function() << " OK" << endl;
 	}
 };
 
@@ -1259,7 +1309,7 @@ static size_t processed_lines = 0;
 
 static void process_line(RdfOutput & rdfOutput, const string &line) {
 	if(verbose_mode >= VERBOSE_LOG) {
-		cout << processed_lines << "\t" << line << endl;
+		logger() << processed_lines << "\t" << line << endl;
 	}
 	try {
 		shared_ptr<STraceCall> ptr = STraceFactory::factory(line);
@@ -1267,7 +1317,7 @@ static void process_line(RdfOutput & rdfOutput, const string &line) {
 			return;
 		}
 		if(verbose_mode >= VERBOSE_DEBUG) {
-			cout << "Function=" << ptr->function() << endl;
+			logger() << "Function=" << ptr->function() << endl;
 			ptr->Display();
 		}
 		ptr->WriteCall(rdfOutput);
@@ -1387,9 +1437,8 @@ static int execute_command(RdfOutput & rdfOutput, const vector<string> & command
 	ptr_chars[command.size()] = nullptr;
 
 	printf("Command:");
-	fflush(stdout);
-	copy(ptr_chars, ptr_chars + command.size(), ostream_iterator<const char *>(cout, " "));
-	cout.flush();
+	copy(ptr_chars, ptr_chars + command.size(), ostream_iterator<const char *>(logger(), " "));
+	logger().flush();
 	printf("\n");
 	int ret = popen3(rdfOutput, fd, (char * const *)ptr_chars);
 	delete[] ptr_chars;
