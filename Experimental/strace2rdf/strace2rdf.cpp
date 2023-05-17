@@ -33,6 +33,18 @@ enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED};
 // Largest possible string offset.
 static const size_t NOT_UNFINISHED = size_t(~0);
 
+template<class Type>
+string to_string(const vector<Type> &vec) {
+	if(vec.empty()) {
+		return "[]";
+	}
+	return "[" + accumulate(next(vec.begin()), vec.end(),
+        vec[0],
+        [](const Type& a, const Type & b) { return a + "#" + b;	}
+	) + "]";
+}
+
+
 static ostream & logger() {
 	return cerr;
 }
@@ -59,7 +71,6 @@ static size_t isUnfinished(const char * line) {
 	if(end_offset) {
 		for(--end_offset; end_offset; --end_offset) {
 			char chr = line[end_offset];
-			//cout << "    chr=" << chr << endl;
 			if(chr == ' ') continue;
 			if(chr == ',') {
 				if(end_offset > 0)
@@ -87,8 +98,9 @@ static char closing(char chr) {
 	throw runtime_error(string("Invalid char:") + chr);
 }
 
-#define VERBOSE_LOG   1
-#define VERBOSE_DEBUG 2
+#define VERBOSE_WARNING 1
+#define VERBOSE_LOG     2
+#define VERBOSE_DEBUG   3
 static int verbose_mode = 0;
 
 static vector<string> ArgumentsParser(const string & line, size_t start_offset, size_t end_offset, size_t & args_end) {
@@ -327,16 +339,18 @@ public:
 		}
 		function_name.assign(function_start, function_end);
 		
-		if(verbose_mode >= VERBOSE_DEBUG) {
+		if(verbose_mode >= VERBOSE_WARNING) {
 			switch(m_callstate) {
 				case UNFINISHED:
-					logger() << "UNFINISHED " << function_name << " pid=" << processid << endl;
+					logger() << "UNFINISHED " << line << endl;
 					break;
 				case RESUMED:
-					logger() << "RESUMED " << function_name << " pid=" << processid << endl;
+					logger() << "RESUMED " << line << endl;
 					break;
 			}
+		}
 
+		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "BEFORE ArgumentsParser: args_offset=" << args_offset << endl;
 			logger() << "BEFORE ArgumentsParser: line + args_offset=" << (line.c_str() + args_offset) << endl;
 		}
@@ -354,12 +368,6 @@ public:
 			It is not possible to detect the return value with the last "=" equal sign. Example:
 			[pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>
 			*/
-			/*
-			const char * ptr_return_start = strrchr(line.c_str(), '=');
-			if(ptr_return_start != nullptr) {
-				call_return = ptr_return_start + 1; // After the "=" equal sign.
-			}
-			*/
 			if(verbose_mode >= VERBOSE_DEBUG) {
 				logger() << "args_end=" << args_end << " len=" << line.size() << ":" << line.substr(args_end) << endl;
 			}
@@ -373,6 +381,13 @@ public:
 				call_return.clear();
 			}
 		}
+	}
+	
+	friend ostream & operator<<(ostream & ostrm, const PreparsedLine & parsed) {
+		ostrm << "function_name=" << parsed.function_name << endl;
+		ostrm << "processid=" << parsed.processid << endl;
+		ostrm << "m_parsed_arguments=" << to_string(parsed.m_parsed_arguments) << endl;
+		return ostrm;
 	}
 };
 
@@ -558,18 +573,6 @@ static const struct {
 	},
 };
 
-template<class Type>
-string to_string(const vector<Type> &vec) {
-	if(vec.empty()) {
-		return "[]";
-	}
-	return "[" + accumulate(next(vec.begin()), vec.end(),
-        vec[0],
-        [](const Type& a, const Type & b) { return a + "#" + b;	}
-	) + "]";
-}
-
-
 /*
 This extracts the beginning of a line displayed by strace. Notably, the pid is extracted.
 TODO: Test merge.
@@ -639,13 +642,6 @@ struct test_def_parsing_args {
 	const vector<const char *> outputs;
 	const char * call_return;
 	const size_t m_args_end;
-	/*
-	test_def_parsing_args(const char * the_input, initializer_list<const char *> the_outputs, const char * the_ret, size_t args_end)
-	: input(the_input)
-	, outputs(the_outputs)
-	, call_return(the_ret)
-	{}
-	*/
 	
 	void test() {
 		logger() << "Input=" << input << endl;
@@ -722,37 +718,7 @@ static void test_internal() {
 **
 *******************************************************************************/
 
-/*
-<?xml version="1.0" encoding="UTF-8"?>
-<rdf:RDF
-   xmlns:love="http://love.com#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
->
-  <rdf:Description rdf:about="http://love.com/lovers/john">
-    <love:hasCuteName>Johnny Boy</love:hasCuteName>
-  </rdf:Description>
-</rdf:RDF>
-
-
-
-  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/entity_dirmenu_only.py">
-    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_CIM_Process.py?xid=.PLAINTEXTONLY"/>
-    <rdfs:seeAlso rdf:resource="RabbitMQ%20concepts?mode=cluster"/>
-  </rdf:Description>
-
-  <rdf:Description rdf:about=
-"http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home">
-    <ns1:Category>Others</ns1:Category>
-    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
-    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home</ns1:Name>
-    <ns1:FileName>home</ns1:FileName>
-  </rdf:Description>
-
-*/
-
 static const string survolUrl = "http://www.primhillcomputers.com/survol";
-
-
 
 class RdfOutput {
 	ostream *m_ostream;
@@ -808,6 +774,14 @@ public:
     <ldt:ppid rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1"/>
   </rdf:Description>
   
+  <rdf:Description rdf:about=
+"http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home">
+    <ns1:Category>Others</ns1:Category>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
+    <ns1:Name>C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home</ns1:Name>
+    <ns1:FileName>home</ns1:FileName>
+  </rdf:Description>
+
 *******************************************************************************/
 
 static string tag_open(const string & property) {
@@ -926,9 +900,9 @@ public:
 		trimedValue.erase(trimedValue.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
 		const string & rdfOut = oneArg.second.ToRdf(oneArg.first, trimedValue);
 		rm_dfOutput.WriteLine("    " + rdfOut);
-		if(verbose_mode >= VERBOSE_LOG) {
-			logger() << "    " << rdfOut << endl;
-		}
+		//if(verbose_mode >= VERBOSE_LOG) {
+		//	logger() << "    " << rdfOut << endl;
+		//}
 	}
 };
 
@@ -975,7 +949,7 @@ public:
 
 		size_t minArgs = MinimumArgumentsNumber();
 		if(verbose_mode >= VERBOSE_DEBUG) {
-			printf("Signature=%d Minimum=%d\n", (int)argsDefs.size(), (int)minArgs);
+			logger() << "Signature=" << argsDefs.size() << " Minimum=" << minArgs << endl;
 		}
 		ObjectStart start(rdfOutput, function());
 		size_t index = 0;
@@ -992,6 +966,11 @@ public:
 			++index;
 		}
 	}
+	
+	friend ostream & operator<<(ostream & ostrm, const STraceCall & traceCall) {
+		ostrm << to_string(traceCall.parsed_arguments) << endl;
+		return ostrm;
+	}
 
 	// Debugging only.
 	void Display() const {
@@ -1000,19 +979,29 @@ public:
 		}
 	}
 	
+	
+	
 	void MergeWithResumed(const PreparsedLine & resumed) {
-		logger() << "MERGING " << function() << endl;
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			logger() << "MERGING " << function() << endl;
+		}
 		if(resumed.function_name != function()) {
 			throw runtime_error(string("Cannot merge ") + function() + " with " + resumed.function_name);
 		}
 		parsed_arguments.insert(parsed_arguments.end(), resumed.m_parsed_arguments.begin(), resumed.m_parsed_arguments.end());
-		if(parsed_arguments.size() <= MinimumArgumentsNumber()) {
-			throw runtime_error("Not enough arguments after merging");
+		if(parsed_arguments.size() < MinimumArgumentsNumber()) {
+			logger() << "Parsed" << endl;
+			logger() << *this << endl;
+			logger() << "Resumed" << endl;
+			logger() << resumed << endl;
+			throw runtime_error("Not enough arguments after merging.");
 		}
 		if(parsed_arguments.size() > Signature().size()) {
 			throw runtime_error("Too many arguments after merging");
 		}
-		logger() << "MERGED " << function() << " OK" << endl;
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			logger() << "MERGED " << function() << " OK" << endl;
+		}
 	}
 };
 
@@ -1245,10 +1234,8 @@ static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & prepa
 	}
 	STraceFactory::Generator gener = iter->second;
 	if(gener == nullptr) {
-		// throw runtime_error("Disabled function:" + preparsedLine.function_name);
 		return shared_ptr<STraceCall>();
 	}
-	// printf("INIT after l=%d KEY=%s\n", (int)dict.size(), preparsedLine.function_name.c_str());
 	return gener(line, preparsedLine);
 }
 
@@ -1257,11 +1244,16 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 	PreparsedLine preparsedLine(line);
 	switch(preparsedLine.m_callstate) {
 		case UNFINISHED: {
-			auto found_preparsed = unfinished_calls.find(preparsedLine.processid);
-			if(found_preparsed != unfinished_calls.end()) {
-				throw runtime_error("There should not be two unfinished calls for the same pid");
-			}
 			shared_ptr<STraceCall> ptrUnfinished = GenerateCallFromParsed(preparsedLine, line);
+			if(ptrUnfinished) {
+				if(verbose_mode >= VERBOSE_DEBUG) {
+					logger() << "Cannot create call object with:" << preparsedLine.function_name << endl;
+				}
+				return shared_ptr<STraceCall>();
+			}
+			if(preparsedLine.function_name != ptrUnfinished->function()) {
+				throw runtime_error("Inconsistency creating call object");
+			}
 
 			// Special case for "wait4" because if it is unfinished in a given process,
 			// it might be resumed in the process given as first parameter of wait4().
@@ -1273,9 +1265,17 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 				}
 				resuming_pid = ptrWait4->expected_resuming_pid();
 			} else {
+				// Usual case: The call is resumed in the pid where it was unfinished.
 				resuming_pid = preparsedLine.processid;
 			}
-			unfinished_calls[resuming_pid] = ptrUnfinished;
+
+			// There should not be another unfinished call for this pid.
+			auto itr_pair = unfinished_calls.insert(make_pair(resuming_pid, ptrUnfinished));
+			if(!itr_pair.second) {
+				throw runtime_error("Unfinished call " + string(itr_pair.first->second->function()) + " present for pid="
+					+ to_string(resuming_pid) + " when inserting " + string(ptrUnfinished->function()) + "/" + preparsedLine.function_name);
+			}
+
 			// Do not return a finished call.
 			return shared_ptr<STraceCall>();
 		}
@@ -1308,6 +1308,7 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 static size_t processed_lines = 0;
 
 static void process_line(RdfOutput & rdfOutput, const string &line) {
+	++processed_lines;
 	if(verbose_mode >= VERBOSE_LOG) {
 		logger() << processed_lines << "\t" << line << endl;
 	}
@@ -1321,7 +1322,6 @@ static void process_line(RdfOutput & rdfOutput, const string &line) {
 			ptr->Display();
 		}
 		ptr->WriteCall(rdfOutput);
-		++processed_lines;
 	} catch( const std::exception & exc) {
 		cerr << "Line:" << processed_lines << ". Caught:" <<  exc.what() << endl;
 		cerr << "RET=" << line << endl;
@@ -1399,14 +1399,6 @@ static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd) {
         // success
         return 0;
     } else {
-        // child
-//        dup2(p[STDIN_FILENO][0],STDIN_FILENO);
-//        close(p[STDIN_FILENO][1]);
-
-		
-        //dup2(p[STDOUT_FILENO][1],STDOUT_FILENO);
-        //close(p[STDOUT_FILENO][0]);
-
 		printf("+++++++++++++++++ STDERR_FILENO=%d\n", STDERR_FILENO);
         dup2(p[STDERR_FILENO][1],STDERR_FILENO);
         close(p[STDERR_FILENO][0]);
@@ -1447,7 +1439,7 @@ static int execute_command(RdfOutput & rdfOutput, const vector<string> & command
 
 /*******************************************************************************
 **
-** Replaying a log file.
+** Replaying a log file containing the output of strace.
 **
 *******************************************************************************/
 static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_log) {
@@ -1462,7 +1454,7 @@ static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_lo
 
 /*******************************************************************************
 **
-** Processing the command line.
+** Processing the command line with strace and parsing the output.
 **
 *******************************************************************************/
 
@@ -1485,7 +1477,7 @@ public:
 			}
 			// append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
 			int ret = execute_command(rdfOutput, m_command);
-			printf("ret=%d\n", ret);
+			cout << "ret=" << ret << endl;
 		} else {
 			if(!m_command.empty()) {
 				throw runtime_error("Command should be empty");
