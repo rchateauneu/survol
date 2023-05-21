@@ -33,6 +33,7 @@ enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED};
 // Largest possible string offset.
 static const size_t NOT_UNFINISHED = size_t(~0);
 
+// This is for debugging only.
 template<class Type>
 string to_string(const vector<Type> &vec) {
 	if(vec.empty()) {
@@ -44,6 +45,33 @@ string to_string(const vector<Type> &vec) {
 	) + "]";
 }
 
+static string strip_quotes(const string &input_txt) {
+	// Given strace syntax, the path name should be enclosed in double quotes.
+	if((input_txt[0] != '"') || (input_txt[input_txt.size() - 1] != '"')) {
+		throw runtime_error("String not enclosed:" + input_txt);
+	}
+	return input_txt.substr(1, input_txt.size() - 2);
+}
+
+static void replace_all(string& text, const string& from, const string& to)
+{
+    for (auto at = text.find(from, 0); at != std::string::npos;
+        at = text.find(from, at + to.length()))
+    {
+        text.replace(at, from.length(), to);
+    }
+}
+
+static string replace_all_copy(const string& text, const string& from, const string& to)
+{
+    auto copy = text;
+    replace_all(copy, from, to);
+    return copy;
+}
+
+static string escape_xml(const string &input_txt) {
+	return replace_all_copy(input_txt, "/", "&#47;");
+}
 
 static ostream & logger() {
 	return cerr;
@@ -82,7 +110,7 @@ static size_t isUnfinished(const char * line) {
 			++end_offset;
 	}
 	if( (line[end_offset] != ' ') && (line[end_offset] != ',') && (line[end_offset] != '<')) {
-		throw runtime_error(" inconsistency");
+		throw runtime_error("isUnfinished inconsistency");
 	}
 	return end_offset;
 }
@@ -102,6 +130,8 @@ static char closing(char chr) {
 #define VERBOSE_LOG     2
 #define VERBOSE_DEBUG   3
 static int verbose_mode = 0;
+
+static int global_created_pid = -1;
 
 static vector<string> ArgumentsParser(const string & line, size_t start_offset, size_t end_offset, size_t & args_end) {
 	if(verbose_mode >= VERBOSE_LOG) {
@@ -221,11 +251,13 @@ The line might start or not, with the pid.
 [pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>
 */
 class PreparsedLine {
-	// Today's timestamp.
-	double m_seconds;
 
-	void ParseTimestamp(const char * time_start) {
+	const char * ParseTimestamp(const char * time_start) {
 		// It must point to a string like "19:58:35.834615"
+		const char * time_end = strchr(time_start, ' ');
+		if(time_end == nullptr) {
+			throw std::runtime_error("No timestamp:" + string(time_start));
+		}
 
 		int hour, minutes;
 		double seconds;
@@ -233,20 +265,62 @@ class PreparsedLine {
 		if(ret != 3) {
 			throw std::runtime_error(string(" Invalid time format:") + time_start);
 		}
-		m_seconds = hour * 24 * 3600 + minutes * 60 + seconds;
+		startTime = hour * 24 * 3600 + minutes * 60 + seconds;
+		return time_end;
 	};
+	
+	void ParseReturn(const string & line, size_t args_end) {
+		// Intialisation.
+		call_return.clear();
+		execution_time = 0.0;
+
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			logger() << "args_end=" << args_end << " len=" << line.size() << ":" << line.substr(args_end) << endl;
+		}
+		/*
+		It is not possible to detect the return value with the last "=" equal sign. Example:
+		[pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>
+		TODO: This should be faster by using the len.
+		*/
+		if( args_end >= line.size() - 4) {
+			return;
+		}
+
+		size_t offsetEqual = line.find('=', args_end);
+		if(offsetEqual == string::npos) {
+			throw runtime_error("Invalid end of arguments");
+		}
+
+		// Now, finds the execution time.
+		size_t bracket_close = line.rfind('>');
+		if(bracket_close == string::npos) {
+			throw runtime_error("ParseReturn : No closing bracket for time.");
+		}
+
+		size_t bracket_open = line.rfind('<', bracket_close);
+		if(bracket_open == string::npos) {
+			throw runtime_error("ParseReturn : No opening bracket for time.");
+		}
+		if(1 != sscanf(line.c_str() + bracket_open, "<%lf>", &execution_time)) {
+			throw runtime_error("ParseReturn : Cannot parse execution time.");
+		}
+		call_return = line.substr(offsetEqual + 1, bracket_open - offsetEqual - 1); // After "=" equal sign
+	}
+
 public:
+	// Today's timestamp.
+	double startTime = 0.0;
+	double endTime = 0.0;
 	string function_name;
-	size_t args_offset; // Points to the open parenthesis after the function name.
-	size_t unfinished_offset;
-	int processid; // -1 if this is the current process.
-	CallState m_callstate;
+	size_t args_offset = ~0; // Points to the open parenthesis after the function name.
+	size_t unfinished_offset = ~0;
+	int processid = -1; // -1 if this is the current process.
+	CallState m_callstate = INVALID;
 	vector<string> m_parsed_arguments;
 	string call_return;
+	double execution_time = 0.0;
 
-	PreparsedLine()
-	: processid(-1)
-	, m_callstate(INVALID) {}
+	PreparsedLine() {}
 
 	PreparsedLine(const string & line) {
 		const char * line_start = line.c_str();
@@ -269,11 +343,7 @@ public:
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "PROCESSID=" << processid << endl;
 		}
-		ParseTimestamp(line_start + time_offset);
-		const char * time_end = strchr(line_start + time_offset, ' ');
-		if(time_end == nullptr) {
-			throw std::runtime_error("No timestamp:" + line);
-		}
+		const char * time_end = ParseTimestamp(line_start + time_offset);
 
 		static const char * function_valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789_";
 		const char * function_start = time_end + 1;
@@ -292,13 +362,6 @@ public:
 		
 		unfinished_offset = isUnfinished(line.c_str());
 		bool unfinished = unfinished_offset != NOT_UNFINISHED;
-		if(verbose_mode >= VERBOSE_DEBUG) {
-			if(unfinished) {
-				logger() << "After isUnfinished: NOT_UNFINISHED" << endl;
-			} else {
-				logger() << "After isUnfinished: NOT_UNFINISHED" << endl;
-			}
-		}
 
 		const char str_resumed[] = " resumed>";
 		bool resumed = nullptr != strstr(function_start, str_resumed);
@@ -362,27 +425,11 @@ public:
 			throw;
 		}
 		if(!unfinished) {
-			// TODO: This should be faster by using the len.
-			
-			/*
-			It is not possible to detect the return value with the last "=" equal sign. Example:
-			[pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>
-			*/
-			if(verbose_mode >= VERBOSE_DEBUG) {
-				logger() << "args_end=" << args_end << " len=" << line.size() << ":" << line.substr(args_end) << endl;
-			}
-			if( args_end < line.size() - 4) {
-				size_t offsetEqual = line.find('=', args_end);
-				if(offsetEqual == string::npos) {
-					throw runtime_error("Invalid end of arguments");
-				}
-				call_return = line.substr(offsetEqual + 1); // After "=" equal sign.
-			} else {
-				call_return.clear();
-			}
+			ParseReturn(line, args_end);
 		}
 	}
 	
+	// For debugging purpose only.
 	friend ostream & operator<<(ostream & ostrm, const PreparsedLine & parsed) {
 		ostrm << "function_name=" << parsed.function_name << endl;
 		ostrm << "processid=" << parsed.processid << endl;
@@ -435,141 +482,155 @@ In this case, two lines are displayed. The arguments might be split between the 
 The return value is at the end of the second line. */
 static const struct {
 	const string line;
-	int processid;
+	const int processid;
 	const string function_name;
 	const vector<string> m_parsed_arguments;
 	const string call_return;
+	const double execution_time;
 } tests_preparsed2[] = {
 	{ "19:58:35.830656 ioctl(0</dev/pts/2>, SNDCTL_TMR_STOP or TCSETSW, {B38400 opost isig icanon echo ...}) = 0 <0.000017>",
 		-1,
 		"ioctl",
 		{"0</dev/pts/2>", " SNDCTL_TMR_STOP or TCSETSW", " {B38400 opost isig icanon echo ...}"},
-		" 0 <0.000017>"},
+		" 0 ", 0.000017
+	},
 	{ "[pid  5557] 19:58:35.833161 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7fb6a4518000 <0.000015>",
 		5557,
 		"mmap",
 		{"NULL", " 124494", " PROT_READ", " MAP_PRIVATE", " 3</etc/ld.so.cache>", " 0"},
-		" 0x7fb6a4518000 <0.000015>"},
+		" 0x7fb6a4518000 ", 0.000015
+	},
 	{ "[pid  5557] 19:58:35.833374 fstat(3</usr/lib64/libselinux.so.1>, {st_mode=S_IFREG|0755, st_size=142112, ...}) = 0 <0.000012>",
 		5557,
 		"fstat",
 		{"3</usr/lib64/libselinux.so.1>", " {st_mode=S_IFREG|0755, st_size=142112, ...}"},
-		" 0 <0.000012>"},
+		" 0 ", 0.000012
+	},
 	{ "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>",
 		-1,
 		"clone",
 		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
-		" 5557 <0.000185>"},
+		" 5557 ", 0.000185
+	},
 	{ "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>",
 		4233,
 		"close",
 		{"3<pipe:[52233]>"},
-		" 0 <0.000016>"},
+		" 0 ", 0.000016
+	},
 	{ "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>",
 		-1,
 		"wait4",
 		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " 0", " NULL"},
-		" 869 <0.307670>"},
+		" 869 ", 0.307670
+	},
 	{ "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>",
 		22672,
 		"open",
 		{"\"/lib64/libnsssysinit.so\"", " O_RDONLY|O_CLOEXEC"},
-		""},
+		"", 0.0
+	},
 	{ "19:58:46.024321 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5562 <5.318296>",
 		-1,
 		"wait4",
 		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
-		" 5562 <5.318296>"},
+		" 5562 ", 5.318296
+	},
 	{ "[pid  4233] 19:58:40.705564 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5562 <0.000564>",
 		4233,
 		"clone",
 		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
-		" 5562 <0.000564>"},
+		" 5562 ", 0.000564
+	},
 	{ "19:58:35.841846 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5557 <0.010057>",
 		-1,
 		"wait4",
 		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
-		" 5557 <0.010057>"},
+		" 5557 ", 0.010057
+	},
 	{ "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>",
 		1338,
 		"wait4",
 		{"-1"},
-		""},
+		"", 0.0
+	},
 	{ "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>",
 		22560,
 		"connect",
 		{},
-		" 0 <0.000021>"},
+		" 0 ", 0.000021
+	},
 	{ "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>",
 		-1,
 		"poll",
 		{},
-		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
+		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) ", 0.009246
+	},
 	{ "22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, \"ABC\", 832) = 832 <0.000031>",
 		-1,
 		"read",
 		{"7</usr/libpcre2-8.so.0.9.0>", " \"ABC\"", " 832"},
-		" 832 <0.000031>"
+		" 832 ", 0.000031
 	},
 	{ R"(22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, "\177ELF\340\"\0\0\222\2@T\18\4\1&", 832) = 832 <0.000031>)",
 		-1,
 		"read",
 		{"7</usr/libpcre2-8.so.0.9.0>", R"( "\177ELF\340\"\0\0\222\2@T\18\4\1&")", " 832"},
-		" 832 <0.000031>"
+		" 832 ", 0.000031
 	},
 	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
 		-1,
 		"execve",
 		{"\"/usr/bin/ls\"", " [\"ls\"]", " 0x7fffde63bf28 /* 18 vars */"},
-		" 0 <0.003298>"
+		" 0 ", 0.003298
 	},
 	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls", "-l"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
 		-1,
 		"execve",
 		{"\"/usr/bin/ls\"", " [\"ls\", \"-l\"]", " 0x7fffde63bf28 /* 18 vars */"},
-		" 0 <0.003298>"
+		" 0 ", 0.003298
 	},
 	{ R"([pid 22568] 10:43:27.981223 recvmsg(51<UNIX:[15588905->15588906]>,  <unfinished ...>)",
 		22568,
 		"recvmsg",
 		{"51<UNIX:[15588905->15588906]>"},
-		""
+		"", 0.0
 	},
 	{ R"([pid 22568] 10:43:27.993342 close(49<UNIX:[15589437->15589436]>) = 0 <0.000006>)",
 		22568,
 		"close",
 		{"49<UNIX:[15589437->15589436]>"},
-		" 0 <0.000006>"
+		" 0 ", 0.000006
 	},
 	{ R"([pid 22526] 10:43:25.744972 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, 0x7f7794efc9e7, 1, MSG_PEEK, NULL, NULL) = -1 EAGAIN (Resource temporarily unavailable) <0.000012>)",
 		22526,
 		"recvfrom",
 		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", " 0x7f7794efc9e7", " 1", " MSG_PEEK", " NULL", " NULL"},
-		" -1 EAGAIN (Resource temporarily unavailable) <0.000012>"
+		" -1 EAGAIN (Resource temporarily unavailable) ", 0.000012
 	},
 	{ R"([pid 22526] 10:43:25.744679 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"..., 32768, 0, NULL, NULL) = 384 <0.000012>)",
 		22526,
 		"recvfrom",
 		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"...)", " 32768", " 0", " NULL", " NULL"},
-		" 384 <0.000012>"
+		" 384 ", 0.000012
 	},
 	{ R"([pid 22526] 10:43:25.737922 poll([{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}], 2, -1 <unfinished ...>)",
 		22526,
 		"poll",
 		{"[{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}]", " 2", " -1"},
-		""
+		"", 0.0
 	},
 	{ R"([pid 22526] 10:43:25.737840 sendto(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"..., 296, 0, NULL, 0) = 296 <0.000033>)",
 		22526,
 		"sendto",
 		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"...)", " 296", " 0", " NULL", " 0"},
-		" 296 <0.000033>"
+		" 296 ", 0.000033
 	},
 	{ R"([pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>)",
 		22560,
 		"poll",
 		{"[{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}]", " 1", " 4999"},
-		" 1 ([{fd=65, revents=POLLIN}]) <0.000009>"
+		" 1 ([{fd=65, revents=POLLIN}]) ", 0.000009
 	},
 };
 
@@ -597,6 +658,9 @@ static void test_preparsed2() {
 		}
 		if(preparsed.call_return != tst.call_return) {
 			throw runtime_error("Wrong return:[" + preparsed.call_return + "]!=[" + tst.call_return + "]");
+		}
+		if(preparsed.execution_time != tst.execution_time) {
+			throw runtime_error("Wrong execution time:[" + to_string(preparsed.execution_time) + "]!=[" + to_string(tst.execution_time) + "]");
 		}
 	}
 	printf("Preparsed test end : OK.\n");
@@ -735,12 +799,13 @@ public:
 			m_must_close = true;
 		}
 		
-		*m_ostream << R"(<?xml version="1.0" encoding="UTF-8"?>)" << endl;
-		*m_ostream << R"(<rdf:RDF)" << endl;
+		*m_ostream << R"(<?xml version="1.0" encoding="UTF-8"?>)"                     << endl;
+		*m_ostream << R"(<rdf:RDF)"                                                   << endl;
+		*m_ostream << R"(   xmlns:xsd="http://www.w3.org/2001/XMLSchema#")"           << endl;
 		*m_ostream << R"(   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#")" << endl;
-		*m_ostream << R"(   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#")" << endl;
-		*m_ostream << R"(   xmlns:survol=")" << survolUrl << R"(#")" << endl;
-		*m_ostream << R"(>)" << endl;
+		*m_ostream << R"(   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#")"      << endl;
+		*m_ostream << R"(   xmlns:survol=")" << survolUrl << R"(#")"                  << endl;
+		*m_ostream << R"(>)"                                                          << endl;
 	}
 
 	~RdfOutput() {
@@ -748,12 +813,61 @@ public:
 		if(m_must_close) {
 			m_ofstream.close();
 		}
+		printf("Closed RdfOutput\n");
 	}
 
 	void WriteLine(const string &outputLine) {
 		*m_ostream << outputLine << endl;
 	}
 };
+
+/*******************************************************************************
+**
+** Handling created CIM object.
+**
+*******************************************************************************/
+class CIMObjectManager {
+	typedef map<string, string> KeyToMoniker;
+	static map<string, KeyToMoniker> mapClassValueMoniker;
+
+	static string CreateMonikerNoCache(const string & className, const string &key, const string & value) {
+		return survolUrl + "#" + className + "." + key + "=" + value;
+	}
+public:
+	/* This works only for CIM classes which have a single key, which is by far the most common case. */
+	static string CreateMoniker(const string & className, const string &key, const string & value) {
+		auto pairClassIter = mapClassValueMoniker.insert(pair(className, KeyToMoniker()));
+
+		KeyToMoniker & mapKeyToMoniker = pairClassIter.first->second;
+		auto pairObjectIter = mapKeyToMoniker.insert(pair(key, string()));
+		if(pairObjectIter.second) {
+			pairObjectIter.first->second = CreateMonikerNoCache(className, key, value);
+		}
+		return pairObjectIter.first->second;
+	}
+
+	void DumpToRDF() {}
+};
+map<string, CIMObjectManager::KeyToMoniker> CIMObjectManager::mapClassValueMoniker;
+
+struct CIMClassManager {
+	static map<string, string> mapClassMoniker;
+
+	static string CreateMonikerNoCache(const string & className) {
+		return survolUrl + "#" + className;
+	}
+public:
+	static string CreateMoniker(const string & className) {
+		auto pairClassIter = mapClassMoniker.insert(pair(className, string()));
+		if(pairClassIter.second) {
+			pairClassIter.first->second = CreateMonikerNoCache(className);
+		}
+		return pairClassIter.first->second;
+	}
+
+	void DumpToRDF() {}
+};
+map<string, string> CIMClassManager::mapClassMoniker;
 
 /*******************************************************************************
 **
@@ -784,20 +898,19 @@ public:
 
 *******************************************************************************/
 
-static string tag_open(const string & property) {
-	return "<survol:" + property + ">";
+
+
+// <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
+// <ldt:ppid rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1"/>
+static string tag_resource(const string & rdfNamespace, const string & property, const string &moniker) {
+	return "<" + rdfNamespace + ":" + property + " rdf:resource=\"" + moniker + "\"/>";
 }
 
-static string tag_close(const string & property) {
-	return "</survol:" + property + ">";
-}
-
-static string tag_resource(const string & property, const string & resource) {
-	return "<survol:" + property + " rdf:resource=\"" + survolUrl + "/" + property + ".TheKey=" + resource + "/>";
-}
-
-static string tag_write(const string & property, const string & input_txt) {
-	return tag_open(property) + input_txt + tag_close(property);
+static string tag_write(const string & property, const string & input_txt, const string & rdfNamespace = "survol") {
+	const string escaped_txt = escape_xml(input_txt);
+	const string tag_open = "<" + rdfNamespace + ":" + property + ">";
+	const string tag_close = "</" + rdfNamespace + ":" + property + ">";
+	return tag_open + escaped_txt + tag_close;
 }
 
 struct ArgumentType {
@@ -812,86 +925,118 @@ struct ArgumentTypeWrapper : public ArgumentType {
 
 struct SystemCallArgument_ProcessId : public ArgumentTypeWrapper<SystemCallArgument_ProcessId> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("ProcessHandle", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_IntPtr : public ArgumentTypeWrapper<SystemCallArgument_IntPtr> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("MemoryAddress", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_Int : public ArgumentTypeWrapper<SystemCallArgument_Int> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("DummyInteger", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_RusagePtr : public ArgumentTypeWrapper<SystemCallArgument_RusagePtr> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("MemoryAddress", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_Fd : public ArgumentTypeWrapper<SystemCallArgument_Fd> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("FileDescriptor", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_Addr : public ArgumentTypeWrapper<SystemCallArgument_Addr> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("IPAddress", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_AddrLen : public ArgumentTypeWrapper<SystemCallArgument_AddrLen> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("IPAddressLen", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_PathName : public ArgumentTypeWrapper<SystemCallArgument_PathName> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_resource("CIM_PathName", input_txt);
+		string path_name = strip_quotes(input_txt);
+		string moniker = CIMObjectManager::CreateMoniker("CIM_DataFile", "Name", path_name);
+		return tag_resource("survol", property, moniker);
+	}
+};
+struct SystemCallArgument_Directory : public ArgumentTypeWrapper<SystemCallArgument_Directory> {
+	string ToRdf(const string & property, const string & input_txt) const override {
+		string path_name = strip_quotes(input_txt);
+		string moniker = CIMObjectManager::CreateMoniker("CIM_Directory", "Name", path_name);
+		return tag_resource("survol", property, moniker);
+	}
+};
+struct SystemCallArgument_Process : public ArgumentTypeWrapper<SystemCallArgument_Process> {
+	string ToRdf(const string & property, const string & pid) const override {
+		string moniker = CIMObjectManager::CreateMoniker("CIM_Process", "Handle", pid);
+		return tag_resource("survol", property, moniker);
+	}
+};
+struct SystemCallArgument_Class : public ArgumentTypeWrapper<SystemCallArgument_Class> {
+	string ToRdf(const string & property, const string & className) const override {
+		string moniker = CIMClassManager::CreateMoniker(className);
+		return tag_resource("rdf", property, moniker);
 	}
 };
 struct SystemCallArgument_ArgV : public ArgumentTypeWrapper<SystemCallArgument_ArgV> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("MemoryAddress", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_EnvP : public ArgumentTypeWrapper<SystemCallArgument_EnvP> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("MemoryAddress", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_Flags : public ArgumentTypeWrapper<SystemCallArgument_Flags> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("DummyInteger", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 struct SystemCallArgument_Mode : public ArgumentTypeWrapper<SystemCallArgument_Mode> {
 	string ToRdf(const string & property, const string & input_txt) const override {
-		return tag_write("DummyInteger", input_txt);
+		return tag_write(property, input_txt);
 	}
 };
 
-typedef initializer_list< pair<const char *, const ArgumentType &> > FunctionSignature;
 
+/*******************************************************************************
+**
+** Writing to RDF.
+**
+*******************************************************************************/
 
+typedef pair<const char *, const ArgumentType &> NamedArgument;
+typedef initializer_list< NamedArgument > FunctionSignature;
+
+/*
+Objects modelling system calls are written as soon as they are parsed from strace output.
+It would be possible to store them in a triple-store and dump the triples at the end,
+but it would require more plumbing and storing internal data.
+*/
 class ObjectStart {
 	RdfOutput & rm_dfOutput;
 public:
-	ObjectStart(RdfOutput & rdfOutput, const string &func)
+	ObjectStart(RdfOutput & rdfOutput, const string &func, const string & start_time, const string & end_time)
 	: rm_dfOutput(rdfOutput) {
-		rm_dfOutput.WriteLine("<rdf:Description about=\"" + survolUrl + "/" + func + "\">");
+		static size_t calls_counter = 0;
+		string callMoniker = CIMObjectManager::CreateMoniker(func, "CallId", to_string(calls_counter));
+		++calls_counter;
+		rm_dfOutput.WriteLine("<rdf:Description about=\"" + callMoniker + "\">");
 	}
 	
-	~ObjectStart() {
-		rm_dfOutput.WriteLine("</rdf:Description>");
+	void AddSpecialKeyValue(const string & rdfNamespace , const string & key, const string & value) {
+		string rdfKeyValue = tag_write(key, value, rdfNamespace);
+		rm_dfOutput.WriteLine("    " + rdfKeyValue);
 	}
-};
-
-class PropertyStart {
-	RdfOutput & rm_dfOutput;
-public:
-	PropertyStart(RdfOutput & rdfOutput, const pair<const char *, const ArgumentType &> & oneArg, const string & value )
-	: rm_dfOutput(rdfOutput) {
+	
+	void AddSurvolKeyValue(const NamedArgument & oneArg, const string & value) {
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "First / Value=" << oneArg.first << " " << value << endl;
 		}
@@ -900,9 +1045,10 @@ public:
 		trimedValue.erase(trimedValue.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
 		const string & rdfOut = oneArg.second.ToRdf(oneArg.first, trimedValue);
 		rm_dfOutput.WriteLine("    " + rdfOut);
-		//if(verbose_mode >= VERBOSE_LOG) {
-		//	logger() << "    " << rdfOut << endl;
-		//}
+	}
+	
+	~ObjectStart() {
+		rm_dfOutput.WriteLine("</rdf:Description>");
 	}
 };
 
@@ -919,9 +1065,15 @@ Typical line displayed by the command strace:
 class STraceCall {
 protected:
 	vector<string> parsed_arguments;
+	double startTime;
+	double execution_time;
+	int processid;
 public:
 	STraceCall(const string & line, const PreparsedLine & preparsedLine)
-	: parsed_arguments(preparsedLine.m_parsed_arguments) {
+	: parsed_arguments(preparsedLine.m_parsed_arguments)
+	, startTime(preparsedLine.startTime)
+	, processid(preparsedLine.processid)
+	, execution_time(preparsedLine.execution_time) {
 	}
 	
 	virtual const char * function() const = 0;
@@ -931,6 +1083,28 @@ public:
 	virtual size_t MinimumArgumentsNumber() const {
 		return Signature().size();
 	}
+
+	static string FormatTime(double seconds) {
+		if(seconds == 0) {
+			return "00:00:00.000000";
+		}
+		char buffer[32];
+		int int_seconds = (int)seconds;
+		int micro_seconds = (int)((seconds - int_seconds) * 1000000);
+		// The result is something like: "2018-04-09T10:00:00"^^xsd:dateTime
+		sprintf(buffer, "\"%02d:%02d:%02d.%06d\"^^xsd:dateTime", (int_seconds / 3600) % 24, (int_seconds / 60) % 60, int_seconds % 60, micro_seconds);
+		return buffer;
+	}
+	
+	string StartTime() const {
+		return FormatTime(startTime);
+	}
+
+	string EndTime() const {
+		// TODO: What if it finishes on the next day ? This is a corner case.
+		return FormatTime(startTime + execution_time);
+	}
+	
 	
 	/*
   <rdf:Description rdf:about=
@@ -942,7 +1116,7 @@ public:
   </rdf:Description>
 	*/
 	virtual void WriteCall(RdfOutput & rdfOutput) {
-		const auto & argsDefs = Signature();
+		const FunctionSignature & argsDefs = Signature();
 		if(parsed_arguments.size() > argsDefs.size()) {
 			throw runtime_error("Too many arguments when writing");
 		}
@@ -951,7 +1125,21 @@ public:
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "Signature=" << argsDefs.size() << " Minimum=" << minArgs << endl;
 		}
-		ObjectStart start(rdfOutput, function());
+		ObjectStart objectStart(rdfOutput, function(), StartTime(), EndTime());
+
+		objectStart.AddSpecialKeyValue("schema", "StartTime", StartTime());
+		objectStart.AddSpecialKeyValue("schema", "EndTime", EndTime());
+
+		// objectStart.AddSpecialKeyValue("rdf", "type", "SystemCall");
+		static const constexpr NamedArgument typePseudoArg{ "type", SystemCallArgument_Class::ArgSingleton };
+		// TODO: Declare the class "function" as a subclass of "SystemCall".
+		objectStart.AddSurvolKeyValue(typePseudoArg, function());
+
+		static const constexpr NamedArgument pidPseudoArg{ "CallingProcess", SystemCallArgument_Process::ArgSingleton };
+		
+		int effective_pid = processid == -1 ? global_created_pid : processid;
+		objectStart.AddSurvolKeyValue(pidPseudoArg, to_string(effective_pid));
+
 		size_t index = 0;
 		for(const auto & oneArg : argsDefs) {
 			if(index >= parsed_arguments.size()) {
@@ -962,7 +1150,7 @@ public:
 				}
 			}
 			string value = parsed_arguments[index];
-			PropertyStart val(rdfOutput, oneArg, value);
+			objectStart.AddSurvolKeyValue(oneArg, value);
 			++index;
 		}
 	}
@@ -978,9 +1166,7 @@ public:
 			logger() << "\t" << arg << endl;
 		}
 	}
-	
-	
-	
+
 	void MergeWithResumed(const PreparsedLine & resumed) {
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "MERGING " << function() << endl;
@@ -999,6 +1185,10 @@ public:
 		if(parsed_arguments.size() > Signature().size()) {
 			throw runtime_error("Too many arguments after merging");
 		}
+		if(execution_time != 0.0) {
+			throw runtime_error("Execution time of unfinished call must be 0.");
+		}
+		execution_time = resumed.execution_time;
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "MERGED " << function() << " OK" << endl;
 		}
@@ -1081,6 +1271,7 @@ public:
 	// int open(const char *pathname, int flags, mode_t mode);
 	const FunctionSignature & Signature() const override {
 		static const FunctionSignature sign {
+			// FIXME : And what about directories ?
 			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
 			{ "flags",    SystemCallArgument_Flags::ArgSingleton },
 			{ "mode",     SystemCallArgument_Mode::ArgSingleton },
@@ -1148,7 +1339,7 @@ shared_ptr<STraceCall> GenerTmpl(const string &line, const PreparsedLine & prepa
 }
 
 // Most system calls are not taken into account. However, their list might suggest more dependencies.
-map<string, STraceFactory::Generator> dict = {
+map<string, STraceFactory::Generator> dictCalls = {
 	{"accept",            nullptr },
 	{"arch_prctl",        nullptr },
 	{"bind",              nullptr },
@@ -1228,8 +1419,8 @@ static map<int, shared_ptr<STraceCall>> unfinished_calls;
 
 
 static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & preparsedLine, const string & line) {
-	auto iter = dict.find(preparsedLine.function_name);
-	if(iter == dict.end()) {
+	auto iter = dictCalls.find(preparsedLine.function_name);
+	if(iter == dictCalls.end()) {
 		throw runtime_error("Cannot find function:" + preparsedLine.function_name);
 	}
 	STraceFactory::Generator gener = iter->second;
@@ -1245,7 +1436,7 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 	switch(preparsedLine.m_callstate) {
 		case UNFINISHED: {
 			shared_ptr<STraceCall> ptrUnfinished = GenerateCallFromParsed(preparsedLine, line);
-			if(ptrUnfinished) {
+			if(!ptrUnfinished) {
 				if(verbose_mode >= VERBOSE_DEBUG) {
 					logger() << "Cannot create call object with:" << preparsedLine.function_name << endl;
 				}
@@ -1330,6 +1521,40 @@ static void process_line(RdfOutput & rdfOutput, const string &line) {
 
 /*******************************************************************************
 **
+** Definition of system calls as classes.
+**
+*******************************************************************************/
+static void DefineSystemCallsClasses(RdfOutput & rdfOutput)
+{
+	/*
+	Might as well iterate on keys of CIMClassManager which are in dictCalls.
+	*/
+	const string baseClassMoniker = CIMClassManager::CreateMoniker("SystemCall");
+	for(auto iter : dictCalls) {
+		if(iter.second == nullptr) {
+			continue;
+		}
+		const string classMoniker = CIMClassManager::CreateMoniker(iter.first);
+		//add base class
+		//alsdjhflaksjdfha
+	}
+}
+
+static void DefineCIMClasses(RdfOutput & rdfOutput)
+{
+	/*
+	Might as well iterate on keys of CIMClassManager which are not in dictCalls.
+	*/
+	static const string classesList[] = {
+		"CIM_Process",
+		"CIM_DataFile",
+		"CIM_Directory"};
+		
+	//s;ldkjf;alskdj
+}
+
+/*******************************************************************************
+**
 ** Execution of strace in a subprocess.
 **
 *******************************************************************************/
@@ -1348,7 +1573,7 @@ static vector<string> strace_command() {
 
 	vector<string> command{"/usr/bin/strace", "-q", "-qq", "-f", "-tt", "-T", "-s", "10000"};
 	const bool is_deprecated = false;
-	vector<string> dependent_options{is_deprecated
+	const vector<string> dependent_options{is_deprecated
 	? "-e", "trace=desc,ipc,process,network"
 	: "-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"};
 	append_vector(command, dependent_options);
@@ -1370,7 +1595,6 @@ static string readline(int fd) {
 static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd) {
     int i, e;
     int p[3][2];
-    pid_t pid;
     // set all the FDs to invalid
     for(i=0; i<3; i++)
         p[i][0] = p[i][1] = -1;
@@ -1379,11 +1603,11 @@ static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd) {
         if(pipe(p[i]))
             return -1;
     // and fork
-    pid = fork();
-    if(-1 == pid)
+    global_created_pid = fork();
+    if(-1 == global_created_pid)
         return -1;
     // in the parent?
-    if(pid) {
+    if(global_created_pid) {
         close(p[STDIN_FILENO][0]);
         close(p[STDOUT_FILENO][1]);
 
@@ -1391,12 +1615,12 @@ static int popen3(RdfOutput & rdfOutput, int fd[3], char * const * cmd) {
         close(p[STDERR_FILENO][1]);
 
 		for(;;) {
-			string ret = readline(fd[STDERR_FILENO]);
-			if(ret.empty()) break;
-			process_line(rdfOutput, ret);
+			string input_line = readline(fd[STDERR_FILENO]);
+			if(input_line.empty()) break;
+			process_line(rdfOutput, input_line);
 		}
 		printf("END STDERR end\n");
-        // success
+        // success.
         return 0;
     } else {
 		printf("+++++++++++++++++ STDERR_FILENO=%d\n", STDERR_FILENO);
@@ -1447,6 +1671,7 @@ static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_lo
 	string input_line;
 	while(infile.good()){
 		getline(infile, input_line);
+		if(input_line.empty()) break;
 		process_line(rdfOutput, input_line);
 	}
 	return 0;
@@ -1475,7 +1700,6 @@ public:
 			if(m_command.empty()) {
 				throw runtime_error("No command given");
 			}
-			// append_vector(command, vector<string>({"/usr/bin/ls", "-l", "-r"}));
 			int ret = execute_command(rdfOutput, m_command);
 			cout << "ret=" << ret << endl;
 		} else {
@@ -1484,7 +1708,8 @@ public:
 			}
 			replay_strace_logfile(rdfOutput, m_input_file);
 		}
-		
+		DefineSystemCallsClasses(rdfOutput);
+		DefineCIMClasses(rdfOutput);
 		cout << "Processed lines:" << processed_lines << endl;
 	}
 };
