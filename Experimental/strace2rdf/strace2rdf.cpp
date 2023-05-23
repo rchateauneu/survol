@@ -33,17 +33,26 @@ enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED};
 // Largest possible string offset.
 static const size_t NOT_UNFINISHED = size_t(~0);
 
+template<class Iter>
+string join(Iter iter_begin, Iter iter_end, const string & delimiter) {
+	if(iter_begin == iter_end) {
+		return string();
+	}
+	string result = *iter_begin;
+	++iter_begin;
+	for(;iter_begin != iter_end; ++iter_begin) {
+		result += delimiter + *iter_begin;
+	}
+	return result;
+}
+
 // This is for debugging only.
 template<class Type>
 string to_string(const vector<Type> &vec) {
-	if(vec.empty()) {
-		return "[]";
-	}
-	return "[" + accumulate(next(vec.begin()), vec.end(),
-        vec[0],
-        [](const Type& a, const Type & b) { return a + "#" + b;	}
-	) + "]";
+	return "[" + join(vec.begin(), vec.end(), "#") + "]";
 }
+
+
 
 static string strip_quotes(const string &input_txt) {
 	// Given strace syntax, the path name should be enclosed in double quotes.
@@ -784,6 +793,14 @@ static void test_internal() {
 
 static const string survolUrl = "http://www.primhillcomputers.com/survol";
 
+static const map<string, string> mapXmlnsToUrl = {
+	{"xsd",   "http://www.w3.org/2001/XMLSchema"}, 
+	{"rdf",   "http://www.w3.org/1999/02/22-rdf-syntax-ns"}, 
+	{"rdfs",  "http://www.w3.org/2000/01/rdf-schema"}, 
+	{"survol", survolUrl},
+};
+	
+
 class RdfOutput {
 	ostream *m_ostream;
 	ofstream m_ofstream;
@@ -801,10 +818,9 @@ public:
 		
 		*m_ostream << R"(<?xml version="1.0" encoding="UTF-8"?>)"                     << endl;
 		*m_ostream << R"(<rdf:RDF)"                                                   << endl;
-		*m_ostream << R"(   xmlns:xsd="http://www.w3.org/2001/XMLSchema#")"           << endl;
-		*m_ostream << R"(   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#")" << endl;
-		*m_ostream << R"(   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#")"      << endl;
-		*m_ostream << R"(   xmlns:survol=")" << survolUrl << R"(#")"                  << endl;
+		for(const auto & elementXmlnsToUrl : mapXmlnsToUrl) {
+			*m_ostream << "xmlns:" << elementXmlnsToUrl.first << "=\"" << elementXmlnsToUrl.second << "#\"" << endl;
+		}
 		*m_ostream << R"(>)"                                                          << endl;
 	}
 
@@ -829,10 +845,6 @@ public:
 class CIMObjectManager {
 	typedef map<string, string> KeyToMoniker;
 	static map<string, KeyToMoniker> mapClassValueMoniker;
-
-	static string CreateMonikerNoCache(const string & className, const string &key, const string & value) {
-		return survolUrl + "#" + className + "." + key + "=" + value;
-	}
 public:
 	/* This works only for CIM classes which have a single key, which is by far the most common case. */
 	static string CreateMoniker(const string & className, const string &key, const string & value) {
@@ -841,7 +853,7 @@ public:
 		KeyToMoniker & mapKeyToMoniker = pairClassIter.first->second;
 		auto pairObjectIter = mapKeyToMoniker.insert(pair(key, string()));
 		if(pairObjectIter.second) {
-			pairObjectIter.first->second = CreateMonikerNoCache(className, key, value);
+			pairObjectIter.first->second = survolUrl + "#" + className + "." + key + "=" + value;
 		}
 		return pairObjectIter.first->second;
 	}
@@ -850,17 +862,13 @@ public:
 };
 map<string, CIMObjectManager::KeyToMoniker> CIMObjectManager::mapClassValueMoniker;
 
-struct CIMClassManager {
+class CIMClassManager {
 	static map<string, string> mapClassMoniker;
-
-	static string CreateMonikerNoCache(const string & className) {
-		return survolUrl + "#" + className;
-	}
 public:
-	static string CreateMoniker(const string & className) {
-		auto pairClassIter = mapClassMoniker.insert(pair(className, string()));
+	static string CreateMoniker(const string & xmlns, const string & className) {
+		auto pairClassIter = mapClassMoniker.insert(pair(xmlns + "#" + className, string()));
 		if(pairClassIter.second) {
-			pairClassIter.first->second = CreateMonikerNoCache(className);
+			pairClassIter.first->second = survolUrl + "#" + className;
 		}
 		return pairClassIter.first->second;
 	}
@@ -906,10 +914,10 @@ static string tag_resource(const string & rdfNamespace, const string & property,
 	return "<" + rdfNamespace + ":" + property + " rdf:resource=\"" + moniker + "\"/>";
 }
 
-static string tag_write(const string & property, const string & input_txt, const string & rdfNamespace = "survol") {
+static string tag_write(const string & property, const string & input_txt, const string & xmlns = "survol") {
 	const string escaped_txt = escape_xml(input_txt);
-	const string tag_open = "<" + rdfNamespace + ":" + property + ">";
-	const string tag_close = "</" + rdfNamespace + ":" + property + ">";
+	const string tag_open = "<" + xmlns + ":" + property + ">";
+	const string tag_close = "</" + xmlns + ":" + property + ">";
 	return tag_open + escaped_txt + tag_close;
 }
 
@@ -978,12 +986,6 @@ struct SystemCallArgument_Process : public ArgumentTypeWrapper<SystemCallArgumen
 		return tag_resource("survol", property, moniker);
 	}
 };
-struct SystemCallArgument_Class : public ArgumentTypeWrapper<SystemCallArgument_Class> {
-	string ToRdf(const string & property, const string & className) const override {
-		string moniker = CIMClassManager::CreateMoniker(className);
-		return tag_resource("rdf", property, moniker);
-	}
-};
 struct SystemCallArgument_ArgV : public ArgumentTypeWrapper<SystemCallArgument_ArgV> {
 	string ToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
@@ -1020,18 +1022,15 @@ Objects modelling system calls are written as soon as they are parsed from strac
 It would be possible to store them in a triple-store and dump the triples at the end,
 but it would require more plumbing and storing internal data.
 */
-class ObjectStart {
+class RdfDescriptionSerializer {
 	RdfOutput & rm_dfOutput;
 public:
-	ObjectStart(RdfOutput & rdfOutput, const string &func, const string & start_time, const string & end_time)
+	RdfDescriptionSerializer(RdfOutput & rdfOutput, const string &callMoniker)
 	: rm_dfOutput(rdfOutput) {
-		static size_t calls_counter = 0;
-		string callMoniker = CIMObjectManager::CreateMoniker(func, "CallId", to_string(calls_counter));
-		++calls_counter;
 		rm_dfOutput.WriteLine("<rdf:Description about=\"" + callMoniker + "\">");
 	}
 	
-	void AddSpecialKeyValue(const string & rdfNamespace , const string & key, const string & value) {
+	void AddGenericKeyValue(const string & rdfNamespace , const string & key, const string & value) {
 		string rdfKeyValue = tag_write(key, value, rdfNamespace);
 		rm_dfOutput.WriteLine("    " + rdfKeyValue);
 	}
@@ -1046,8 +1045,22 @@ public:
 		const string & rdfOut = oneArg.second.ToRdf(oneArg.first, trimedValue);
 		rm_dfOutput.WriteLine("    " + rdfOut);
 	}
+
+	void AddType(const string & xmlns, const string & className) {
+		string moniker = CIMClassManager::CreateMoniker(xmlns, className);
+		const string & rdfOut = tag_resource("rdf", "type", moniker);
+		rm_dfOutput.WriteLine("    " + rdfOut);
+	}
 	
-	~ObjectStart() {
+	void AddLabel(const string & label) {
+		AddGenericKeyValue("rdfs", "label", label);
+	}
+	
+	void AddComment(const string & comment) {
+		AddGenericKeyValue("rdfs", "comment", comment);
+	}
+	
+	~RdfDescriptionSerializer() {
 		rm_dfOutput.WriteLine("</rdf:Description>");
 	}
 };
@@ -1078,6 +1091,19 @@ public:
 	
 	virtual const char * function() const = 0;
 	virtual const FunctionSignature & Signature() const  = 0;
+	/*
+	TODO: This could display the most important arguments, tell what it is doing exactly etc...
+	*/
+	virtual string Label() const {
+		// return function() + string("(") + join(, , ",") + ")";
+		return "Label=" + function();
+	}
+
+	/* TODO: Extra explanations, if suspended etc... */
+	virtual string Comment() const {
+		// return function() + string("(") + join(, , ",") + ")";
+		return "Comment=" + function();
+	}
 
 	// Some system calls have optional arguments.
 	virtual size_t MinimumArgumentsNumber() const {
@@ -1125,20 +1151,23 @@ public:
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "Signature=" << argsDefs.size() << " Minimum=" << minArgs << endl;
 		}
-		ObjectStart objectStart(rdfOutput, function(), StartTime(), EndTime());
+		static size_t calls_counter = 0;
+		string callMoniker = CIMObjectManager::CreateMoniker(function(), "CallId", to_string(calls_counter));
+		++calls_counter;
 
-		objectStart.AddSpecialKeyValue("schema", "StartTime", StartTime());
-		objectStart.AddSpecialKeyValue("schema", "EndTime", EndTime());
+		RdfDescriptionSerializer rdfDescription(rdfOutput, callMoniker);
 
-		// objectStart.AddSpecialKeyValue("rdf", "type", "SystemCall");
-		static const constexpr NamedArgument typePseudoArg{ "type", SystemCallArgument_Class::ArgSingleton };
-		// TODO: Declare the class "function" as a subclass of "SystemCall".
-		objectStart.AddSurvolKeyValue(typePseudoArg, function());
+		rdfDescription.AddGenericKeyValue("schema", "StartTime", StartTime());
+		rdfDescription.AddGenericKeyValue("schema", "EndTime", EndTime());
+		rdfDescription.AddLabel(Label());
+		rdfDescription.AddComment(Comment());
+
+		rdfDescription.AddType("survol", function());
 
 		static const constexpr NamedArgument pidPseudoArg{ "CallingProcess", SystemCallArgument_Process::ArgSingleton };
 		
 		int effective_pid = processid == -1 ? global_created_pid : processid;
-		objectStart.AddSurvolKeyValue(pidPseudoArg, to_string(effective_pid));
+		rdfDescription.AddSurvolKeyValue(pidPseudoArg, to_string(effective_pid));
 
 		size_t index = 0;
 		for(const auto & oneArg : argsDefs) {
@@ -1150,7 +1179,7 @@ public:
 				}
 			}
 			string value = parsed_arguments[index];
-			objectStart.AddSurvolKeyValue(oneArg, value);
+			rdfDescription.AddSurvolKeyValue(oneArg, value);
 			++index;
 		}
 	}
@@ -1524,19 +1553,42 @@ static void process_line(RdfOutput & rdfOutput, const string &line) {
 ** Definition of system calls as classes.
 **
 *******************************************************************************/
+
+/*
+This defines the classes of each system call, "open", "wait4", "write" etc...
+as subclasses of a Survol class SystemCall.
+*/
 static void DefineSystemCallsClasses(RdfOutput & rdfOutput)
 {
+	static const string callsBaseClassName("SystemCall");
 	/*
 	Might as well iterate on keys of CIMClassManager which are in dictCalls.
 	*/
-	const string baseClassMoniker = CIMClassManager::CreateMoniker("SystemCall");
+	const string baseClassMoniker = CIMClassManager::CreateMoniker("survol", callsBaseClassName);
+	{
+		RdfDescriptionSerializer rdfDescriptionBaseClass(rdfOutput, baseClassMoniker);
+		rdfDescriptionBaseClass.AddType("rdfs", "Class");
+		rdfDescriptionBaseClass.AddLabel(callsBaseClassName);
+		rdfDescriptionBaseClass.AddComment("Base class of system calls");
+	}
+
 	for(auto iter : dictCalls) {
 		if(iter.second == nullptr) {
+			// This system call is never analysed.
 			continue;
 		}
-		const string classMoniker = CIMClassManager::CreateMoniker(iter.first);
-		//add base class
-		//alsdjhflaksjdfha
+		
+		/*
+		TODO: Possibly define only the system calls which were actually used in this process.
+		*/
+		const string & className = iter.first;
+		const string classMoniker = CIMClassManager::CreateMoniker("survol", className);
+
+		RdfDescriptionSerializer rdfDescription(rdfOutput, classMoniker);
+
+		rdfDescription.AddType("survol", callsBaseClassName);
+		rdfDescription.AddLabel(className);
+		rdfDescription.AddComment("Comment about " + className);
 	}
 }
 
@@ -1544,13 +1596,25 @@ static void DefineCIMClasses(RdfOutput & rdfOutput)
 {
 	/*
 	Might as well iterate on keys of CIMClassManager which are not in dictCalls.
-	*/
+	It must generate something like:
+	  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#CIM_ComputerSystem">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>CIM_ComputerSystem</rdfs:label>
+		<rdfs:comment>Computer system. Scripts related to the class CIM_ComputerSystem.</rdfs:comment>
+	  </rdf:Description>
+    */
 	static const string classesList[] = {
 		"CIM_Process",
 		"CIM_DataFile",
 		"CIM_Directory"};
 		
-	//s;ldkjf;alskdj
+	for(const string & className : classesList) {
+		const string classMoniker = CIMClassManager::CreateMoniker("survol", className);
+		RdfDescriptionSerializer rdfDescriptionClass(rdfOutput, classMoniker);
+		rdfDescriptionClass.AddType("rdfs", "Class");
+		rdfDescriptionClass.AddLabel(className);
+		rdfDescriptionClass.AddComment("Comment about " + className);
+	}
 }
 
 /*******************************************************************************
@@ -1710,7 +1774,6 @@ public:
 		}
 		DefineSystemCallsClasses(rdfOutput);
 		DefineCIMClasses(rdfOutput);
-		cout << "Processed lines:" << processed_lines << endl;
 	}
 };
 
@@ -1836,6 +1899,7 @@ int main(int argc, const char ** argv)
 		CommandExecutor executor = creator.CreateExecutor();
 		RdfOutput rdfOutput(creator.output());
 		executor.Execute(rdfOutput);
+		cout << "Processed lines:" << processed_lines << endl;
 	} catch(const exception & exc) {
 		const char * bar = "********************************************************************************\n";
 		fprintf(stderr, "%s", bar);
