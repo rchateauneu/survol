@@ -15,11 +15,13 @@
 #include <string>
 #include <iterator>
 #include <exception>
+#include <set>
 #include <map>
 #include <fstream>
 #include <stack>
 #include <memory>
 #include <numeric>
+#include <algorithm>
 
 using namespace std;
 
@@ -33,26 +35,28 @@ enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED};
 // Largest possible string offset.
 static const size_t NOT_UNFINISHED = size_t(~0);
 
+static const string & to_string(const string & str) {
+	return str;
+}
+
 template<class Iter>
 string join(Iter iter_begin, Iter iter_end, const string & delimiter) {
 	if(iter_begin == iter_end) {
 		return string();
 	}
-	string result = *iter_begin;
+	string result = to_string(*iter_begin);
 	++iter_begin;
 	for(;iter_begin != iter_end; ++iter_begin) {
-		result += delimiter + *iter_begin;
+		result += delimiter + to_string(*iter_begin);
 	}
 	return result;
 }
 
 // This is for debugging only.
 template<class Type>
-string to_string(const vector<Type> &vec) {
+string to_string(const Type &vec) {
 	return "[" + join(vec.begin(), vec.end(), "#") + "]";
 }
-
-
 
 static string strip_quotes(const string &input_txt) {
 	// Given strace syntax, the path name should be enclosed in double quotes.
@@ -358,7 +362,7 @@ public:
 		const char * function_start = time_end + 1;
 		
 		// Maybe this is not a function call.
-		const char sig_chld[] = "--- SIGCHLD";
+		static const char sig_chld[] = "--- SIGCHLD";
 		if(0 == strncmp(function_start, sig_chld, sizeof(function_start) - 1)) {
 			m_callstate = SIGNAL;
 			return;
@@ -449,350 +453,15 @@ public:
 
 /*******************************************************************************
 **
-** Internal tests.
-**
-*******************************************************************************/
-
-static const struct {
-	int pid;
-	string function_name;
-	string line;
-} tests_preparsed[] = {
-	{ -1, "clone", "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>"  },
-	{ 4233, "close", "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
-	{ 1338, "wait4", "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>"},
-	{ 22672, "open", "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>"},
-	{ 22560, "connect", "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>"},
-	{ -1, "poll", "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
-	{ -1, "wait4", "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>"},
-};
-
-/*
-This extracts the beginning of a line displayed by strace. Notably, the pid is extracted.
-*/
-static void test_preparsed() {
-	for(auto tst : tests_preparsed) {
-		logger() << "PreparsedLine:" << tst.line << endl;
-		PreparsedLine preparsed(tst.line);
-		if(preparsed.processid != tst.pid) {
-			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.pid));
-		}
-		if(preparsed.function_name != tst.function_name) {
-			throw runtime_error("Wrong function:" + preparsed.function_name);
-		}
-	}
-	printf("Preparsed test end : OK.\n");
-}
-
-
-/* This contains typical lines displayed by strace. Each line represents a call to a system function.
-Some calls are unfinished then resumed, possibly due to the reception of a signal.
-In this case, two lines are displayed. The arguments might be split between the two lines.
-The return value is at the end of the second line. */
-static const struct {
-	const string line;
-	const int processid;
-	const string function_name;
-	const vector<string> m_parsed_arguments;
-	const string call_return;
-	const double execution_time;
-} tests_preparsed2[] = {
-	{ "19:58:35.830656 ioctl(0</dev/pts/2>, SNDCTL_TMR_STOP or TCSETSW, {B38400 opost isig icanon echo ...}) = 0 <0.000017>",
-		-1,
-		"ioctl",
-		{"0</dev/pts/2>", " SNDCTL_TMR_STOP or TCSETSW", " {B38400 opost isig icanon echo ...}"},
-		" 0 ", 0.000017
-	},
-	{ "[pid  5557] 19:58:35.833161 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7fb6a4518000 <0.000015>",
-		5557,
-		"mmap",
-		{"NULL", " 124494", " PROT_READ", " MAP_PRIVATE", " 3</etc/ld.so.cache>", " 0"},
-		" 0x7fb6a4518000 ", 0.000015
-	},
-	{ "[pid  5557] 19:58:35.833374 fstat(3</usr/lib64/libselinux.so.1>, {st_mode=S_IFREG|0755, st_size=142112, ...}) = 0 <0.000012>",
-		5557,
-		"fstat",
-		{"3</usr/lib64/libselinux.so.1>", " {st_mode=S_IFREG|0755, st_size=142112, ...}"},
-		" 0 ", 0.000012
-	},
-	{ "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>",
-		-1,
-		"clone",
-		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
-		" 5557 ", 0.000185
-	},
-	{ "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>",
-		4233,
-		"close",
-		{"3<pipe:[52233]>"},
-		" 0 ", 0.000016
-	},
-	{ "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>",
-		-1,
-		"wait4",
-		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " 0", " NULL"},
-		" 869 ", 0.307670
-	},
-	{ "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>",
-		22672,
-		"open",
-		{"\"/lib64/libnsssysinit.so\"", " O_RDONLY|O_CLOEXEC"},
-		"", 0.0
-	},
-	{ "19:58:46.024321 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5562 <5.318296>",
-		-1,
-		"wait4",
-		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
-		" 5562 ", 5.318296
-	},
-	{ "[pid  4233] 19:58:40.705564 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5562 <0.000564>",
-		4233,
-		"clone",
-		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
-		" 5562 ", 0.000564
-	},
-	{ "19:58:35.841846 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5557 <0.010057>",
-		-1,
-		"wait4",
-		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
-		" 5557 ", 0.010057
-	},
-	{ "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>",
-		1338,
-		"wait4",
-		{"-1"},
-		"", 0.0
-	},
-	{ "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>",
-		22560,
-		"connect",
-		{},
-		" 0 ", 0.000021
-	},
-	{ "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>",
-		-1,
-		"poll",
-		{},
-		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) ", 0.009246
-	},
-	{ "22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, \"ABC\", 832) = 832 <0.000031>",
-		-1,
-		"read",
-		{"7</usr/libpcre2-8.so.0.9.0>", " \"ABC\"", " 832"},
-		" 832 ", 0.000031
-	},
-	{ R"(22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, "\177ELF\340\"\0\0\222\2@T\18\4\1&", 832) = 832 <0.000031>)",
-		-1,
-		"read",
-		{"7</usr/libpcre2-8.so.0.9.0>", R"( "\177ELF\340\"\0\0\222\2@T\18\4\1&")", " 832"},
-		" 832 ", 0.000031
-	},
-	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
-		-1,
-		"execve",
-		{"\"/usr/bin/ls\"", " [\"ls\"]", " 0x7fffde63bf28 /* 18 vars */"},
-		" 0 ", 0.003298
-	},
-	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls", "-l"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
-		-1,
-		"execve",
-		{"\"/usr/bin/ls\"", " [\"ls\", \"-l\"]", " 0x7fffde63bf28 /* 18 vars */"},
-		" 0 ", 0.003298
-	},
-	{ R"([pid 22568] 10:43:27.981223 recvmsg(51<UNIX:[15588905->15588906]>,  <unfinished ...>)",
-		22568,
-		"recvmsg",
-		{"51<UNIX:[15588905->15588906]>"},
-		"", 0.0
-	},
-	{ R"([pid 22568] 10:43:27.993342 close(49<UNIX:[15589437->15589436]>) = 0 <0.000006>)",
-		22568,
-		"close",
-		{"49<UNIX:[15589437->15589436]>"},
-		" 0 ", 0.000006
-	},
-	{ R"([pid 22526] 10:43:25.744972 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, 0x7f7794efc9e7, 1, MSG_PEEK, NULL, NULL) = -1 EAGAIN (Resource temporarily unavailable) <0.000012>)",
-		22526,
-		"recvfrom",
-		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", " 0x7f7794efc9e7", " 1", " MSG_PEEK", " NULL", " NULL"},
-		" -1 EAGAIN (Resource temporarily unavailable) ", 0.000012
-	},
-	{ R"([pid 22526] 10:43:25.744679 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"..., 32768, 0, NULL, NULL) = 384 <0.000012>)",
-		22526,
-		"recvfrom",
-		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"...)", " 32768", " 0", " NULL", " NULL"},
-		" 384 ", 0.000012
-	},
-	{ R"([pid 22526] 10:43:25.737922 poll([{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}], 2, -1 <unfinished ...>)",
-		22526,
-		"poll",
-		{"[{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}]", " 2", " -1"},
-		"", 0.0
-	},
-	{ R"([pid 22526] 10:43:25.737840 sendto(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"..., 296, 0, NULL, 0) = 296 <0.000033>)",
-		22526,
-		"sendto",
-		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"...)", " 296", " 0", " NULL", " 0"},
-		" 296 ", 0.000033
-	},
-	{ R"([pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>)",
-		22560,
-		"poll",
-		{"[{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}]", " 1", " 4999"},
-		" 1 ([{fd=65, revents=POLLIN}]) ", 0.000009
-	},
-};
-
-/*
-This extracts the beginning of a line displayed by strace. Notably, the pid is extracted.
-TODO: Test merge.
-*/
-static void test_preparsed2() {
-	for(auto tst : tests_preparsed2) {
-		logger() << "=================================================================" << endl;
-		logger() << "PreparsedLine:" << tst.line << endl;
-		PreparsedLine preparsed(tst.line);
-		if(preparsed.processid != tst.processid) {
-			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.processid));
-		}
-		if(preparsed.function_name != tst.function_name) {
-			throw runtime_error("Wrong function:" + preparsed.function_name + "!=" + tst.function_name);
-		}
-		if(preparsed.m_parsed_arguments != tst.m_parsed_arguments) {
-			logger() << "ACTUAL:" << preparsed.m_parsed_arguments.size() << endl;
-			logger() << "EXPECT:" << tst.m_parsed_arguments.size() << endl;
-			logger() << "ACTUAL:" << to_string(preparsed.m_parsed_arguments) << endl;
-			logger() << "EXPECT:" << to_string(tst.m_parsed_arguments) << endl;
-			throw runtime_error("Wrong arguments:" + to_string(preparsed.m_parsed_arguments) + "!=" + to_string(tst.m_parsed_arguments));
-		}
-		if(preparsed.call_return != tst.call_return) {
-			throw runtime_error("Wrong return:[" + preparsed.call_return + "]!=[" + tst.call_return + "]");
-		}
-		if(preparsed.execution_time != tst.execution_time) {
-			throw runtime_error("Wrong execution time:[" + to_string(preparsed.execution_time) + "]!=[" + to_string(tst.execution_time) + "]");
-		}
-	}
-	printf("Preparsed test end : OK.\n");
-}
-
-static const struct {
-	size_t unfinished;
-	const char * line;
-} tests_unfinished[] = {
-	{ 0, "<unfinished ...>"},
-	{ 3, "xyz<unfinished ...>"},
-	{ 3, "xyz <unfinished ...>"},
-	{ 3, "xyz  <unfinished ...>"},
-	{ 3, "xyz, <unfinished ...>"},
-	{ 4, "xyz , <unfinished ...>"},
-	{ 8, "wait4(-1,  <unfinished ...>"},
-	{ 21, "close(4<pipe:[52233]> <unfinished ...>"},
-	{ 0, " <unfinished ...>"},
-	{ 0, ", <unfinished ...>"},
-	{ NOT_UNFINISHED, "close(4<pipe:[52233]> < unfinished ...>"},
-	{ NOT_UNFINISHED, "<unfinished ...> "},
-	{ NOT_UNFINISHED, "<unfinished>"},
-	{ NOT_UNFINISHED, "abc"},
-};
-
-/* This tests the detection of the end of thearguments, and if the call is unfinished. */
-static void test_unfinished() {
-	for(auto tst : tests_unfinished) {
-		size_t ret = isUnfinished(tst.line);
-		logger() << "TST:" << tst.line << " Expected=" << tst.unfinished << " Actual=" << ret << endl;
-		if(tst.unfinished == ret && ret != NOT_UNFINISHED) {
-			logger() << "[" << string(tst.line, tst.line + ret) << "]" << endl;
-		}
-		if( ret != tst.unfinished) {
-			throw runtime_error(string("Wrong unfinished value:") + tst.line);
-		}
-	}
-	printf("Unfinished detection test end : OK.\n");
-}
-
-struct test_def_parsing_args {
-	const char * input;
-	const vector<const char *> outputs;
-	const char * call_return;
-	const size_t m_args_end;
-	
-	void test() {
-		logger() << "Input=" << input << endl;
-		size_t args_end;
-		vector<string> args = ArgumentsParser(input, 0, NOT_UNFINISHED, args_end);
-		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(logger(), "+"));
-		logger() << endl;
-		copy(args.begin(), args.end(), ostream_iterator<const string &>(logger(), "+"));
-		logger() << endl;
-		
-		if(args.size() != outputs.size() ) {
-			throw runtime_error("Different sizes");
-		}
-		for(size_t index = 0; index < outputs.size(); ++index) {
-			if( args[index] != outputs[index]) {
-				throw runtime_error("Different args");
-			}
-		}
-		if(args_end != m_args_end ) {
-			throw runtime_error("Different args end:" + to_string(args_end) + " should be " + to_string(m_args_end));
-		}
-	}
-};
-static const test_def_parsing_args test_args_parsing[] = {
-	{"(xyz)",
-		{"xyz"},
-		"",
-		5},
-	{"(x,y,z)",
-		{"x", "y", "z"},
-		"",
-		7},
-	{"(x,\"y\",z)",
-		{"x", "\"y\"", "z"},
-		"",
-		9},
-	{"(x,(y),z)",
-		{"x", "(y)", "z"},
-		"",
-		9},
-	{"(x,(y1,y2),z)",
-		{"x", "(y1,y2)", "z"},
-		"",
-		13},
-	{"(7</usr/share>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000059>",
-		{"7</usr/share>", " {st_mode=S_IFREG|0644, st_size=3678, ...}"},
-		" 0 <0.000059>",
-		58},
-	{"(AT_FDCWD, \"/usr/coreutils.moz\", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000031>",
-		{"AT_FDCWD", " \"/usr/coreutils.moz\"", " O_RDONLY"},
-		" -1 ENOENT (No such file or directory) <0.000031>",
-		42},
-};
-
-static void test_parsing() {
-	printf("Internal test start.\n");
-	for(auto one_test : test_args_parsing) {
-		one_test.test();
-	}
-	printf("Parsing test end : OK.\n");
-}
-
-static void test_internal() {
-	test_unfinished();
-	test_preparsed();
-	test_preparsed2();
-	test_parsing();
-	printf("Internal test end : OK.\n");
-}
-
-/*******************************************************************************
-**
-** Writing triples.
+** Writing triples to the output RDF/XML file.
 **
 *******************************************************************************/
 
 static const string survolUrl = "http://www.primhillcomputers.com/survol";
 
+/*
+This is used to generate the header of the RDF output file.
+*/
 static const map<string, string> mapXmlnsToUrl = {
 	{"xsd",   "http://www.w3.org/2001/XMLSchema"}, 
 	{"rdf",   "http://www.w3.org/1999/02/22-rdf-syntax-ns"}, 
@@ -806,6 +475,8 @@ class RdfOutput {
 	ofstream m_ofstream;
 	bool m_must_close;
 public:
+	RdfOutput() : m_ostream(nullptr) {
+	}
 	RdfOutput(const string &output_file) {
 		if(output_file.empty() ) {
 			m_ostream = &cout;
@@ -825,15 +496,19 @@ public:
 	}
 
 	~RdfOutput() {
-		*m_ostream << "</rdf:RDF>" << endl;
-		if(m_must_close) {
-			m_ofstream.close();
+		if(m_ostream) {
+			*m_ostream << "</rdf:RDF>" << endl;
+			if(m_must_close) {
+				m_ofstream.close();
+			}
 		}
-		printf("Closed RdfOutput\n");
+		cout << "Closed RdfOutput\n";
 	}
 
 	void WriteLine(const string &outputLine) {
-		*m_ostream << outputLine << endl;
+		if(m_ostream) {
+			*m_ostream << outputLine << endl;
+		}
 	}
 };
 
@@ -1007,7 +682,6 @@ struct SystemCallArgument_Mode : public ArgumentTypeWrapper<SystemCallArgument_M
 	}
 };
 
-
 /*******************************************************************************
 **
 ** Writing to RDF.
@@ -1095,14 +769,12 @@ public:
 	TODO: This could display the most important arguments, tell what it is doing exactly etc...
 	*/
 	virtual string Label() const {
-		// return function() + string("(") + join(, , ",") + ")";
-		return "Label=" + function();
+		return string("Label=") + function();
 	}
 
 	/* TODO: Extra explanations, if suspended etc... */
 	virtual string Comment() const {
-		// return function() + string("(") + join(, , ",") + ")";
-		return "Comment=" + function();
+		return string("Comment=") + function();
 	}
 
 	// Some system calls have optional arguments.
@@ -1130,8 +802,7 @@ public:
 		// TODO: What if it finishes on the next day ? This is a corner case.
 		return FormatTime(startTime + execution_time);
 	}
-	
-	
+
 	/*
   <rdf:Description rdf:about=
 "http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/./UnitTests/mineit_find_grep.strace.docker/home">
@@ -1233,7 +904,7 @@ public:
 	
 /*******************************************************************************
 **
-** Interesting system calls.
+** Useful system calls, the ones giving interesting information about a process.
 **
 *******************************************************************************/
 
@@ -1444,7 +1115,16 @@ map<string, STraceFactory::Generator> dictCalls = {
 	{"writev",            nullptr },
 };
 
+// The key is a process id. It contains for each process (or Linux thread) the current unfinished system call if there is one.
+// There should be zero or one call only per process.
 static map<int, shared_ptr<STraceCall>> unfinished_calls;
+
+// This counts resumed system calls which were not matched with their unfinished call,
+// in the same process for the same function.
+size_t unmatched_resumed_calls = 0;
+
+size_t matched_resumed_calls = 0;
+
 
 
 static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & preparsedLine, const string & line) {
@@ -1462,22 +1142,23 @@ static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & prepa
 
 shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 	PreparsedLine preparsedLine(line);
+	shared_ptr<STraceCall> ptrTraceCall = GenerateCallFromParsed(preparsedLine, line);
 	switch(preparsedLine.m_callstate) {
 		case UNFINISHED: {
-			shared_ptr<STraceCall> ptrUnfinished = GenerateCallFromParsed(preparsedLine, line);
-			if(!ptrUnfinished) {
+			// shared_ptr<STraceCall> ptrUnfinished = GenerateCallFromParsed(preparsedLine, line);
+			if(!ptrTraceCall) {
 				if(verbose_mode >= VERBOSE_DEBUG) {
 					logger() << "Cannot create call object with:" << preparsedLine.function_name << endl;
 				}
 				return shared_ptr<STraceCall>();
 			}
-			if(preparsedLine.function_name != ptrUnfinished->function()) {
+			if(preparsedLine.function_name != ptrTraceCall->function()) {
 				throw runtime_error("Inconsistency creating call object");
 			}
 
 			// Special case for "wait4" because if it is unfinished in a given process,
 			// it might be resumed in the process given as first parameter of wait4().
-			const STraceCall_wait4 * ptrWait4 = dynamic_cast<const STraceCall_wait4 *>(ptrUnfinished.get());
+			const STraceCall_wait4 * ptrWait4 = dynamic_cast<const STraceCall_wait4 *>(ptrTraceCall.get());
 			int resuming_pid;
 			if(ptrWait4 != nullptr) {
 				if(preparsedLine.function_name != "wait4") {
@@ -1490,10 +1171,10 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 			}
 
 			// There should not be another unfinished call for this pid.
-			auto itr_pair = unfinished_calls.insert(make_pair(resuming_pid, ptrUnfinished));
+			auto itr_pair = unfinished_calls.insert(make_pair(resuming_pid, ptrTraceCall));
 			if(!itr_pair.second) {
 				throw runtime_error("Unfinished call " + string(itr_pair.first->second->function()) + " present for pid="
-					+ to_string(resuming_pid) + " when inserting " + string(ptrUnfinished->function()) + "/" + preparsedLine.function_name);
+					+ to_string(resuming_pid) + " when inserting " + string(ptrTraceCall->function()) + "/" + preparsedLine.function_name);
 			}
 
 			// Do not return a finished call.
@@ -1501,16 +1182,24 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 		}
 		break;
 		case PLAIN: {
-			return GenerateCallFromParsed(preparsedLine, line);
+			// return GenerateCallFromParsed(preparsedLine, line);
+			return ptrTraceCall;
 		}
 		case RESUMED: {
+			if(!ptrTraceCall) {
+				// This function call is not useful nor processed.
+				return shared_ptr<STraceCall>();
+			}
+
 			auto found_preparsed = unfinished_calls.find(preparsedLine.processid);
 			if(found_preparsed == unfinished_calls.end()) {
 				// This can happen : strace misses some calls.
+				++unmatched_resumed_calls;
 				throw runtime_error(
 					"Cannot find unfinished call. Function=" + preparsedLine.function_name
 					+ " Pid=" + to_string(preparsedLine.processid));
 			}
+			++matched_resumed_calls;
 			shared_ptr<STraceCall> ptrUnfinished = found_preparsed->second;
 			if(ptrUnfinished) {
 				ptrUnfinished->MergeWithResumed(preparsedLine);
@@ -1743,6 +1432,477 @@ static int replay_strace_logfile(RdfOutput & rdfOutput, const string & replay_lo
 
 /*******************************************************************************
 **
+** Replaying a vector string containing the output of strace.
+**
+*******************************************************************************/
+static int replay_strace_vector(RdfOutput & rdfOutput, const vector<string> & replay_vector) {
+	for(const string & one_line : replay_vector) {
+		cout << "one_line=" << one_line << endl;
+		process_line(rdfOutput, one_line);
+	}
+	return 0;
+}
+
+/*******************************************************************************
+**
+** Internal tests.
+**
+*******************************************************************************/
+
+/*******************************************************************************
+** Test parsing of calls.
+*******************************************************************************/
+static const struct {
+	int pid;
+	string function_name;
+	string line;
+} tests_preparsed[] = {
+	{ -1, "clone", "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>"  },
+	{ 4233, "close", "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
+	{ 1338, "wait4", "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>"},
+	{ 22672, "open", "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>"},
+	{ 22560, "connect", "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>"},
+	{ -1, "poll", "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
+	{ -1, "wait4", "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>"},
+};
+
+/*
+This extracts the beginning of a line displayed by strace. Notably, the pid is extracted.
+*/
+static void test_preparsed() {
+	for(auto tst : tests_preparsed) {
+		logger() << "PreparsedLine:" << tst.line << endl;
+		PreparsedLine preparsed(tst.line);
+		if(preparsed.processid != tst.pid) {
+			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.pid));
+		}
+		if(preparsed.function_name != tst.function_name) {
+			throw runtime_error("Wrong function:" + preparsed.function_name);
+		}
+	}
+	printf("Preparsed test end : OK.\n");
+}
+
+/*******************************************************************************
+** Test full parsing of calls.
+*******************************************************************************/
+
+/* This contains typical lines displayed by strace. Each line represents a call to a system function.
+Some calls are unfinished then resumed, possibly due to the reception of a signal.
+In this case, two lines are displayed. The arguments might be split between the two lines.
+The return value is at the end of the second line. */
+static const struct {
+	const string line;
+	const int processid;
+	const string function_name;
+	const vector<string> m_parsed_arguments;
+	const string call_return;
+	const double execution_time;
+} tests_preparsed2[] = {
+	{ "19:58:35.830656 ioctl(0</dev/pts/2>, SNDCTL_TMR_STOP or TCSETSW, {B38400 opost isig icanon echo ...}) = 0 <0.000017>",
+		-1,
+		"ioctl",
+		{"0</dev/pts/2>", " SNDCTL_TMR_STOP or TCSETSW", " {B38400 opost isig icanon echo ...}"},
+		" 0 ", 0.000017
+	},
+	{ "[pid  5557] 19:58:35.833161 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7fb6a4518000 <0.000015>",
+		5557,
+		"mmap",
+		{"NULL", " 124494", " PROT_READ", " MAP_PRIVATE", " 3</etc/ld.so.cache>", " 0"},
+		" 0x7fb6a4518000 ", 0.000015
+	},
+	{ "[pid  5557] 19:58:35.833374 fstat(3</usr/lib64/libselinux.so.1>, {st_mode=S_IFREG|0755, st_size=142112, ...}) = 0 <0.000012>",
+		5557,
+		"fstat",
+		{"3</usr/lib64/libselinux.so.1>", " {st_mode=S_IFREG|0755, st_size=142112, ...}"},
+		" 0 ", 0.000012
+	},
+	{ "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>",
+		-1,
+		"clone",
+		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
+		" 5557 ", 0.000185
+	},
+	{ "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>",
+		4233,
+		"close",
+		{"3<pipe:[52233]>"},
+		" 0 ", 0.000016
+	},
+	{ "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>",
+		-1,
+		"wait4",
+		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " 0", " NULL"},
+		" 869 ", 0.307670
+	},
+	{ "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>",
+		22672,
+		"open",
+		{"\"/lib64/libnsssysinit.so\"", " O_RDONLY|O_CLOEXEC"},
+		"", 0.0
+	},
+	{ "19:58:46.024321 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5562 <5.318296>",
+		-1,
+		"wait4",
+		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
+		" 5562 ", 5.318296
+	},
+	{ "[pid  4233] 19:58:40.705564 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5562 <0.000564>",
+		4233,
+		"clone",
+		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
+		" 5562 ", 0.000564
+	},
+	{ "19:58:35.841846 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5557 <0.010057>",
+		-1,
+		"wait4",
+		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
+		" 5557 ", 0.010057
+	},
+	{ "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>",
+		1338,
+		"wait4",
+		{"-1"},
+		"", 0.0
+	},
+	{ "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>",
+		22560,
+		"connect",
+		{},
+		" 0 ", 0.000021
+	},
+	{ "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>",
+		-1,
+		"poll",
+		{},
+		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) ", 0.009246
+	},
+	{ "22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, \"ABC\", 832) = 832 <0.000031>",
+		-1,
+		"read",
+		{"7</usr/libpcre2-8.so.0.9.0>", " \"ABC\"", " 832"},
+		" 832 ", 0.000031
+	},
+	{ R"(22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, "\177ELF\340\"\0\0\222\2@T\18\4\1&", 832) = 832 <0.000031>)",
+		-1,
+		"read",
+		{"7</usr/libpcre2-8.so.0.9.0>", R"( "\177ELF\340\"\0\0\222\2@T\18\4\1&")", " 832"},
+		" 832 ", 0.000031
+	},
+	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
+		-1,
+		"execve",
+		{"\"/usr/bin/ls\"", " [\"ls\"]", " 0x7fffde63bf28 /* 18 vars */"},
+		" 0 ", 0.003298
+	},
+	{ R"(00:23:29.461586 execve("/usr/bin/ls", ["ls", "-l"], 0x7fffde63bf28 /* 18 vars */) = 0 <0.003298>)",
+		-1,
+		"execve",
+		{"\"/usr/bin/ls\"", " [\"ls\", \"-l\"]", " 0x7fffde63bf28 /* 18 vars */"},
+		" 0 ", 0.003298
+	},
+	{ R"([pid 22568] 10:43:27.981223 recvmsg(51<UNIX:[15588905->15588906]>,  <unfinished ...>)",
+		22568,
+		"recvmsg",
+		{"51<UNIX:[15588905->15588906]>"},
+		"", 0.0
+	},
+	{ R"([pid 22568] 10:43:27.993342 close(49<UNIX:[15589437->15589436]>) = 0 <0.000006>)",
+		22568,
+		"close",
+		{"49<UNIX:[15589437->15589436]>"},
+		" 0 ", 0.000006
+	},
+	{ R"([pid 22526] 10:43:25.744972 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, 0x7f7794efc9e7, 1, MSG_PEEK, NULL, NULL) = -1 EAGAIN (Resource temporarily unavailable) <0.000012>)",
+		22526,
+		"recvfrom",
+		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", " 0x7f7794efc9e7", " 1", " MSG_PEEK", " NULL", " NULL"},
+		" -1 EAGAIN (Resource temporarily unavailable) ", 0.000012
+	},
+	{ R"([pid 22526] 10:43:25.744679 recvfrom(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"..., 32768, 0, NULL, NULL) = 384 <0.000012>)",
+		22526,
+		"recvfrom",
+		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\nLast-Modified: Mon, 15 May 2017 18:04:40 GMT\r\nETag: \"ae780585f49b94ce1444eb7d28906123\"\r\nAccept-Ranges: bytes\r\nServer: AmazonS3\r\nX-Amz-Cf-I"...)", " 32768", " 0", " NULL", " NULL"},
+		" 384 ", 0.000012
+	},
+	{ R"([pid 22526] 10:43:25.737922 poll([{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}], 2, -1 <unfinished ...>)",
+		22526,
+		"poll",
+		{"[{fd=20<pipe:[15588425]>, events=POLLIN|POLLPRI}, {fd=34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, events=POLLIN|POLLPRI}]", " 2", " -1"},
+		"", 0.0
+	},
+	{ R"([pid 22526] 10:43:25.737840 sendto(34<TCP:[54.36.162.150:59830->92.122.122.138:80]>, "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"..., 296, 0, NULL, 0) = 296 <0.000033>)",
+		22526,
+		"sendto",
+		{"34<TCP:[54.36.162.150:59830->92.122.122.138:80]>", R"( "GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nUser-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0\r\nAccept: */*\r\nAccept-Language: en-US,en;q=0.5\r\nAccep"...)", " 296", " 0", " NULL", " 0"},
+		" 296 ", 0.000033
+	},
+	{ R"([pid 22560] 10:43:25.736857 poll([{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}], 1, 4999) = 1 ([{fd=65, revents=POLLIN}]) <0.000009>)",
+		22560,
+		"poll",
+		{"[{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}]", " 1", " 4999"},
+		" 1 ([{fd=65, revents=POLLIN}]) ", 0.000009
+	},
+};
+
+/*
+This extracts the beginning of a line displayed by strace. Notably, the pid is extracted.
+TODO: Test merge.
+*/
+static void test_preparsed2() {
+	for(auto tst : tests_preparsed2) {
+		logger() << "=================================================================" << endl;
+		logger() << "PreparsedLine:" << tst.line << endl;
+		PreparsedLine preparsed(tst.line);
+		if(preparsed.processid != tst.processid) {
+			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.processid));
+		}
+		if(preparsed.function_name != tst.function_name) {
+			throw runtime_error("Wrong function:" + preparsed.function_name + "!=" + tst.function_name);
+		}
+		if(preparsed.m_parsed_arguments != tst.m_parsed_arguments) {
+			logger() << "ACTUAL:" << preparsed.m_parsed_arguments.size() << endl;
+			logger() << "EXPECT:" << tst.m_parsed_arguments.size() << endl;
+			logger() << "ACTUAL:" << to_string(preparsed.m_parsed_arguments) << endl;
+			logger() << "EXPECT:" << to_string(tst.m_parsed_arguments) << endl;
+			throw runtime_error("Wrong arguments:" + to_string(preparsed.m_parsed_arguments) + "!=" + to_string(tst.m_parsed_arguments));
+		}
+		if(preparsed.call_return != tst.call_return) {
+			throw runtime_error("Wrong return:[" + preparsed.call_return + "]!=[" + tst.call_return + "]");
+		}
+		if(preparsed.execution_time != tst.execution_time) {
+			throw runtime_error("Wrong execution time:[" + to_string(preparsed.execution_time) + "]!=[" + to_string(tst.execution_time) + "]");
+		}
+	}
+	printf("Preparsed test end : OK.\n");
+}
+
+/*******************************************************************************
+** Test detection of unfinished calls.
+*******************************************************************************/
+static const struct {
+	size_t unfinished;
+	const char * line;
+} tests_unfinished[] = {
+	{ 0, "<unfinished ...>"},
+	{ 3, "xyz<unfinished ...>"},
+	{ 3, "xyz <unfinished ...>"},
+	{ 3, "xyz  <unfinished ...>"},
+	{ 3, "xyz, <unfinished ...>"},
+	{ 4, "xyz , <unfinished ...>"},
+	{ 8, "wait4(-1,  <unfinished ...>"},
+	{ 21, "close(4<pipe:[52233]> <unfinished ...>"},
+	{ 0, " <unfinished ...>"},
+	{ 0, ", <unfinished ...>"},
+	{ NOT_UNFINISHED, "close(4<pipe:[52233]> < unfinished ...>"},
+	{ NOT_UNFINISHED, "<unfinished ...> "},
+	{ NOT_UNFINISHED, "<unfinished>"},
+	{ NOT_UNFINISHED, "abc"},
+};
+
+/* This tests the detection of the end of thearguments, and if the call is unfinished. */
+static void test_unfinished() {
+	for(auto tst : tests_unfinished) {
+		size_t ret = isUnfinished(tst.line);
+		logger() << "TST:" << tst.line << " Expected=" << tst.unfinished << " Actual=" << ret << endl;
+		if(tst.unfinished == ret && ret != NOT_UNFINISHED) {
+			logger() << "[" << string(tst.line, tst.line + ret) << "]" << endl;
+		}
+		if( ret != tst.unfinished) {
+			throw runtime_error(string("Wrong unfinished value:") + tst.line);
+		}
+	}
+	printf("Unfinished detection test end : OK.\n");
+}
+
+/*******************************************************************************
+** Test parsing arguments.
+*******************************************************************************/
+struct test_def_parsing_args {
+	const char * input;
+	const vector<const char *> outputs;
+	const char * call_return;
+	const size_t m_args_end;
+	
+	void test() {
+		logger() << "Input=" << input << endl;
+		size_t args_end;
+		vector<string> args = ArgumentsParser(input, 0, NOT_UNFINISHED, args_end);
+		copy(outputs.begin(), outputs.end(), ostream_iterator<const char *>(logger(), "+"));
+		logger() << endl;
+		copy(args.begin(), args.end(), ostream_iterator<const string &>(logger(), "+"));
+		logger() << endl;
+		
+		if(args.size() != outputs.size() ) {
+			throw runtime_error("Different sizes");
+		}
+		for(size_t index = 0; index < outputs.size(); ++index) {
+			if( args[index] != outputs[index]) {
+				throw runtime_error("Different args");
+			}
+		}
+		if(args_end != m_args_end ) {
+			throw runtime_error("Different args end:" + to_string(args_end) + " should be " + to_string(m_args_end));
+		}
+	}
+};
+static const test_def_parsing_args test_args_parsing[] = {
+	{"(xyz)",
+		{"xyz"},
+		"",
+		5},
+	{"(x,y,z)",
+		{"x", "y", "z"},
+		"",
+		7},
+	{"(x,\"y\",z)",
+		{"x", "\"y\"", "z"},
+		"",
+		9},
+	{"(x,(y),z)",
+		{"x", "(y)", "z"},
+		"",
+		9},
+	{"(x,(y1,y2),z)",
+		{"x", "(y1,y2)", "z"},
+		"",
+		13},
+	{"(7</usr/share>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000059>",
+		{"7</usr/share>", " {st_mode=S_IFREG|0644, st_size=3678, ...}"},
+		" 0 <0.000059>",
+		58},
+	{"(AT_FDCWD, \"/usr/coreutils.moz\", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000031>",
+		{"AT_FDCWD", " \"/usr/coreutils.moz\"", " O_RDONLY"},
+		" -1 ENOENT (No such file or directory) <0.000031>",
+		42},
+};
+
+static void test_parsing() {
+	printf("Parsing test start.\n");
+	for(auto one_test : test_args_parsing) {
+		one_test.test();
+	}
+	printf("Parsing test end : OK.\n");
+}
+
+/*******************************************************************************
+** Test resuming of unfinished calls.
+*******************************************************************************/
+struct scenario_definition {
+	size_t expected_unmatched_resumed;
+	size_t expected_matched_resumed;
+	size_t expected_unfinished;
+	set<int> expected_unfinished_keys;
+	vector<string> input_lines;
+};
+static const vector<scenario_definition> test_resume_scenarios = {
+	{
+		0, 0, 0, {},
+		{
+			"10:43:18.110704 read(3<pipe:[15588149]>,  <unfinished ...>",
+		}
+	},
+	{
+		0, 0, 1, {22522},
+		{
+			"[pid 22522] 10:43:20.203265 open(\"/sys/fs/selinux/booleans/allow_execmem\", O_RDONLY <unfinished ...>",
+		}
+	},
+	{
+		1, 0, 0, {},
+		{
+			"[pid 22522] 10:43:20.203203 <... open resumed> ) = -1 ENOENT (No such file or directory) <0.000152>",
+		}
+	},
+	{
+		0, 0, 0, {},
+		{
+			"10:43:18.110704 read(3<pipe:[15588149]>,  <unfinished ...>",
+			"[pid 22522] 10:43:20.501186 fstat(5</etc/selinux/targeted/booleans.subs_dist>,  <unfinished ...>",
+			"[pid 22505] 10:43:20.566878 <... poll resumed> ) = 1 ([{fd=4, revents=POLLIN}]) <0.088351>",
+			"[pid 22522] 10:43:20.566932 <... fstat resumed> {st_mode=S_IFREG|0644, st_size=2367, ...}) = 0 <0.000071>",
+		}
+	},
+	{
+		0, 0, 0, {},
+		{
+			"[pid 22507] 10:43:18.123665 write(1<pipe:[15588158]>, \"x86_64\n\", 7 <unfinished ...>",
+			"[pid 22505] 10:43:18.123684 <... read resumed> \"x86_64\n\", 128) = 7 <0.007483>",
+			"[pid 22507] 10:43:18.123692 <... write resumed> ) = 7 <0.000019>",
+			"[pid 22506] 10:43:18.115514 close(1<pipe:[15588149]> <unfinished ...>",
+		}
+	},
+	{
+		0, 1, 1, {22522},
+		{
+			"[pid 22522] 10:43:20.203265 open(\"/sys/fs/selinux/booleans/allow_execmem\", O_RDONLY <unfinished ...>",
+			"[pid 22505] 10:43:20.203299 recvmsg(4<TCPv6:[::1:59094->::1:6015]>,  <unfinished ...>",
+			"[pid 22522] 10:43:20.203313 <... open resumed> ) = -1 ENOENT (No such file or directory) <0.000036>",
+			"[pid 22505] 10:43:20.203330 <... recvmsg resumed> {msg_namelen=0}, 0) = -1 EAGAIN (Resource temporarily unavailable) <0.000018>",
+			"[pid 22522] 10:43:20.203337 open(\"/etc/selinux/targeted/booleans.subs_dist\", O_RDONLY <unfinished ...>",
+		}
+	},
+};
+
+
+static void reset_context() {
+	unfinished_calls.clear();
+	unmatched_resumed_calls = 0;
+	matched_resumed_calls = 0;
+}
+
+static void test_scenarios() 
+{
+	cout << "test_scenarios.\n";
+	RdfOutput rdfOutput; // No output.
+	for(const auto & scenario : test_resume_scenarios) {
+		reset_context();
+		cout << "+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= " << scenario.input_lines.size() << " lines." << endl;
+		replay_strace_vector(rdfOutput, scenario.input_lines);
+		if(scenario.expected_unmatched_resumed != unmatched_resumed_calls) {
+			throw runtime_error("Wrong unmatched resumed calls:" + to_string(scenario.expected_unmatched_resumed)
+				+ " != " + to_string(unmatched_resumed_calls));
+		}
+		if(scenario.expected_matched_resumed != matched_resumed_calls) {
+			throw runtime_error("Wrong matched resumed calls:" + to_string(scenario.expected_matched_resumed)
+				+ " != " + to_string(matched_resumed_calls));
+		}
+		if(scenario.expected_unfinished != unfinished_calls.size()) {
+			throw runtime_error("Wrong unfinished calls:" + to_string(scenario.expected_unfinished)
+				+ " != " + to_string(unfinished_calls.size()));
+		}
+		set<int> actual_keys;
+		transform(
+			unfinished_calls.begin(),
+			unfinished_calls.end(),
+			inserter(actual_keys, actual_keys.begin()),
+			[](auto & the_pair)-> int { return the_pair.first;});
+		if(scenario.expected_unfinished_keys != actual_keys) {
+			cout << "scenario.expected_unfinished_keys=" << to_string(scenario.expected_unfinished_keys) << endl;
+			cout << "actual_keys=" << to_string(actual_keys) << endl;
+			throw runtime_error("Wrong keys of unfinished calls");
+		}
+	}
+	reset_context();
+}
+
+/*******************************************************************************
+**
+** Running all tests.
+**
+*******************************************************************************/
+static void test_internal() {
+	cout << "Internal test start.\n";
+	test_unfinished();
+	test_preparsed();
+	test_preparsed2();
+	test_parsing();
+	test_scenarios();
+	cout << "Internal test end : OK.\n";
+}
+
+/*******************************************************************************
+**
 ** Processing the command line with strace and parsing the output.
 **
 *******************************************************************************/
@@ -1888,16 +2048,22 @@ public:
 		}
 	}
 	
-	string output() const { return output_file; }
+	string output_file_name() const { return output_file; }
 };
 
 
+
+/*******************************************************************************
+**
+** Main entry point.
+**
+*******************************************************************************/
 int main(int argc, const char ** argv)
 {
 	try {
 		CommandCreator creator(argc, argv);
 		CommandExecutor executor = creator.CreateExecutor();
-		RdfOutput rdfOutput(creator.output());
+		RdfOutput rdfOutput(creator.output_file_name());
 		executor.Execute(rdfOutput);
 		cout << "Processed lines:" << processed_lines << endl;
 	} catch(const exception & exc) {
@@ -1909,3 +2075,8 @@ int main(int argc, const char ** argv)
 	}
 	return 0;
 }
+/*******************************************************************************
+**
+** The end.
+**
+*******************************************************************************/
