@@ -30,7 +30,7 @@ static void append_vector(vector<string> & target, const T & source) {
 	copy(source.begin(), source.end(), back_inserter(target));
 }
 
-enum CallState {INVALID, SIGNAL, PLAIN, UNFINISHED, RESUMED}; 
+enum CallState {INVALID, SIGSYS, SIGCHLD, SIGALRM, SIGVTALRM, SIGPIPE, PLAIN, UNFINISHED, RESUMED}; 
 
 // Largest possible string offset.
 static const size_t NOT_UNFINISHED = size_t(~0);
@@ -165,8 +165,13 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 	bool escaped = false;
 	stack<char> enclosers;
 	enclosers.push(')');
+	/*
+	cout << "start_offset=" << start_offset << endl;
+	cout << "line.substr(start_offset + 1)=" << line.substr(start_offset + 1) << endl;
+	cout << "end_offset=" << end_offset << endl;
+	*/
 	for(args_end = start_offset + 1; still_running && (args_end < end_offset); ++args_end) {
-		const char chr = line[args_end];
+		const char chr = line.at(args_end);
 		if(in_quotes) {
 			// If in a string.
 			switch(chr) {
@@ -203,8 +208,12 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 			case ')': case '}': case ']':
 				--balance_parenthesis;
 				if(enclosers.top() != chr) {
+					cout << "args_end=" << args_end << endl;
+					cout << "line.size()=" << line.size() << endl;
+					cout << "chr=" << chr << endl;
 					throw runtime_error(string("Should be closing characters:") + enclosers.top() + string(" instead of:") + chr
-						+ string(" args_end=") + to_string(args_end) + string(" end_offset=") + to_string(end_offset));
+						+ string(" args_end=") + to_string(args_end));
+						// + string(" args_end=") + to_string(args_end) + " from:" + line.substr(args_end));
 				}
 				enclosers.pop();
 				if(balance_parenthesis == 0) {
@@ -257,6 +266,7 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 	return args;
 }
 
+
 /*
 This extracts the function name so the right parser can be created.
 The line might start or not, with the pid.
@@ -307,7 +317,7 @@ class PreparsedLine {
 		// Now, finds the execution time.
 		size_t bracket_close = line.rfind('>');
 		if(bracket_close == string::npos) {
-			throw runtime_error("ParseReturn : No closing bracket for time.");
+			throw runtime_error("ParseReturn : No closing bracket for time from:" + line.substr(args_end));
 		}
 
 		size_t bracket_open = line.rfind('<', bracket_close);
@@ -361,11 +371,24 @@ public:
 		static const char * function_valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789_";
 		const char * function_start = time_end + 1;
 		
-		// Maybe this is not a function call.
-		static const char sig_chld[] = "--- SIGCHLD";
-		if(0 == strncmp(function_start, sig_chld, sizeof(function_start) - 1)) {
-			m_callstate = SIGNAL;
-			return;
+		static constexpr const struct SignalDefinition {
+			const CallState state;
+			const char * prefix;
+			const size_t prefixSz;
+			constexpr SignalDefinition(CallState cs, const char *p) : state(cs), prefix(p), prefixSz(strlen(p)) {}
+		} callStatesList[] = {
+			{ SIGCHLD,   "--- SIGCHLD"   },
+			{ SIGSYS,    "--- SIGSYS"    },
+			{ SIGPIPE,   "--- SIGPIPE"   },
+			{ SIGALRM,   "--- SIGALRM"   },
+			{ SIGVTALRM, "--- SIGVTALRM" },
+		};
+		// Maybe this is a signal.
+		for( const auto & callCheck : callStatesList ) {
+			if(0 == strncmp(function_start, callCheck.prefix, callCheck.prefixSz)) {
+				m_callstate = callCheck.state;
+				return;
+			}
 		}
 		
 		// A regular expression would also work.
@@ -376,7 +399,7 @@ public:
 		unfinished_offset = isUnfinished(line.c_str());
 		bool unfinished = unfinished_offset != NOT_UNFINISHED;
 
-		const char str_resumed[] = " resumed>";
+		static const char str_resumed[] = " resumed>";
 		bool resumed = nullptr != strstr(function_start, str_resumed);
 		if(unfinished && resumed) {
 			throw runtime_error("Cannot be unfinished and resumed");
@@ -404,6 +427,15 @@ public:
 			// The rest of these arguments - possibly none - comes in the "resumed" line.
 			// The beginning of the arguments of the resumed call come after "resumed>".
 			args_offset = function_end - line_start + sizeof(str_resumed) - 1;
+			
+			if(line_start[args_offset] == ')') {
+				/*
+				Some functions have a space after "resumed>" like " <... poll resumed> )",
+				Some other do not, like "<... exit resumed>)" or "<... exit_group resumed>)"
+				It must point before the closing parenthesis.
+				*/
+				--args_offset;
+			}
 		} else {
 			m_callstate = unfinished ? UNFINISHED : PLAIN;
 			if(!is_valid_function) {
@@ -438,7 +470,17 @@ public:
 			throw;
 		}
 		if(!unfinished) {
-			ParseReturn(line, args_end);
+			if((function_name == "exit") || (function_name == "exit_group")) {
+				// Typical strings:
+				//    "02:48:00.896618 exit_group(0)           = ?"
+				//    "[pid 22560] 10:43:52.921594 exit(0)     = ?"
+				//    "[pid 22668] 10:43:53.047437 <... exit resumed>) = ?"
+				if(line[line.size() - 1] != '?') {
+					throw runtime_error("Invalid return string for exit_group");
+				}
+			} else {
+				ParseReturn(line, args_end);
+			}
 		}
 	}
 	
@@ -463,10 +505,11 @@ static const string survolUrl = "http://www.primhillcomputers.com/survol";
 This is used to generate the header of the RDF output file.
 */
 static const map<string, string> mapXmlnsToUrl = {
-	{"xsd",   "http://www.w3.org/2001/XMLSchema"}, 
-	{"rdf",   "http://www.w3.org/1999/02/22-rdf-syntax-ns"}, 
-	{"rdfs",  "http://www.w3.org/2000/01/rdf-schema"}, 
-	{"survol", survolUrl},
+	{"xsd",     "http://www.w3.org/2001/XMLSchema"}, 
+	{"rdf",     "http://www.w3.org/1999/02/22-rdf-syntax-ns"}, 
+	{"rdfs",    "http://www.w3.org/2000/01/rdf-schema"}, 
+	{"schema",  "http://schema.org/"}, 
+	{"survol",  survolUrl},
 };
 	
 
@@ -1128,6 +1171,9 @@ size_t matched_resumed_calls = 0;
 
 
 static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & preparsedLine, const string & line) {
+	if(preparsedLine.function_name.empty()) {
+		return shared_ptr<STraceCall>();
+	}
 	auto iter = dictCalls.find(preparsedLine.function_name);
 	if(iter == dictCalls.end()) {
 		throw runtime_error("Cannot find function:" + preparsedLine.function_name);
@@ -1207,11 +1253,15 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 			unfinished_calls.erase(found_preparsed);
 			return ptrUnfinished;
 		}
-		case SIGNAL: {
+		case SIGSYS   :
+		case SIGCHLD  :
+		case SIGPIPE  :
+		case SIGALRM  :
+		case SIGVTALRM: {
 			return shared_ptr<STraceCall>();
 		}
 	}
-	throw runtime_error("Invalid call state");
+	throw runtime_error("Invalid call state:" + to_string((int)preparsedLine.m_callstate));
 }
 
 static size_t processed_lines = 0;
@@ -1449,21 +1499,53 @@ static int replay_strace_vector(RdfOutput & rdfOutput, const vector<string> & re
 **
 *******************************************************************************/
 
+/*
+TODO: How to treat these lines ? This occurs rarely, and only with "write".
+
+[pid   869] 10:07:39.277287 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 45--2018-03-27 10:07:39--  http://hotmail.com/
+) = 45 <0.000008>
+
+[pid   869] 10:07:39.373964 write(2<pipe:[7274781]>, "301 Moved Permanentl"..., 22301 Moved Permanently
+) = 22 <0.000011>
+
+[pid   869] 10:07:39.374056 write(2<pipe:[7274781]>, "Location: https://ou"..., 52Location: https://outlook.live.com/owa/ [following]
+) = 52 <0.000010>
+
+[pid   869] 10:07:39.374249 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 55--2018-03-27 10:07:39--  https://outlook.live.com/owa/
+) = 55 <0.000011>
+
+*/
+
+
+
+
 /*******************************************************************************
 ** Test parsing of calls.
 *******************************************************************************/
 static const struct {
 	int pid;
+	CallState callstate;
 	string function_name;
 	string line;
 } tests_preparsed[] = {
-	{ -1, "clone", "19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>"  },
-	{ 4233, "close", "[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
-	{ 1338, "wait4", "[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>"},
-	{ 22672, "open", "[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>"},
-	{ 22560, "connect", "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>"},
-	{ -1, "poll", "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
-	{ -1, "wait4", "10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>"},
+	{ -1,    PLAIN,      "clone",
+	"19:58:35.830990 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5557 <0.000185>"  },
+	{ 4233,  PLAIN,      "close",
+	"[pid  4233] 19:58:35.831382 close(3<pipe:[52233]>) = 0 <0.000016>"},
+	{ 1338,  UNFINISHED, "wait4",
+	"[pid  1338] 14:54:00.613805 wait4(-1,  <unfinished ...>"},
+	{ 22672, UNFINISHED,      "open",
+	"[pid 22672] 10:43:55.189420 open(\"/lib64/libnsssysinit.so\", O_RDONLY|O_CLOEXEC <unfinished ...>"},
+	{ 22560, RESUMED,    "connect",
+	"[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>"},
+	{ -1,    RESUMED,    "poll",
+	"10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>"},
+	{ -1,    RESUMED,    "wait4",
+	"10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>"},
+	{ -1,    SIGCHLD,    "",
+	"10:43:18.362116 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=22519, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---"},
+	{ 22566, SIGSYS,     "",
+	"[pid 22566] 10:43:27.318994 --- SIGSYS {si_signo=SIGSYS, si_code=SYS_SECCOMP, si_errno=EIO, si_call_addr=0x7f09f75562aa, si_syscall=__NR_access, si_arch=AUDIT_ARCH_X86_64} ---"},
 };
 
 /*
@@ -1477,7 +1559,10 @@ static void test_preparsed() {
 			throw runtime_error("Wrong pid:" + to_string(preparsed.processid) + " != " + to_string(tst.pid));
 		}
 		if(preparsed.function_name != tst.function_name) {
-			throw runtime_error("Wrong function:" + preparsed.function_name);
+			throw runtime_error("Wrong function:" + preparsed.function_name + "!=" + tst.function_name);
+		}
+		if(preparsed.m_callstate != tst.callstate) {
+			throw runtime_error("Wrong call state:" + to_string((int)preparsed.m_callstate) + "!=" + to_string((int)tst.callstate));
 		}
 	}
 	printf("Preparsed test end : OK.\n");
@@ -1547,12 +1632,6 @@ static const struct {
 		{"[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]", " WSTOPPED|WCONTINUED", " NULL"},
 		" 5562 ", 5.318296
 	},
-	{ "[pid  4233] 19:58:40.705564 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5562 <0.000564>",
-		4233,
-		"clone",
-		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
-		" 5562 ", 0.000564
-	},
 	{ "19:58:35.841846 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 5557 <0.010057>",
 		-1,
 		"wait4",
@@ -1564,18 +1643,6 @@ static const struct {
 		"wait4",
 		{"-1"},
 		"", 0.0
-	},
-	{ "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>",
-		22560,
-		"connect",
-		{},
-		" 0 ", 0.000021
-	},
-	{ "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>",
-		-1,
-		"poll",
-		{},
-		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) ", 0.009246
 	},
 	{ "22:58:47.412832 read(7</usr/libpcre2-8.so.0.9.0>, \"ABC\", 832) = 832 <0.000031>",
 		-1,
@@ -1642,6 +1709,36 @@ static const struct {
 		"poll",
 		{"[{fd=65<UDP:[54.36.162.150:38732->213.186.33.99:53]>, events=POLLIN}]", " 1", " 4999"},
 		" 1 ([{fd=65, revents=POLLIN}]) ", 0.000009
+	},
+	{ "10:43:20.757752 <... poll resumed> )    = ? ERESTART_RESTARTBLOCK (Interrupted by signal) <0.009246>",
+		-1,
+		"poll",
+		{},
+		" ? ERESTART_RESTARTBLOCK (Interrupted by signal) ", 0.009246
+	},
+	{ "[pid  4233] 19:58:40.705564 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b1ca779d0) = 5562 <0.000564>",
+		4233,
+		"clone",
+		{"child_stack=0", " flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD", " child_tidptr=0x7f3b1ca779d0"},
+		" 5562 ", 0.000564
+	},
+	{ "[pid 22560] 10:43:33.601340 <... connect resumed> ) = 0 <0.000021>",
+		22560,
+		"connect",
+		{},
+		" 0 ", 0.000021
+	},
+	{ R"([pid 22606] 10:43:31.485871 <... exit resumed>) = ?)",
+		22606,
+		"exit",
+		{},
+		"", 0.0
+	},
+	{ R"([pid 10622] 14:10:54.985632 --- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---)",
+		10622,
+		"",
+		{},
+		"", 0.0
 	},
 };
 
