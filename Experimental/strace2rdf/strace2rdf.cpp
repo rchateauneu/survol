@@ -82,8 +82,16 @@ static string replace_all_copy(const string& text, const string& from, const str
     return copy;
 }
 
+/*
+TODO: Make this faster when the code is stable.
+*/
 static string escape_xml(const string &input_txt) {
-	return replace_all_copy(input_txt, "/", "&#47;");
+	string return_string = input_txt;
+	return_string = replace_all_copy(return_string, "&", "&amp;");
+	return_string = replace_all_copy(return_string, "<", "&lt;");
+	return_string = replace_all_copy(return_string, ">", "&gt;");
+	return_string = replace_all_copy(return_string, "/", "&#47;"); // Why ?
+	return return_string;
 }
 
 static ostream & logger() {
@@ -165,11 +173,6 @@ static vector<string> ArgumentsParser(const string & line, size_t start_offset, 
 	bool escaped = false;
 	stack<char> enclosers;
 	enclosers.push(')');
-	/*
-	cout << "start_offset=" << start_offset << endl;
-	cout << "line.substr(start_offset + 1)=" << line.substr(start_offset + 1) << endl;
-	cout << "end_offset=" << end_offset << endl;
-	*/
 	for(args_end = start_offset + 1; still_running && (args_end < end_offset); ++args_end) {
 		const char chr = line.at(args_end);
 		if(in_quotes) {
@@ -565,8 +568,10 @@ class CIMObjectManager {
 	static map<string, KeyToMoniker> mapClassValueMoniker;
 public:
 	/* This works only for CIM classes which have a single key, which is by far the most common case. */
-	static string CreateMoniker(const string & className, const string &key, const string & value) {
-		auto pairClassIter = mapClassValueMoniker.insert(pair(className, KeyToMoniker()));
+	static string CreateObjectMoniker(const string & className, const string &key, const string & value) {
+		// This key is unique for this class.
+		const string keyMap = className + "@" + value;
+		auto pairClassIter = mapClassValueMoniker.insert(pair(keyMap, KeyToMoniker()));
 
 		KeyToMoniker & mapKeyToMoniker = pairClassIter.first->second;
 		auto pairObjectIter = mapKeyToMoniker.insert(pair(key, string()));
@@ -583,7 +588,7 @@ map<string, CIMObjectManager::KeyToMoniker> CIMObjectManager::mapClassValueMonik
 class CIMClassManager {
 	static map<string, string> mapClassMoniker;
 public:
-	static string CreateMoniker(const string & xmlns, const string & className) {
+	static string CreateClassMoniker(const string & xmlns, const string & className) {
 		auto pairClassIter = mapClassMoniker.insert(pair(xmlns + "#" + className, string()));
 		if(pairClassIter.second) {
 			pairClassIter.first->second = survolUrl + "#" + className;
@@ -594,6 +599,140 @@ public:
 	void DumpToRDF() {}
 };
 map<string, string> CIMClassManager::mapClassMoniker;
+
+class CIMPropertyManager {
+	static map<string, string> mapPropertyMoniker;
+public:
+	static string CreatePropertyMoniker(const string & xmlns, const string & propertyName) {
+		auto pairPropertyIter = mapPropertyMoniker.insert(pair(xmlns + "#" + propertyName, string()));
+		if(pairPropertyIter.second) {
+			pairPropertyIter.first->second = survolUrl + "#" + propertyName;
+		}
+		return pairPropertyIter.first->second;
+	}
+};
+map<string, string> CIMPropertyManager::mapPropertyMoniker;
+
+/*******************************************************************************
+**
+** Writing to RDF.
+**
+*******************************************************************************/
+
+struct ArgumentType {
+	// FIXME : property is never used.
+	virtual string ValueToRdf(const string & property, const string & input_txt) const = 0;
+	
+	virtual string ArgumentName() const = 0 ;
+	
+	void DefinitionToRdf(RdfOutput & rdfOutput, const string & nameProperty) const ;
+};
+
+typedef pair<const char *, const ArgumentType &> NamedArgument;
+typedef initializer_list< NamedArgument > FunctionSignature;
+
+// https://www.w3schools.com/tags/ref_urlencode.ASP
+static string encode_url(const string & url) {
+	string return_url = url;
+	return_url = replace_all_copy(return_url, "{", "%7B");
+	return_url = replace_all_copy(return_url, "}", "%7D");
+	return_url = replace_all_copy(return_url, " ", "%20");
+	return return_url;
+}
+
+// <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
+// <ldt:ppid rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1"/>
+static string tag_resource(const string & rdfNamespace, const string & property, const string &moniker) {
+	return "<" + rdfNamespace + ":" + property + " rdf:resource=\"" + encode_url(moniker) + "\"/>";
+}
+
+static string tag_write(const string & property, const string & input_txt, const string & xmlns = "survol") {
+	const string escaped_txt = escape_xml(input_txt);
+	const string tag_open = "<" + xmlns + ":" + property + ">";
+	const string tag_close = "</" + xmlns + ":" + property + ">";
+	return tag_open + escaped_txt + tag_close;
+}
+
+
+/*
+Objects modelling system calls are written as soon as they are parsed from strace output.
+It would be possible to store them in a triple-store and dump the triples at the end,
+but it would require more plumbing and storing internal data.
+*/
+class RdfDescriptionSerializer {
+	RdfOutput & rm_dfOutput;
+public:
+	RdfDescriptionSerializer(RdfOutput & rdfOutput, const string &callMoniker)
+	: rm_dfOutput(rdfOutput) {
+		rm_dfOutput.WriteLine("<rdf:Description about=\"" + callMoniker + "\">");
+	}
+	
+	void AddGenericKeyValue(const string & rdfNamespace , const string & key, const string & value) {
+		string rdfKeyValue = tag_write(key, value, rdfNamespace);
+		rm_dfOutput.WriteLine("    " + rdfKeyValue);
+	}
+	
+	void AddSurvolKeyValue(const NamedArgument & oneArg, const string & value) {
+		if(verbose_mode >= VERBOSE_DEBUG) {
+			logger() << "First / Value=" << oneArg.first << " " << value << endl;
+		}
+		string trimedValue = value;
+		trimedValue.erase(0, trimedValue.find_first_not_of("\t\n\v\f\r ")); // left trim
+		trimedValue.erase(trimedValue.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+		const string & rdfOut = oneArg.second.ValueToRdf(oneArg.first, trimedValue);
+		rm_dfOutput.WriteLine("    " + rdfOut);
+	}
+
+	void AddType(const string & xmlns, const string & className) {
+		string moniker = CIMClassManager::CreateClassMoniker(xmlns, className);
+		const string & rdfOut = tag_resource("rdf", "type", moniker);
+		rm_dfOutput.WriteLine("    " + rdfOut);
+	}
+	
+	void AddRange(const string & xmlns, const string & className) {
+		string moniker = CIMClassManager::CreateClassMoniker(xmlns, className);
+		const string & rdfOut = tag_resource("rdfs", "range", moniker);
+		rm_dfOutput.WriteLine("    " + rdfOut);
+	}
+	
+	void AddDomain(const string & xmlns, const string & className) {
+		string moniker = CIMClassManager::CreateClassMoniker(xmlns, className);
+		const string & rdfOut = tag_resource("rdfs", "domain", moniker);
+		rm_dfOutput.WriteLine("    " + rdfOut);
+	}
+	
+	void AddLabel(const string & label) {
+		AddGenericKeyValue("rdfs", "label", label);
+	}
+	
+	void AddComment(const string & comment) {
+		AddGenericKeyValue("rdfs", "comment", comment);
+	}
+	
+	~RdfDescriptionSerializer() {
+		rm_dfOutput.WriteLine("</rdf:Description>");
+	}
+};
+
+
+void ArgumentType::DefinitionToRdf(RdfOutput & rdfOutput, const string & nameProperty) const {
+	/*
+	  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#host">
+		<rdfs:comment>Predicate host</rdfs:comment>
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_ComputerSystem"/>
+		<rdfs:range rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+	  </rdf:Description>
+	*/
+	const string propertyMoniker = CIMPropertyManager::CreatePropertyMoniker("survol", nameProperty);
+	RdfDescriptionSerializer rdfDescription(rdfOutput, propertyMoniker);
+
+	rdfDescription.AddLabel(nameProperty);
+	rdfDescription.AddComment(string("Comment for property:") + nameProperty);
+	rdfDescription.AddType("rdf", "Property");
+	rdfDescription.AddDomain("survol", "SystemCall");
+	rdfDescription.AddRange("survol", ArgumentName());
+}
 
 /*******************************************************************************
 **
@@ -626,23 +765,6 @@ map<string, string> CIMClassManager::mapClassMoniker;
 
 
 
-// <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
-// <ldt:ppid rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1"/>
-static string tag_resource(const string & rdfNamespace, const string & property, const string &moniker) {
-	return "<" + rdfNamespace + ":" + property + " rdf:resource=\"" + moniker + "\"/>";
-}
-
-static string tag_write(const string & property, const string & input_txt, const string & xmlns = "survol") {
-	const string escaped_txt = escape_xml(input_txt);
-	const string tag_open = "<" + xmlns + ":" + property + ">";
-	const string tag_close = "</" + xmlns + ":" + property + ">";
-	return tag_open + escaped_txt + tag_close;
-}
-
-struct ArgumentType {
-	// FIXME : property is never used.
-	virtual string ToRdf(const string & property, const string & input_txt) const = 0;
-};
 
 template<class DerivedArgument>
 struct ArgumentTypeWrapper : public ArgumentType {
@@ -650,149 +772,120 @@ struct ArgumentTypeWrapper : public ArgumentType {
 };
 
 struct SystemCallArgument_ProcessId : public ArgumentTypeWrapper<SystemCallArgument_ProcessId> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "process_identifier";}
 };
 struct SystemCallArgument_IntPtr : public ArgumentTypeWrapper<SystemCallArgument_IntPtr> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "integer_pointer";}
 };
 struct SystemCallArgument_Int : public ArgumentTypeWrapper<SystemCallArgument_Int> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "integer";}
 };
 struct SystemCallArgument_RusagePtr : public ArgumentTypeWrapper<SystemCallArgument_RusagePtr> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "TheArgumentName_rusage_addr_path_etc";}
 };
 struct SystemCallArgument_Fd : public ArgumentTypeWrapper<SystemCallArgument_Fd> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "file_descriptor";}
 };
 struct SystemCallArgument_Addr : public ArgumentTypeWrapper<SystemCallArgument_Addr> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "network_address";}
 };
 struct SystemCallArgument_AddrLen : public ArgumentTypeWrapper<SystemCallArgument_AddrLen> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "network_address_length";}
 };
 struct SystemCallArgument_PathName : public ArgumentTypeWrapper<SystemCallArgument_PathName> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		string path_name = strip_quotes(input_txt);
-		string moniker = CIMObjectManager::CreateMoniker("CIM_DataFile", "Name", path_name);
+		string moniker = CIMObjectManager::CreateObjectMoniker("CIM_DataFile", "Name", path_name);
 		return tag_resource("survol", property, moniker);
 	}
+	string ArgumentName() const override { return "CIM_DataFile";}
 };
 struct SystemCallArgument_Directory : public ArgumentTypeWrapper<SystemCallArgument_Directory> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		string path_name = strip_quotes(input_txt);
-		string moniker = CIMObjectManager::CreateMoniker("CIM_Directory", "Name", path_name);
+		string moniker = CIMObjectManager::CreateObjectMoniker("CIM_Directory", "Name", path_name);
 		return tag_resource("survol", property, moniker);
 	}
+	string ArgumentName() const override { return "CIM_Directory";}
 };
 struct SystemCallArgument_Process : public ArgumentTypeWrapper<SystemCallArgument_Process> {
-	string ToRdf(const string & property, const string & pid) const override {
-		string moniker = CIMObjectManager::CreateMoniker("CIM_Process", "Handle", pid);
+	string ValueToRdf(const string & property, const string & pid) const override {
+		string moniker = CIMObjectManager::CreateObjectMoniker("CIM_Process", "Handle", pid);
 		return tag_resource("survol", property, moniker);
 	}
+	string ArgumentName() const override { return "CIM_Process";}
 };
 struct SystemCallArgument_ArgV : public ArgumentTypeWrapper<SystemCallArgument_ArgV> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "command_line_arguments";}
 };
 struct SystemCallArgument_EnvP : public ArgumentTypeWrapper<SystemCallArgument_EnvP> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "environment_variables";}
 };
 struct SystemCallArgument_Flags : public ArgumentTypeWrapper<SystemCallArgument_Flags> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "flags";}
 };
 struct SystemCallArgument_Mode : public ArgumentTypeWrapper<SystemCallArgument_Mode> {
-	string ToRdf(const string & property, const string & input_txt) const override {
+	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
+	string ArgumentName() const override { return "mode";}
 };
-
-/*******************************************************************************
-**
-** Writing to RDF.
-**
-*******************************************************************************/
-
-typedef pair<const char *, const ArgumentType &> NamedArgument;
-typedef initializer_list< NamedArgument > FunctionSignature;
-
-/*
-Objects modelling system calls are written as soon as they are parsed from strace output.
-It would be possible to store them in a triple-store and dump the triples at the end,
-but it would require more plumbing and storing internal data.
-*/
-class RdfDescriptionSerializer {
-	RdfOutput & rm_dfOutput;
-public:
-	RdfDescriptionSerializer(RdfOutput & rdfOutput, const string &callMoniker)
-	: rm_dfOutput(rdfOutput) {
-		rm_dfOutput.WriteLine("<rdf:Description about=\"" + callMoniker + "\">");
-	}
-	
-	void AddGenericKeyValue(const string & rdfNamespace , const string & key, const string & value) {
-		string rdfKeyValue = tag_write(key, value, rdfNamespace);
-		rm_dfOutput.WriteLine("    " + rdfKeyValue);
-	}
-	
-	void AddSurvolKeyValue(const NamedArgument & oneArg, const string & value) {
-		if(verbose_mode >= VERBOSE_DEBUG) {
-			logger() << "First / Value=" << oneArg.first << " " << value << endl;
-		}
-		string trimedValue = value;
-		trimedValue.erase(0, trimedValue.find_first_not_of("\t\n\v\f\r ")); // left trim
-		trimedValue.erase(trimedValue.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
-		const string & rdfOut = oneArg.second.ToRdf(oneArg.first, trimedValue);
-		rm_dfOutput.WriteLine("    " + rdfOut);
-	}
-
-	void AddType(const string & xmlns, const string & className) {
-		string moniker = CIMClassManager::CreateMoniker(xmlns, className);
-		const string & rdfOut = tag_resource("rdf", "type", moniker);
-		rm_dfOutput.WriteLine("    " + rdfOut);
-	}
-	
-	void AddLabel(const string & label) {
-		AddGenericKeyValue("rdfs", "label", label);
-	}
-	
-	void AddComment(const string & comment) {
-		AddGenericKeyValue("rdfs", "comment", comment);
-	}
-	
-	~RdfDescriptionSerializer() {
-		rm_dfOutput.WriteLine("</rdf:Description>");
-	}
-};
-
 
 /*******************************************************************************
 **
 ** Base class of system calls.
 **
 *******************************************************************************/
+
+class STraceCall;
+
+struct CallDefinition {
+	virtual const char * function() const = 0;
+	virtual const FunctionSignature & Signature() const = 0;
+	virtual shared_ptr<STraceCall> CreateTypedCall(const string &line, const PreparsedLine & preparsedLine) const = 0;
+	const void DumpProperties(RdfOutput & rdfOutput) const {
+		for(const NamedArgument & namedArgument : Signature()) {
+			namedArgument.second.DefinitionToRdf(rdfOutput, namedArgument.first);
+		}
+	}
+};
+
+
 /*
 Typical line displayed by the command strace:
 17:17:06.968628 fstat(7</usr/share/zoneinfo/Europe/London>, {st_mode=S_IFREG|0644, st_size=3678, ...}) = 0 <0.000021>
 */
-class STraceCall {
+class STraceCall : public virtual CallDefinition {
 protected:
 	vector<string> parsed_arguments;
 	double startTime;
@@ -806,8 +899,6 @@ public:
 	, execution_time(preparsedLine.execution_time) {
 	}
 	
-	virtual const char * function() const = 0;
-	virtual const FunctionSignature & Signature() const  = 0;
 	/*
 	TODO: This could display the most important arguments, tell what it is doing exactly etc...
 	*/
@@ -866,35 +957,36 @@ public:
 			logger() << "Signature=" << argsDefs.size() << " Minimum=" << minArgs << endl;
 		}
 		static size_t calls_counter = 0;
-		string callMoniker = CIMObjectManager::CreateMoniker(function(), "CallId", to_string(calls_counter));
+		const string & callMoniker = CIMObjectManager::CreateObjectMoniker(function(), "CallId", to_string(calls_counter));
 		++calls_counter;
 
-		RdfDescriptionSerializer rdfDescription(rdfOutput, callMoniker);
+		{
+			RdfDescriptionSerializer rdfDescription(rdfOutput, callMoniker);
 
-		rdfDescription.AddGenericKeyValue("schema", "StartTime", StartTime());
-		rdfDescription.AddGenericKeyValue("schema", "EndTime", EndTime());
-		rdfDescription.AddLabel(Label());
-		rdfDescription.AddComment(Comment());
+			rdfDescription.AddGenericKeyValue("schema", "StartTime", StartTime());
+			rdfDescription.AddGenericKeyValue("schema", "EndTime", EndTime());
+			rdfDescription.AddLabel(Label());
+			rdfDescription.AddComment(Comment());
 
-		rdfDescription.AddType("survol", function());
+			rdfDescription.AddType("survol", function());
 
-		static const constexpr NamedArgument pidPseudoArg{ "CallingProcess", SystemCallArgument_Process::ArgSingleton };
-		
-		int effective_pid = processid == -1 ? global_created_pid : processid;
-		rdfDescription.AddSurvolKeyValue(pidPseudoArg, to_string(effective_pid));
-
-		size_t index = 0;
-		for(const auto & oneArg : argsDefs) {
-			if(index >= parsed_arguments.size()) {
-				if(index >= minArgs) {
-					break;
-				} else {
-					throw runtime_error(string("Not enough arguments for:") + oneArg.first);
+			static const constexpr NamedArgument pidPseudoArg{ "CallingProcess", SystemCallArgument_Process::ArgSingleton };
+			
+			int effective_pid = processid == -1 ? global_created_pid : processid;
+			rdfDescription.AddSurvolKeyValue(pidPseudoArg, to_string(effective_pid));
+			
+			size_t index = 0;
+			for(const auto & oneArg : argsDefs) {
+				if(index >= parsed_arguments.size()) {
+					if(index >= minArgs) {
+						break;
+					} else {
+						throw runtime_error(string("Not enough arguments for:") + oneArg.first);
+					}
 				}
+				rdfDescription.AddSurvolKeyValue(oneArg, parsed_arguments[index]);
+				++index;
 			}
-			string value = parsed_arguments[index];
-			rdfDescription.AddSurvolKeyValue(oneArg, value);
-			++index;
 		}
 	}
 	
@@ -944,6 +1036,34 @@ public:
 
 	static shared_ptr<STraceCall> factory(const string & line);
 };
+
+template<class DerivedTraceCall>
+struct STraceCallDefinition : public virtual CallDefinition {
+	static const CallDefinition * DefineCall() {
+		static const STraceCallDefinition<DerivedTraceCall> callTemplate;
+		return & callTemplate;
+	}
+
+	const char * function() const override {
+		return DerivedTraceCall::FunctionName();
+	}
+	
+	const FunctionSignature & Signature() const override {
+		return DerivedTraceCall::SignatureDefinition();
+	}
+	shared_ptr<STraceCall> CreateTypedCall(const string &line, const PreparsedLine & preparsedLine) const override {
+		return make_shared<DerivedTraceCall>(line, preparsedLine);
+	}
+};
+
+
+template<class DerivedTraceCall>
+class STraceCallTemplate : public STraceCall, public STraceCallDefinition<DerivedTraceCall> {
+public:
+	STraceCallTemplate(const string & line, const PreparsedLine & preparsedLine)
+	: STraceCall(line, preparsedLine) {
+	}
+};
 	
 /*******************************************************************************
 **
@@ -952,15 +1072,15 @@ public:
 *******************************************************************************/
 
 // 07:46:32.057886 connect(9<socket:[1552]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110) = -1 ENOENT (No such file or directory) <0.000123>
-class STraceCall_connect : public STraceCall {
+class STraceCall_connect : public STraceCallTemplate<STraceCall_connect> {
 public:
 	STraceCall_connect(const string & line, const PreparsedLine & preparsedLine)
-	: STraceCall(line, preparsedLine) {
+	: STraceCallTemplate<STraceCall_connect>(line, preparsedLine) {
 	}
-	const char * function() const override { return "connect";}
+	static const char * FunctionName() { return "connect";}
 	
 	// int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-	const FunctionSignature & Signature() const override {
+	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
 			{ "sockfd",  SystemCallArgument_Fd::ArgSingleton },
 			{ "addr",    SystemCallArgument_Addr::ArgSingleton },
@@ -971,14 +1091,14 @@ public:
 };
 
 // [pid  5562] 19:58:40.706447 execve("/usr/bin/top", ["top"], [/* 36 vars */]) = 0 <0.031053>
-class STraceCall_execve : public STraceCall {
+class STraceCall_execve : public STraceCallTemplate<STraceCall_execve> {
 public:
 	STraceCall_execve(const string & line, const PreparsedLine & preparsedLine)
-	: STraceCall(line, preparsedLine) {
+	: STraceCallTemplate<STraceCall_execve>(line, preparsedLine) {
 	}
-	const char * function() const override { return "execve";}
+	static const char * FunctionName() { return "execve";}
 	// int execve(const char *pathname, char *const argv[], char *const envp[]);
-	const FunctionSignature & Signature() const override {
+	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
 			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
 			{ "argv",     SystemCallArgument_ArgV::ArgSingleton },
@@ -988,14 +1108,14 @@ public:
 	}
 };
 
-class STraceCall_fchdir : public STraceCall {
+class STraceCall_fchdir : public STraceCallTemplate<STraceCall_fchdir> {
 public:
 	STraceCall_fchdir(const string & line, const PreparsedLine & preparsedLine)
-	: STraceCall(line, preparsedLine) {
+	: STraceCallTemplate<STraceCall_fchdir>(line, preparsedLine) {
 	}
-	const char * function() const override { return "fchdir";}
+	static const char * FunctionName() { return "fchdir";}
 	// int fchdir(int fildes);
-	const FunctionSignature & Signature() const override {
+	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
 			{ "fildes", SystemCallArgument_Fd::ArgSingleton },
 		};
@@ -1003,16 +1123,15 @@ public:
 	}
 };
 
-
-class STraceCall_open : public STraceCall {
+class STraceCall_open : public STraceCallTemplate<STraceCall_open> {
 public:
 	STraceCall_open(const string & line, const PreparsedLine & preparsedLine)
-	: STraceCall(line, preparsedLine) {
+	: STraceCallTemplate<STraceCall_open>(line, preparsedLine) {
 	}
-	const char * function() const override { return "open";}
+	static const char * FunctionName() { return "open";}
 	// int open(const char *pathname, int flags);
 	// int open(const char *pathname, int flags, mode_t mode);
-	const FunctionSignature & Signature() const override {
+	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
 			// FIXME : And what about directories ?
 			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
@@ -1027,14 +1146,14 @@ public:
 };
 
 // [pid  5562] 19:58:40.737710 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000011>
-class STraceCall_openat : public STraceCall {
+class STraceCall_openat : public STraceCallTemplate<STraceCall_openat> {
 public:
 	STraceCall_openat(const string & line, const PreparsedLine & preparsedLine)
-	: STraceCall(line, preparsedLine) {
+	: STraceCallTemplate<STraceCall_openat>(line, preparsedLine) {
 	}
-	const char * function() const override { return "openat";}
+	static const char * FunctionName() { return "openat";}
 	// int openat(int fd, const char *path, int oflag, ...);
-	const FunctionSignature & Signature() const override {
+	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
 			{ "fd", SystemCallArgument_Fd::ArgSingleton },
 			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
@@ -1050,15 +1169,15 @@ public:
 
 /* This call is a special case because if it is unfishied in a process,
 it is resumed in the process given as first parameter. */
-class STraceCall_wait4 : public STraceCall {
+class STraceCall_wait4 : public STraceCallTemplate<STraceCall_wait4> {
 public:
 	STraceCall_wait4(const string & line, const PreparsedLine & preparsedLine)
-	: STraceCall(line, preparsedLine) {
+	: STraceCallTemplate<STraceCall_wait4>(line, preparsedLine) {
 	}
-	const char * function() const override { return "wait4";}
+	static const char * FunctionName() { return "wait4";}
 	
 	// pid_t wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
-	const FunctionSignature & Signature() const override {
+	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
 			{ "pid", SystemCallArgument_ProcessId::ArgSingleton },
 			{ "wstatus", SystemCallArgument_IntPtr::ArgSingleton },
@@ -1076,20 +1195,19 @@ public:
 	}
 };
 
-template<class Derived>
-shared_ptr<STraceCall> GenerTmpl(const string &line, const PreparsedLine & preparsedLine) {
-	return make_shared<Derived>(line, preparsedLine);
-}
+
+#define CALL_DEFINITION(CALL_NAME) STraceCallDefinition<CALL_NAME>::DefineCall()
+#define GENERATOR_VALUE_TYPE const CallDefinition *
 
 // Most system calls are not taken into account. However, their list might suggest more dependencies.
-map<string, STraceFactory::Generator> dictCalls = {
+static const map<string, GENERATOR_VALUE_TYPE> dictCalls = {
 	{"accept",            nullptr },
 	{"arch_prctl",        nullptr },
 	{"bind",              nullptr },
 	{"brk",               nullptr },
 	{"clone",             nullptr },
 	{"close",             nullptr },
-	{"connect",           GenerTmpl<STraceCall_connect> },
+	{"connect",           CALL_DEFINITION(STraceCall_connect) },
 	{"dup",               nullptr },
 	{"dup2",              nullptr },
 	{"dup3",              nullptr },
@@ -1097,13 +1215,13 @@ map<string, STraceFactory::Generator> dictCalls = {
 	{"epoll_ctl",         nullptr },
 	{"epoll_wait",        nullptr },
 	{"eventfd2",          nullptr },
-	{"execve",            GenerTmpl<STraceCall_execve> },
+	{"execve",            CALL_DEFINITION(STraceCall_execve) },
 	{"exit",              nullptr },
 	{"exit_group",        nullptr },
 	{"faccessat",         nullptr },
 	{"fadvise64",         nullptr },
 	{"fallocate",         nullptr },
-	{"fchdir",            GenerTmpl<STraceCall_fchdir> },
+	{"fchdir",            CALL_DEFINITION(STraceCall_fchdir) },
 	{"fchmod",            nullptr },
 	{"fchown",            nullptr },
 	{"fcntl",             nullptr },
@@ -1127,8 +1245,8 @@ map<string, STraceFactory::Generator> dictCalls = {
 	{"mprotect",          nullptr },
 	{"munmap",            nullptr },
 	{"newfstatat",        nullptr },
-	{"open",              GenerTmpl<STraceCall_open> },
-	{"openat",            GenerTmpl<STraceCall_openat> },
+	{"open",              CALL_DEFINITION(STraceCall_open) },
+	{"openat",            CALL_DEFINITION(STraceCall_openat) },
 	{"pipe",              nullptr },
 	{"pipe2",             nullptr },
 	{"poll",              nullptr },
@@ -1153,7 +1271,7 @@ map<string, STraceFactory::Generator> dictCalls = {
 	{"socketpair",        nullptr },
 	{"unshare",           nullptr },
 	{"vfork",             nullptr },
-	{"wait4",             GenerTmpl<STraceCall_wait4> },
+	{"wait4",             CALL_DEFINITION(STraceCall_wait4) },
 	{"write",             nullptr },
 	{"writev",            nullptr },
 };
@@ -1168,23 +1286,20 @@ size_t unmatched_resumed_calls = 0;
 
 size_t matched_resumed_calls = 0;
 
-
-
 static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & preparsedLine, const string & line) {
 	if(preparsedLine.function_name.empty()) {
 		return shared_ptr<STraceCall>();
 	}
 	auto iter = dictCalls.find(preparsedLine.function_name);
 	if(iter == dictCalls.end()) {
-		throw runtime_error("Cannot find function:" + preparsedLine.function_name);
+		throw runtime_error("Cannot find function2:" + preparsedLine.function_name);
 	}
-	STraceFactory::Generator gener = iter->second;
+	auto gener = iter->second;
 	if(gener == nullptr) {
 		return shared_ptr<STraceCall>();
 	}
-	return gener(line, preparsedLine);
+	return gener->CreateTypedCall(line, preparsedLine);
 }
-
 
 shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 	PreparsedLine preparsedLine(line);
@@ -1266,6 +1381,22 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 
 static size_t processed_lines = 0;
 
+/*
+TODO: If there is an exception, maybe this line must be concatenated with the next one.
+This occurs rarely, and at the moment, only with "write". Examples:
+
+[pid   869] 10:07:39.277287 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 45--2018-03-27 10:07:39--  http://hotmail.com/
+) = 45 <0.000008>
+
+[pid   869] 10:07:39.373964 write(2<pipe:[7274781]>, "301 Moved Permanentl"..., 22301 Moved Permanently
+) = 22 <0.000011>
+
+[pid   869] 10:07:39.374056 write(2<pipe:[7274781]>, "Location: https://ou"..., 52Location: https://outlook.live.com/owa/ [following]
+) = 52 <0.000010>
+
+[pid   869] 10:07:39.374249 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 55--2018-03-27 10:07:39--  https://outlook.live.com/owa/
+) = 55 <0.000011>
+*/
 static void process_line(RdfOutput & rdfOutput, const string &line) {
 	++processed_lines;
 	if(verbose_mode >= VERBOSE_LOG) {
@@ -1303,7 +1434,7 @@ static void DefineSystemCallsClasses(RdfOutput & rdfOutput)
 	/*
 	Might as well iterate on keys of CIMClassManager which are in dictCalls.
 	*/
-	const string baseClassMoniker = CIMClassManager::CreateMoniker("survol", callsBaseClassName);
+	const string & baseClassMoniker = CIMClassManager::CreateClassMoniker("survol", callsBaseClassName);
 	{
 		RdfDescriptionSerializer rdfDescriptionBaseClass(rdfOutput, baseClassMoniker);
 		rdfDescriptionBaseClass.AddType("rdfs", "Class");
@@ -1321,13 +1452,17 @@ static void DefineSystemCallsClasses(RdfOutput & rdfOutput)
 		TODO: Possibly define only the system calls which were actually used in this process.
 		*/
 		const string & className = iter.first;
-		const string classMoniker = CIMClassManager::CreateMoniker("survol", className);
+		const string classMoniker = CIMClassManager::CreateClassMoniker("survol", className);
 
-		RdfDescriptionSerializer rdfDescription(rdfOutput, classMoniker);
+		{
+			RdfDescriptionSerializer rdfDescription(rdfOutput, classMoniker);
 
-		rdfDescription.AddType("survol", callsBaseClassName);
-		rdfDescription.AddLabel(className);
-		rdfDescription.AddComment("Comment about " + className);
+			rdfDescription.AddType("survol", callsBaseClassName);
+			rdfDescription.AddLabel(className);
+			rdfDescription.AddComment("Comment about " + className);
+		}
+		
+		iter.second->DumpProperties(rdfOutput);
 	}
 }
 
@@ -1348,12 +1483,17 @@ static void DefineCIMClasses(RdfOutput & rdfOutput)
 		"CIM_Directory"};
 		
 	for(const string & className : classesList) {
-		const string classMoniker = CIMClassManager::CreateMoniker("survol", className);
+		const string & classMoniker = CIMClassManager::CreateClassMoniker("survol", className);
 		RdfDescriptionSerializer rdfDescriptionClass(rdfOutput, classMoniker);
 		rdfDescriptionClass.AddType("rdfs", "Class");
 		rdfDescriptionClass.AddLabel(className);
 		rdfDescriptionClass.AddComment("Comment about " + className);
 	}
+}
+
+static void DefineOntology(RdfOutput & rdfOutput) {
+	DefineSystemCallsClasses(rdfOutput);
+	DefineCIMClasses(rdfOutput);
 }
 
 /*******************************************************************************
@@ -1498,25 +1638,6 @@ static int replay_strace_vector(RdfOutput & rdfOutput, const vector<string> & re
 ** Internal tests.
 **
 *******************************************************************************/
-
-/*
-TODO: How to treat these lines ? This occurs rarely, and only with "write".
-
-[pid   869] 10:07:39.277287 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 45--2018-03-27 10:07:39--  http://hotmail.com/
-) = 45 <0.000008>
-
-[pid   869] 10:07:39.373964 write(2<pipe:[7274781]>, "301 Moved Permanentl"..., 22301 Moved Permanently
-) = 22 <0.000011>
-
-[pid   869] 10:07:39.374056 write(2<pipe:[7274781]>, "Location: https://ou"..., 52Location: https://outlook.live.com/owa/ [following]
-) = 52 <0.000010>
-
-[pid   869] 10:07:39.374249 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 55--2018-03-27 10:07:39--  https://outlook.live.com/owa/
-) = 55 <0.000011>
-
-*/
-
-
 
 
 /*******************************************************************************
@@ -1984,8 +2105,30 @@ static void test_scenarios()
 }
 
 /*******************************************************************************
+** Test escaping XML strings.
+*******************************************************************************/
+static void test_escape_xml()
+{
+	static const string xml_escape_tests[][2] = {
+		{"Hello", "Hello"},
+		{"Hel<lo", "Hel&lt;lo"},
+		{"Hel>lo", "Hel&gt;lo"},
+		{"Hel&>lo", "Hel&amp;&gt;lo"},
+	};
+	
+	for(const auto iter : xml_escape_tests) {
+		string escaped = escape_xml(iter[0]);
+		if(escaped != iter[1]) {
+			throw runtime_error("Wrong escape of:" + iter[0] + " : " + iter[1] + " != " + escaped);
+		}
+	}
+}
+
+/*******************************************************************************
 **
 ** Running all tests.
+** Internal tests are easier to manage for a prototype.
+** TODO: Put them in a separate file.
 **
 *******************************************************************************/
 static void test_internal() {
@@ -1995,6 +2138,7 @@ static void test_internal() {
 	test_preparsed2();
 	test_parsing();
 	test_scenarios();
+	test_escape_xml();
 	cout << "Internal test end : OK.\n";
 }
 
@@ -2029,21 +2173,21 @@ public:
 			}
 			replay_strace_logfile(rdfOutput, m_input_file);
 		}
-		DefineSystemCallsClasses(rdfOutput);
-		DefineCIMClasses(rdfOutput);
 	}
 };
 
 
-class CommandCreator {
+class CommandParameters {
 	int argc;
 	const char ** argv;
 	string input_file;
-	string output_file;
 	const char * processid = nullptr;
 	size_t index ;
 public:
-	CommandCreator(int input_argc, const char ** input_argv)
+	string output_file;
+	bool ontology_only = false;
+
+	CommandParameters(int input_argc, const char ** input_argv)
 	: argc(input_argc)
 	, argv(input_argv) {
 		/*
@@ -2101,10 +2245,14 @@ public:
 			else if(0 == strcmp(arg, "-v")) {
 				++verbose_mode;
 			}
+			else if(0 == strcmp(arg, "-d")) {
+				ontology_only = true;
+			}
 			else if(0 == strcmp(arg, "-h") || 0 == strcmp(arg, "-?")) {
 				printf("%s <options> command ....\n", argv[0]);
 				printf("    -f <input file>\n");
 				printf("    -t              : test mode\n");
+				printf("    -d              : ontology only\n");
 				printf("    -v              : verbose mode\n");
 				printf("    -p <process id>\n");
 				exit(EXIT_SUCCESS);
@@ -2144,8 +2292,6 @@ public:
 			return CommandExecutor(command);
 		}
 	}
-	
-	string output_file_name() const { return output_file; }
 };
 
 
@@ -2158,10 +2304,13 @@ public:
 int main(int argc, const char ** argv)
 {
 	try {
-		CommandCreator creator(argc, argv);
-		CommandExecutor executor = creator.CreateExecutor();
-		RdfOutput rdfOutput(creator.output_file_name());
-		executor.Execute(rdfOutput);
+		CommandParameters parameters(argc, argv);
+		CommandExecutor executor = parameters.CreateExecutor();
+		RdfOutput rdfOutput(parameters.output_file);
+		if(!parameters.ontology_only) {
+			executor.Execute(rdfOutput);
+		}
+		DefineOntology(rdfOutput);
 		cout << "Processed lines:" << processed_lines << endl;
 	} catch(const exception & exc) {
 		const char * bar = "********************************************************************************\n";
