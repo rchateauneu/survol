@@ -502,17 +502,39 @@ public:
 **
 *******************************************************************************/
 
+struct XmlNs : public string {
+	XmlNs(const string & xmlns) : string(xmlns) {}
+	
+	struct Pair;
+
+	Pair MakePair(const string & className) const;
+};
+
+struct XmlNs::Pair : public pair<XmlNs, string> {
+	Pair(const XmlNs & xmlns, const string & token) : pair<XmlNs, string>(xmlns, token) {};
+};
+	
+XmlNs::Pair XmlNs::MakePair(const string & className) const {
+	return XmlNs::Pair(*this, className);
+}
+
+
 static const string survolUrl = "http://www.primhillcomputers.com/survol";
 
+static const XmlNs XMLNS_XSD   ("xsd");
+static const XmlNs XMLNS_RDF   ("rdf");
+static const XmlNs XMLNS_RDFS  ("rdfs");
+static const XmlNs XMLNS_SCHEMA("schema");
+static const XmlNs XMLNS_SURVOL("survol");
 /*
 This is used to generate the header of the RDF output file.
 */
-static const map<string, string> mapXmlnsToUrl = {
-	{"xsd",     "http://www.w3.org/2001/XMLSchema"}, 
-	{"rdf",     "http://www.w3.org/1999/02/22-rdf-syntax-ns"}, 
-	{"rdfs",    "http://www.w3.org/2000/01/rdf-schema"}, 
-	{"schema",  "http://schema.org/"}, 
-	{"survol",  survolUrl},
+static const map<XmlNs, string> mapXmlnsToUrl = {
+	{XMLNS_XSD,    "http://www.w3.org/2001/XMLSchema"}, 
+	{XMLNS_RDF,    "http://www.w3.org/1999/02/22-rdf-syntax-ns"}, 
+	{XMLNS_RDFS,   "http://www.w3.org/2000/01/rdf-schema"}, 
+	{XMLNS_SCHEMA, "http://schema.org/"}, 
+	{XMLNS_SURVOL, survolUrl},
 };
 	
 
@@ -585,13 +607,21 @@ public:
 };
 map<string, CIMObjectManager::KeyToMoniker> CIMObjectManager::mapClassValueMoniker;
 
+static const string & xmlnsToUrl(const XmlNs & xmlns) {
+	auto iter = mapXmlnsToUrl.find(xmlns);
+	if(iter == mapXmlnsToUrl.end()) {
+		throw runtime_error("Cannot find xmlns=" + xmlns);
+	}
+	return iter->second;
+}
+
 class CIMClassManager {
 	static map<string, string> mapClassMoniker;
 public:
-	static string CreateClassMoniker(const string & xmlns, const string & className) {
-		auto pairClassIter = mapClassMoniker.insert(pair(xmlns + "#" + className, string()));
+	static string CreateClassMoniker(const XmlNs & xmlns, const string & className) {
+		auto pairClassIter = mapClassMoniker.insert(pair(xmlns + "/" + className, string()));
 		if(pairClassIter.second) {
-			pairClassIter.first->second = survolUrl + "#" + className;
+			pairClassIter.first->second = xmlnsToUrl(xmlns) + "#" + className;
 		}
 		return pairClassIter.first->second;
 	}
@@ -603,10 +633,10 @@ map<string, string> CIMClassManager::mapClassMoniker;
 class CIMPropertyManager {
 	static map<string, string> mapPropertyMoniker;
 public:
-	static string CreatePropertyMoniker(const string & xmlns, const string & propertyName) {
-		auto pairPropertyIter = mapPropertyMoniker.insert(pair(xmlns + "#" + propertyName, string()));
+	static string CreatePropertyMoniker(const XmlNs & xmlns, const string & propertyName) {
+		auto pairPropertyIter = mapPropertyMoniker.insert(pair(xmlns + "/" + propertyName, string()));
 		if(pairPropertyIter.second) {
-			pairPropertyIter.first->second = survolUrl + "#" + propertyName;
+			pairPropertyIter.first->second = xmlnsToUrl(xmlns) + "#" + propertyName;
 		}
 		return pairPropertyIter.first->second;
 	}
@@ -623,7 +653,7 @@ struct ArgumentType {
 	// FIXME : property is never used.
 	virtual string ValueToRdf(const string & property, const string & input_txt) const = 0;
 	
-	virtual string ArgumentName() const = 0 ;
+	virtual XmlNs::Pair ArgumentRange() const = 0 ;
 	
 	void DefinitionToRdf(RdfOutput & rdfOutput, const string & nameProperty) const ;
 };
@@ -646,7 +676,7 @@ static string tag_resource(const string & rdfNamespace, const string & property,
 	return "<" + rdfNamespace + ":" + property + " rdf:resource=\"" + encode_url(moniker) + "\"/>";
 }
 
-static string tag_write(const string & property, const string & input_txt, const string & xmlns = "survol") {
+static string tag_write(const string & property, const string & input_txt, const XmlNs & xmlns = XMLNS_SURVOL) {
 	const string escaped_txt = escape_xml(input_txt);
 	const string tag_open = "<" + xmlns + ":" + property + ">";
 	const string tag_close = "</" + xmlns + ":" + property + ">";
@@ -667,12 +697,12 @@ public:
 		rm_dfOutput.WriteLine("<rdf:Description about=\"" + callMoniker + "\">");
 	}
 	
-	void AddGenericKeyValue(const string & rdfNamespace , const string & key, const string & value) {
+	void AddGenericKeyValue(const string & rdfNamespace , const string & key, const string & value) const {
 		string rdfKeyValue = tag_write(key, value, rdfNamespace);
 		rm_dfOutput.WriteLine("    " + rdfKeyValue);
 	}
 	
-	void AddSurvolKeyValue(const NamedArgument & oneArg, const string & value) {
+	void AddSurvolKeyValue(const NamedArgument & oneArg, const string & value) const {
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "First / Value=" << oneArg.first << " " << value << endl;
 		}
@@ -683,30 +713,47 @@ public:
 		rm_dfOutput.WriteLine("    " + rdfOut);
 	}
 
-	void AddType(const string & xmlns, const string & className) {
+	void AddType(const XmlNs & xmlns, const string & className) const {
 		string moniker = CIMClassManager::CreateClassMoniker(xmlns, className);
-		const string & rdfOut = tag_resource("rdf", "type", moniker);
+		const string & rdfOut = tag_resource(XMLNS_RDF, "type", moniker);
 		rm_dfOutput.WriteLine("    " + rdfOut);
 	}
 	
-	void AddRange(const string & xmlns, const string & className) {
+	//void AddRange(const XmlNs & xmlns, const string & className) const {
+	void AddRange(const XmlNs::Pair & xmlnsPair) const {
+		const XmlNs & xmlns = xmlnsPair.first;
+		const string & className = xmlnsPair.second;
+		/*
+		selon le cas, il faudrait ajouter un xsd:integer ou string ou bien un url.
+<rdf:Description about="http://www.primhillcomputers.com/survol#pid">
+    <rdfs:label>pid</rdfs:label>
+    <rdfs:comment>Comment for property:pid</rdfs:comment>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#Property"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#SystemCall"/>
+    <rdfs:range rdf:resource="http://www.primhillcomputers.com/survol#process_identifier"/>
+</rdf:Description>
+
+<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/> 
+		*/
+		
 		string moniker = CIMClassManager::CreateClassMoniker(xmlns, className);
-		const string & rdfOut = tag_resource("rdfs", "range", moniker);
+		const string & rdfOut = tag_resource(XMLNS_RDFS, "range", moniker);
 		rm_dfOutput.WriteLine("    " + rdfOut);
 	}
 	
-	void AddDomain(const string & xmlns, const string & className) {
+	void AddDomain(const XmlNs & xmlns, const string & className) const {
 		string moniker = CIMClassManager::CreateClassMoniker(xmlns, className);
-		const string & rdfOut = tag_resource("rdfs", "domain", moniker);
+		const string & rdfOut = tag_resource(XMLNS_RDFS, "domain", moniker);
 		rm_dfOutput.WriteLine("    " + rdfOut);
 	}
 	
-	void AddLabel(const string & label) {
-		AddGenericKeyValue("rdfs", "label", label);
+	void AddLabel(const string & label) const {
+		AddGenericKeyValue(XMLNS_RDFS, "label", label);
 	}
 	
-	void AddComment(const string & comment) {
-		AddGenericKeyValue("rdfs", "comment", comment);
+	void AddComment(const string & comment) const {
+		AddGenericKeyValue(XMLNS_RDFS, "comment", comment);
 	}
 	
 	~RdfDescriptionSerializer() {
@@ -724,14 +771,15 @@ void ArgumentType::DefinitionToRdf(RdfOutput & rdfOutput, const string & namePro
 		<rdfs:range rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
 	  </rdf:Description>
 	*/
-	const string propertyMoniker = CIMPropertyManager::CreatePropertyMoniker("survol", nameProperty);
+	const string propertyMoniker = CIMPropertyManager::CreatePropertyMoniker(XMLNS_SURVOL, nameProperty);
 	RdfDescriptionSerializer rdfDescription(rdfOutput, propertyMoniker);
 
 	rdfDescription.AddLabel(nameProperty);
 	rdfDescription.AddComment(string("Comment for property:") + nameProperty);
-	rdfDescription.AddType("rdf", "Property");
-	rdfDescription.AddDomain("survol", "SystemCall");
-	rdfDescription.AddRange("survol", ArgumentName());
+	rdfDescription.AddType(XMLNS_RDF, "Property");
+	rdfDescription.AddDomain(XMLNS_SURVOL, "SystemCall");
+	rdfDescription.AddRange(ArgumentRange());
+
 }
 
 /*******************************************************************************
@@ -764,8 +812,6 @@ void ArgumentType::DefinitionToRdf(RdfOutput & rdfOutput, const string & namePro
 *******************************************************************************/
 
 
-
-
 template<class DerivedArgument>
 struct ArgumentTypeWrapper : public ArgumentType {
 	static constexpr const DerivedArgument ArgSingleton = DerivedArgument{};
@@ -775,90 +821,90 @@ struct SystemCallArgument_ProcessId : public ArgumentTypeWrapper<SystemCallArgum
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "process_identifier";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_SCHEMA.MakePair("integer");}
 };
 struct SystemCallArgument_IntPtr : public ArgumentTypeWrapper<SystemCallArgument_IntPtr> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "integer_pointer";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDF.MakePair("integer_pointer");}
 };
 struct SystemCallArgument_Int : public ArgumentTypeWrapper<SystemCallArgument_Int> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "integer";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_SCHEMA.MakePair("integer");}
 };
 struct SystemCallArgument_RusagePtr : public ArgumentTypeWrapper<SystemCallArgument_RusagePtr> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "TheArgumentName_rusage_addr_path_etc";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDF.MakePair("TheArgumentName_rusage_addr_path_etc");}
 };
 struct SystemCallArgument_Fd : public ArgumentTypeWrapper<SystemCallArgument_Fd> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "file_descriptor";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDF.MakePair("file_descriptor");}
 };
 struct SystemCallArgument_Addr : public ArgumentTypeWrapper<SystemCallArgument_Addr> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "network_address";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDFS.MakePair("Literal");}
 };
 struct SystemCallArgument_AddrLen : public ArgumentTypeWrapper<SystemCallArgument_AddrLen> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "network_address_length";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_SCHEMA.MakePair("integer");}
 };
 struct SystemCallArgument_PathName : public ArgumentTypeWrapper<SystemCallArgument_PathName> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		string path_name = strip_quotes(input_txt);
 		string moniker = CIMObjectManager::CreateObjectMoniker("CIM_DataFile", "Name", path_name);
-		return tag_resource("survol", property, moniker);
+		return tag_resource(XMLNS_SURVOL, property, moniker);
 	}
-	string ArgumentName() const override { return "CIM_DataFile";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_SURVOL.MakePair("CIM_DataFile");}
 };
 struct SystemCallArgument_Directory : public ArgumentTypeWrapper<SystemCallArgument_Directory> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		string path_name = strip_quotes(input_txt);
 		string moniker = CIMObjectManager::CreateObjectMoniker("CIM_Directory", "Name", path_name);
-		return tag_resource("survol", property, moniker);
+		return tag_resource(XMLNS_SURVOL, property, moniker);
 	}
-	string ArgumentName() const override { return "CIM_Directory";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_SURVOL.MakePair("CIM_Directory");}
 };
 struct SystemCallArgument_Process : public ArgumentTypeWrapper<SystemCallArgument_Process> {
 	string ValueToRdf(const string & property, const string & pid) const override {
 		string moniker = CIMObjectManager::CreateObjectMoniker("CIM_Process", "Handle", pid);
-		return tag_resource("survol", property, moniker);
+		return tag_resource(XMLNS_SURVOL, property, moniker);
 	}
-	string ArgumentName() const override { return "CIM_Process";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_SURVOL.MakePair("CIM_Process");}
 };
 struct SystemCallArgument_ArgV : public ArgumentTypeWrapper<SystemCallArgument_ArgV> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "command_line_arguments";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDF.MakePair("command_line_arguments");}
 };
 struct SystemCallArgument_EnvP : public ArgumentTypeWrapper<SystemCallArgument_EnvP> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "environment_variables";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDFS.MakePair("Literal");}
 };
 struct SystemCallArgument_Flags : public ArgumentTypeWrapper<SystemCallArgument_Flags> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "flags";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDFS.MakePair("Literal");}
 };
 struct SystemCallArgument_Mode : public ArgumentTypeWrapper<SystemCallArgument_Mode> {
 	string ValueToRdf(const string & property, const string & input_txt) const override {
 		return tag_write(property, input_txt);
 	}
-	string ArgumentName() const override { return "mode";}
+	XmlNs::Pair ArgumentRange() const override { return XMLNS_RDFS.MakePair("Literal");}
 };
 
 /*******************************************************************************
@@ -879,7 +925,6 @@ struct CallDefinition {
 		}
 	}
 };
-
 
 /*
 Typical line displayed by the command strace:
@@ -963,12 +1008,12 @@ public:
 		{
 			RdfDescriptionSerializer rdfDescription(rdfOutput, callMoniker);
 
-			rdfDescription.AddGenericKeyValue("schema", "StartTime", StartTime());
-			rdfDescription.AddGenericKeyValue("schema", "EndTime", EndTime());
+			rdfDescription.AddGenericKeyValue(XMLNS_SCHEMA, "StartTime", StartTime());
+			rdfDescription.AddGenericKeyValue(XMLNS_SCHEMA, "EndTime", EndTime());
 			rdfDescription.AddLabel(Label());
 			rdfDescription.AddComment(Comment());
 
-			rdfDescription.AddType("survol", function());
+			rdfDescription.AddType(XMLNS_SURVOL, function());
 
 			static const constexpr NamedArgument pidPseudoArg{ "CallingProcess", SystemCallArgument_Process::ArgSingleton };
 			
@@ -1155,7 +1200,7 @@ public:
 	// int openat(int fd, const char *path, int oflag, ...);
 	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
-			{ "fd", SystemCallArgument_Fd::ArgSingleton },
+			{ "fd",       SystemCallArgument_Fd::ArgSingleton },
 			{ "pathname", SystemCallArgument_PathName::ArgSingleton },
 			{ "oflag",    SystemCallArgument_Flags::ArgSingleton },
 			{ "mode",     SystemCallArgument_Mode::ArgSingleton },
@@ -1179,7 +1224,7 @@ public:
 	// pid_t wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
 	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
-			{ "pid", SystemCallArgument_ProcessId::ArgSingleton },
+			{ "pid",     SystemCallArgument_ProcessId::ArgSingleton },
 			{ "wstatus", SystemCallArgument_IntPtr::ArgSingleton },
 			{ "options", SystemCallArgument_Int::ArgSingleton },
 			{ "rusage",  SystemCallArgument_RusagePtr::ArgSingleton },
@@ -1434,10 +1479,10 @@ static void DefineSystemCallsClasses(RdfOutput & rdfOutput)
 	/*
 	Might as well iterate on keys of CIMClassManager which are in dictCalls.
 	*/
-	const string & baseClassMoniker = CIMClassManager::CreateClassMoniker("survol", callsBaseClassName);
+	const string & baseClassMoniker = CIMClassManager::CreateClassMoniker(XMLNS_SURVOL, callsBaseClassName);
 	{
 		RdfDescriptionSerializer rdfDescriptionBaseClass(rdfOutput, baseClassMoniker);
-		rdfDescriptionBaseClass.AddType("rdfs", "Class");
+		rdfDescriptionBaseClass.AddType(XMLNS_RDFS, "Class");
 		rdfDescriptionBaseClass.AddLabel(callsBaseClassName);
 		rdfDescriptionBaseClass.AddComment("Base class of system calls");
 	}
@@ -1452,12 +1497,12 @@ static void DefineSystemCallsClasses(RdfOutput & rdfOutput)
 		TODO: Possibly define only the system calls which were actually used in this process.
 		*/
 		const string & className = iter.first;
-		const string classMoniker = CIMClassManager::CreateClassMoniker("survol", className);
+		const string classMoniker = CIMClassManager::CreateClassMoniker(XMLNS_SURVOL, className);
 
 		{
 			RdfDescriptionSerializer rdfDescription(rdfOutput, classMoniker);
 
-			rdfDescription.AddType("survol", callsBaseClassName);
+			rdfDescription.AddType(XMLNS_SURVOL, callsBaseClassName);
 			rdfDescription.AddLabel(className);
 			rdfDescription.AddComment("Comment about " + className);
 		}
@@ -1483,9 +1528,9 @@ static void DefineCIMClasses(RdfOutput & rdfOutput)
 		"CIM_Directory"};
 		
 	for(const string & className : classesList) {
-		const string & classMoniker = CIMClassManager::CreateClassMoniker("survol", className);
+		const string & classMoniker = CIMClassManager::CreateClassMoniker(XMLNS_SURVOL, className);
 		RdfDescriptionSerializer rdfDescriptionClass(rdfOutput, classMoniker);
-		rdfDescriptionClass.AddType("rdfs", "Class");
+		rdfDescriptionClass.AddType(XMLNS_RDFS, "Class");
 		rdfDescriptionClass.AddLabel(className);
 		rdfDescriptionClass.AddComment("Comment about " + className);
 	}
