@@ -694,7 +694,7 @@ class RdfDescriptionSerializer {
 public:
 	RdfDescriptionSerializer(RdfOutput & rdfOutput, const string &callMoniker)
 	: rm_dfOutput(rdfOutput) {
-		rm_dfOutput.WriteLine("<rdf:Description about=\"" + callMoniker + "\">");
+		rm_dfOutput.WriteLine("<rdf:Description rdf:about=\"" + callMoniker + "\">");
 	}
 	
 	void AddGenericKeyValue(const string & rdfNamespace , const string & key, const string & value) const {
