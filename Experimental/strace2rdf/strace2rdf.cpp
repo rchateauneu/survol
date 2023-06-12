@@ -90,7 +90,7 @@ static string escape_xml(const string &input_txt) {
 	return_string = replace_all_copy(return_string, "&", "&amp;");
 	return_string = replace_all_copy(return_string, "<", "&lt;");
 	return_string = replace_all_copy(return_string, ">", "&gt;");
-	return_string = replace_all_copy(return_string, "/", "&#47;"); // Why ?
+	return_string = replace_all_copy(return_string, "/", "&#47;"); // Is it necessary ?
 	return return_string;
 }
 
@@ -518,7 +518,6 @@ XmlNs::Pair XmlNs::MakePair(const string & className) const {
 	return XmlNs::Pair(*this, className);
 }
 
-
 static const string survolUrl = "http://www.primhillcomputers.com/survol";
 
 static const XmlNs XMLNS_XSD   ("xsd");
@@ -655,7 +654,7 @@ struct ArgumentType {
 	
 	virtual XmlNs::Pair ArgumentRange() const = 0 ;
 	
-	void DefinitionToRdf(RdfOutput & rdfOutput, const string & nameProperty) const ;
+	void DefinitionToRdf(RdfOutput & rdfOutput, const string & nameProperty, const string & className) const ;
 };
 
 typedef pair<const char *, const ArgumentType &> NamedArgument;
@@ -683,6 +682,12 @@ static string tag_write(const string & property, const string & input_txt, const
 	return tag_open + escaped_txt + tag_close;
 }
 
+static string tag_write_time(const string & property, const string & input_txt, const XmlNs & xmlns = XMLNS_SURVOL) {
+	const string escaped_txt = escape_xml(input_txt);
+	const string tag_open = "<" + xmlns + ":" + property + R"( rdf:datatype="http://www.w3.org/2001/XMLSchema#time">)";
+	const string tag_close = "</" + xmlns + ":" + property + ">";
+	return tag_open + escaped_txt + tag_close;
+}
 
 /*
 Objects modelling system calls are written as soon as they are parsed from strace output.
@@ -702,6 +707,13 @@ public:
 		rm_dfOutput.WriteLine("    " + rdfKeyValue);
 	}
 	
+	void AddGenericKeyValueTime(const string & rdfNamespace , const string & key, const string & value) const {
+		// Should be: <schema:StartTime rdf:datatype="http://www.w3.org/2001/XMLSchema#time">10:00:00</schema:StartTime> 
+		
+		string rdfKeyValue = tag_write_time(key, value, rdfNamespace);
+		rm_dfOutput.WriteLine("    " + rdfKeyValue);
+	}
+
 	void AddSurvolKeyValue(const NamedArgument & oneArg, const string & value) const {
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "First / Value=" << oneArg.first << " " << value << endl;
@@ -718,8 +730,13 @@ public:
 		const string & rdfOut = tag_resource(XMLNS_RDF, "type", moniker);
 		rm_dfOutput.WriteLine("    " + rdfOut);
 	}
-	
-	//void AddRange(const XmlNs & xmlns, const string & className) const {
+
+	void AddSubClassOf(const XmlNs & xmlns, const string & className) const {
+		string moniker = CIMClassManager::CreateClassMoniker(xmlns, className);
+		const string & rdfOut = tag_resource(XMLNS_RDFS, "subClassOf", moniker);
+		rm_dfOutput.WriteLine("    " + rdfOut);
+	}
+
 	void AddRange(const XmlNs::Pair & xmlnsPair) const {
 		const XmlNs & xmlns = xmlnsPair.first;
 		const string & className = xmlnsPair.second;
@@ -762,7 +779,7 @@ public:
 };
 
 
-void ArgumentType::DefinitionToRdf(RdfOutput & rdfOutput, const string & nameProperty) const {
+void ArgumentType::DefinitionToRdf(RdfOutput & rdfOutput, const string & nameProperty, const string & className) const {
 	/*
 	  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#host">
 		<rdfs:comment>Predicate host</rdfs:comment>
@@ -777,9 +794,8 @@ void ArgumentType::DefinitionToRdf(RdfOutput & rdfOutput, const string & namePro
 	rdfDescription.AddLabel(nameProperty);
 	rdfDescription.AddComment(string("Comment for property:") + nameProperty);
 	rdfDescription.AddType(XMLNS_RDF, "Property");
-	rdfDescription.AddDomain(XMLNS_SURVOL, "SystemCall");
+	rdfDescription.AddDomain(XMLNS_SURVOL, className);
 	rdfDescription.AddRange(ArgumentRange());
-
 }
 
 /*******************************************************************************
@@ -918,11 +934,14 @@ class STraceCall;
 struct CallDefinition {
 	virtual const char * function() const = 0;
 	virtual const FunctionSignature & Signature() const = 0;
+	virtual const ArgumentType & ReturnType() const = 0;
 	virtual shared_ptr<STraceCall> CreateTypedCall(const string &line, const PreparsedLine & preparsedLine) const = 0;
-	const void DumpProperties(RdfOutput & rdfOutput) const {
+	const void DumpProperties(RdfOutput & rdfOutput, const string & className) const {
 		for(const NamedArgument & namedArgument : Signature()) {
-			namedArgument.second.DefinitionToRdf(rdfOutput, namedArgument.first);
+			namedArgument.second.DefinitionToRdf(rdfOutput, namedArgument.first, className);
 		}
+		const ArgumentType & retType = ReturnType();
+		retType.DefinitionToRdf(rdfOutput, "__return_type__", className);
 	}
 };
 
@@ -936,24 +955,28 @@ protected:
 	double startTime;
 	double execution_time;
 	int processid;
+	size_t call_counter;
 public:
 	STraceCall(const string & line, const PreparsedLine & preparsedLine)
 	: parsed_arguments(preparsedLine.m_parsed_arguments)
 	, startTime(preparsedLine.startTime)
 	, processid(preparsedLine.processid)
 	, execution_time(preparsedLine.execution_time) {
+		static size_t global_calls_counter = 0;
+		call_counter = global_calls_counter;
+		++global_calls_counter;
 	}
 	
 	/*
 	TODO: This could display the most important arguments, tell what it is doing exactly etc...
 	*/
 	virtual string Label() const {
-		return string("Label=") + function();
+		return string("Label=") + function() + "#" + to_string(call_counter);
 	}
 
 	/* TODO: Extra explanations, if suspended etc... */
 	virtual string Comment() const {
-		return string("Comment=") + function();
+		return string("Comment=") + function() + "#" + to_string(call_counter);
 	}
 
 	// Some system calls have optional arguments.
@@ -961,7 +984,7 @@ public:
 		return Signature().size();
 	}
 
-	static string FormatTime(double seconds) {
+	static string FormatTimeAsStr(double seconds) {
 		if(seconds == 0) {
 			return "00:00:00.000000";
 		}
@@ -969,17 +992,21 @@ public:
 		int int_seconds = (int)seconds;
 		int micro_seconds = (int)((seconds - int_seconds) * 1000000);
 		// The result is something like: "2018-04-09T10:00:00"^^xsd:dateTime
-		sprintf(buffer, "\"%02d:%02d:%02d.%06d\"^^xsd:dateTime", (int_seconds / 3600) % 24, (int_seconds / 60) % 60, int_seconds % 60, micro_seconds);
+		
+		// Should be: <schema:StartTime rdf:datatype="http://www.w3.org/2001/XMLSchema#time">10:00:00</schema:StartTime> 
+		
+		sprintf(buffer, "%02d:%02d:%02d.%06d", (int_seconds / 3600) % 24, (int_seconds / 60) % 60, int_seconds % 60, micro_seconds);
 		return buffer;
 	}
 	
-	string StartTime() const {
-		return FormatTime(startTime);
+
+	string StartTimeNoFormat() const {
+		return FormatTimeAsStr(startTime);;
 	}
 
-	string EndTime() const {
+	string EndTimeNoFormat() const {
 		// TODO: What if it finishes on the next day ? This is a corner case.
-		return FormatTime(startTime + execution_time);
+		return FormatTimeAsStr(startTime + execution_time);
 	}
 
 	/*
@@ -1001,15 +1028,13 @@ public:
 		if(verbose_mode >= VERBOSE_DEBUG) {
 			logger() << "Signature=" << argsDefs.size() << " Minimum=" << minArgs << endl;
 		}
-		static size_t calls_counter = 0;
-		const string & callMoniker = CIMObjectManager::CreateObjectMoniker(function(), "CallId", to_string(calls_counter));
-		++calls_counter;
-
+		
+		const string & callMoniker = CIMObjectManager::CreateObjectMoniker(function(), "CallId", to_string(call_counter));
 		{
 			RdfDescriptionSerializer rdfDescription(rdfOutput, callMoniker);
 
-			rdfDescription.AddGenericKeyValue(XMLNS_SCHEMA, "StartTime", StartTime());
-			rdfDescription.AddGenericKeyValue(XMLNS_SCHEMA, "EndTime", EndTime());
+			rdfDescription.AddGenericKeyValueTime(XMLNS_SCHEMA, "StartTime", StartTimeNoFormat());
+			rdfDescription.AddGenericKeyValueTime(XMLNS_SCHEMA, "EndTime", EndTimeNoFormat());
 			rdfDescription.AddLabel(Label());
 			rdfDescription.AddComment(Comment());
 
@@ -1096,6 +1121,11 @@ struct STraceCallDefinition : public virtual CallDefinition {
 	const FunctionSignature & Signature() const override {
 		return DerivedTraceCall::SignatureDefinition();
 	}
+
+	const ArgumentType & ReturnType() const override {
+		return DerivedTraceCall::ReturnTypeDefinition();
+	}
+
 	shared_ptr<STraceCall> CreateTypedCall(const string &line, const PreparsedLine & preparsedLine) const override {
 		return make_shared<DerivedTraceCall>(line, preparsedLine);
 	}
@@ -1123,7 +1153,6 @@ public:
 	: STraceCallTemplate<STraceCall_connect>(line, preparsedLine) {
 	}
 	static const char * FunctionName() { return "connect";}
-	
 	// int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
@@ -1132,6 +1161,9 @@ public:
 			{ "addrlen", SystemCallArgument_AddrLen::ArgSingleton },
 		};
 		return sign;
+	}
+	static const ArgumentType & ReturnTypeDefinition() {
+		return SystemCallArgument_Fd::ArgSingleton;
 	}
 };
 
@@ -1151,6 +1183,9 @@ public:
 		};
 		return sign;
 	}
+	static const ArgumentType & ReturnTypeDefinition() {
+		return SystemCallArgument_Fd::ArgSingleton;
+	}
 };
 
 class STraceCall_fchdir : public STraceCallTemplate<STraceCall_fchdir> {
@@ -1165,6 +1200,9 @@ public:
 			{ "fildes", SystemCallArgument_Fd::ArgSingleton },
 		};
 		return sign;
+	}
+	static const ArgumentType & ReturnTypeDefinition() {
+		return SystemCallArgument_Fd::ArgSingleton;
 	}
 };
 
@@ -1185,6 +1223,10 @@ public:
 		};
 		return sign;
 	}
+	static const ArgumentType & ReturnTypeDefinition() {
+		return SystemCallArgument_Fd::ArgSingleton;
+	}
+
 	size_t MinimumArgumentsNumber() const override {
 		return 2;
 	}
@@ -1207,6 +1249,10 @@ public:
 		};
 		return sign;
 	}
+	static const ArgumentType & ReturnTypeDefinition() {
+		return SystemCallArgument_Fd::ArgSingleton;
+	}
+
 	size_t MinimumArgumentsNumber() const override {
 		return 2;
 	}
@@ -1220,7 +1266,6 @@ public:
 	: STraceCallTemplate<STraceCall_wait4>(line, preparsedLine) {
 	}
 	static const char * FunctionName() { return "wait4";}
-	
 	// pid_t wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
 	static const FunctionSignature & SignatureDefinition() {
 		static const FunctionSignature sign {
@@ -1230,6 +1275,9 @@ public:
 			{ "rusage",  SystemCallArgument_RusagePtr::ArgSingleton },
 		};
 		return sign;
+	}
+	static const ArgumentType & ReturnTypeDefinition() {
+		return SystemCallArgument_Fd::ArgSingleton;
 	}
 	
 	int expected_resuming_pid() const {
@@ -1346,12 +1394,12 @@ static shared_ptr<STraceCall> GenerateCallFromParsed(const PreparsedLine & prepa
 	return gener->CreateTypedCall(line, preparsedLine);
 }
 
+// This transforms a line output by strace, into an object modelling a system call.
 shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 	PreparsedLine preparsedLine(line);
 	shared_ptr<STraceCall> ptrTraceCall = GenerateCallFromParsed(preparsedLine, line);
 	switch(preparsedLine.m_callstate) {
 		case UNFINISHED: {
-			// shared_ptr<STraceCall> ptrUnfinished = GenerateCallFromParsed(preparsedLine, line);
 			if(!ptrTraceCall) {
 				if(verbose_mode >= VERBOSE_DEBUG) {
 					logger() << "Cannot create call object with:" << preparsedLine.function_name << endl;
@@ -1388,7 +1436,6 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 		}
 		break;
 		case PLAIN: {
-			// return GenerateCallFromParsed(preparsedLine, line);
 			return ptrTraceCall;
 		}
 		case RESUMED: {
@@ -1399,7 +1446,7 @@ shared_ptr<STraceCall> STraceFactory::factory(const string & line) {
 
 			auto found_preparsed = unfinished_calls.find(preparsedLine.processid);
 			if(found_preparsed == unfinished_calls.end()) {
-				// This can happen : strace misses some calls.
+				// This can happen : strace misses some calls. The counter is used only for testing.
 				++unmatched_resumed_calls;
 				throw runtime_error(
 					"Cannot find unfinished call. Function=" + preparsedLine.function_name
@@ -1465,7 +1512,7 @@ static void process_line(RdfOutput & rdfOutput, const string &line) {
 
 /*******************************************************************************
 **
-** Definition of system calls as classes.
+** RDF definition of system calls as classes. This goes into the RDF output file.
 **
 *******************************************************************************/
 
@@ -1502,12 +1549,13 @@ static void DefineSystemCallsClasses(RdfOutput & rdfOutput)
 		{
 			RdfDescriptionSerializer rdfDescription(rdfOutput, classMoniker);
 
-			rdfDescription.AddType(XMLNS_SURVOL, callsBaseClassName);
+			rdfDescription.AddType(XMLNS_RDFS, "Class");
+			rdfDescription.AddSubClassOf(XMLNS_SURVOL, callsBaseClassName);
 			rdfDescription.AddLabel(className);
 			rdfDescription.AddComment("Comment about " + className);
 		}
 		
-		iter.second->DumpProperties(rdfOutput);
+		iter.second->DumpProperties(rdfOutput, className);
 	}
 }
 
