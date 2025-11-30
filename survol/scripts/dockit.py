@@ -535,7 +535,9 @@ def _ini_file_create(output_files_prefix):
 def default_tracer(input_log_file, tracer=None):
     """Rule-of-thumb method to deduce the tracer type given the log file."""
     if not tracer:
+    
         if input_log_file:
+        
             # Maybe the pid is embedded in the log file.
             match_trace = re.match(r".*\.([^\.]*)\.[0-9]+\.log", input_log_file)
             if match_trace:
