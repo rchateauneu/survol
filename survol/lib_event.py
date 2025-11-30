@@ -25,6 +25,7 @@ def json_moniker_to_node(entity_type, entity_attributes_dict):
     entity_ids_dict = {ontology_attribute_name: entity_attributes_dict[ontology_attribute_name]
                        for ontology_attribute_name in ontology_list}
 
+    # Ca nepeut pas marcher quand on teste car il faut repositionner m_urlRootAgent.
     rdf_url = lib_uris.gUriGen.node_from_dict(entity_type, entity_ids_dict)
     return rdf_url
 

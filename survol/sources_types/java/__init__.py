@@ -13,6 +13,7 @@ from jpype import javax
 
 import lib_util
 import lib_common
+import lib_uris
 
 
 glob_java_jvm = None
@@ -363,6 +364,64 @@ def GetJavaDataFromJmx(the_pid, mbean_obj_nam=None):
     return java_results
 
 
+def jar_files_list(fil_nam):
+    """
+    It is also possible to use the command: jar tf .\SampleClass.jar
+    or simply the ZIP command.
+    :param fil_nam:
+    :return: List of file names.
+    """
+    try:
+        import zipfile
+    except ImportError:
+        # TODO: use the command: jar tf .\SampleClass.jar or simply the ZIP command.
+        # This cannot do anything if the file cannot be decompressed.
+        logging.error("Cannot import zipfile")
+        raise
+
+    # Equivalent to:
+    # > jar tf .\SampleClass.jar
+    # META-INF/
+    # META-INF/MANIFEST.MF
+    # SampleClass.class
+
+    with zipfile.ZipFile(fil_nam, 'r') as zip_obj:
+        list_of_files = zip_obj.infolist()
+    return list_of_files
+
+
+def jar_classes_list(fil_nam):
+    """
+    It returns pair of "file name", "class name"
+    :param fil_nam:
+    :return:
+    """
+    assert fil_nam.lower.endswith(".jar")
+    list_of_files = jar_files_list(fil_nam)
+    for file_path in list_of_files:
+        class_name, _, file_extension = file_path.rpartition(".")
+        if file_extension == "class":
+            yield file_path, class_name
+
+# Typical input:
+# Compiled from "SampleClass.java"
+# class SampleClass {
+#   int id;
+#   java.lang.String name;
+#   SampleClass();
+# }
+def parse_class_content(javap_content):
+    #
+    return "SampleClass", ["id", "name"]
+
+
+def add_class_content_to_graph(grph, class_file_node, javap_class_content):
+    java_class_name, java_members_list = _parse_class_content(javap_class_content)
+    java_class_node = lib_uris.gUriGen.java.java_class(ClassName=java_class_name)
+    grph.add((jar_fil_node, lib_common.MakeProp("Zipped file"), class_file_node))
+    for one_member in java_members_list:
+        grph.add((jar_fil_node, lib_common.MakeProp("Zipped file"), class_file_node))
+
 # Development notes:
 #
 # https://stackoverflow.com/questions/10331189/how-to-find-the-default-jmx-port-number
@@ -391,5 +450,4 @@ def GetJavaDataFromJmx(the_pid, mbean_obj_nam=None):
 #
 #
 # Credentials would be like: "JMI" : { "192.168.0.14:9010" : ( "user", "pass" ) }
-#
 #

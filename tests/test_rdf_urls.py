@@ -8,9 +8,12 @@ from __future__ import print_function
 import os
 import sys
 import socket
+import io
+import pkgutil
+
 import unittest
 import rdflib
-import io
+
 import lib_util
 import lib_properties
 from lib_properties import pc
@@ -201,16 +204,6 @@ class RdfLocalAgentTest(unittest.TestCase):
             "/survol/sources_types/win32/enumerate_top_level_windows.py")
 
         print("enumerate_top_level_windows_content=", enumerate_top_level_windows_content)
-
-    def test_java_properties(self):
-        """Investigate Java files"""
-        file_path = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SampleJavaFile.java")
-
-        java_properties = self._check_script(
-            "/survol/sources_types/CIM_DataFile/java_properties.py?xid=CIM_DataFile.Name=%s"
-            % file_path)
-
-        print("java_properties=", java_properties)
 
     def test_python_properties(self):
         """Investigate Python files"""

@@ -7,12 +7,13 @@ Java properties
 # TODO: See this: http://jpype.sourceforge.net/
 
 import os
-import os.path
 import sys
+
 import lib_util
 import lib_uris
 import lib_common
 from lib_properties import pc
+from sources_types import java as survol_java
 
 
 def Usable(entity_type, entity_ids_arr):
@@ -48,22 +49,15 @@ def _add_java_info_to_class(grph, node, fil_nam):
 
 
 def _add_java_info_to_jar(grph, node, fil_nam):
-    try:
-        import zipfile
-    except ImportError:
-        # This cannot do anything if the file cannot be compressed.
-        return
-
-    with zipfile.ZipFile(fil_nam, 'r') as zip_obj:
-        list_of_files = zip_obj.infolist()
-        # TODO: These files exist only in the jar.
-        for one_file in list_of_files:
-            fil_jar_node = lib_uris.gUriGen.FileUri(one_file)
-            grph.add((fil_jar_node, lib_common.MakeProp("Zipped"), lib_util.NodeLiteral(one_file.filename)))
-            grph.add((fil_jar_node, lib_common.MakeProp("Size"), lib_util.NodeLiteral(one_file.file_size)))
-            grph.add((fil_jar_node, lib_common.MakeProp("Creation time"), lib_util.NodeLiteral(one_file.date_time)))
-            grph.add((fil_jar_node, lib_common.MakeProp("Compress size"), lib_util.NodeLiteral(one_file.compress_size)))
-            grph.add((node, lib_common.MakeProp("Zipped file"), fil_jar_node))
+    list_of_files = survol_java.jar_files_list(fil_nam)
+    # TODO: These files exist only in the jar. They have a relative path.
+    for one_file in list_of_files:
+        class_file_node = lib_uris.gUriGen.FileUri(one_file)
+        grph.add((class_file_node, lib_common.MakeProp("Zipped"), lib_util.NodeLiteral(one_file.filename)))
+        grph.add((class_file_node, lib_common.MakeProp("Size"), lib_util.NodeLiteral(one_file.file_size)))
+        grph.add((class_file_node, lib_common.MakeProp("Creation time"), lib_util.NodeLiteral(one_file.date_time)))
+        grph.add((class_file_node, lib_common.MakeProp("Compress size"), lib_util.NodeLiteral(one_file.compress_size)))
+        grph.add((node, lib_common.MakeProp("Zipped file"), class_file_node))
 
 
 _java_extensions = {

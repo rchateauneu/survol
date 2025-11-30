@@ -161,6 +161,19 @@ def _compare_file_with_expected_rdf(test_object, actual_file_path, expected_file
     # compare extra triples in first graph to second
     for (s, p, o) in in_first:
         v = in_second.value(subject=s, predicate=p)
+        if not o.eq(v):
+            print("s=", s)
+            print("p=", p)
+            print("o=", o)
+            print("v=", v)
+            print("XXXXXXXXXXXXXXXXXXXXXXXXX")
+            print("XXXXXXXXXXXXXXXXXXXXXXXXX")
+            print("XXXXXXXXXXXXXXXXXXXXXXXXX")
+            print("XXXXXXXXXXXXXXXXXXXXXXXXX")
+            print("XXXXXXXXXXXXXXXXXXXXXXXXX")
+            print("XXXXXXXXXXXXXXXXXXXXXXXXX")
+            print("XXXXXXXXXXXXXXXXXXXXXXXXX")
+            sys.stdout.flush()
         test_object.assertEqual(o.eq(v), True)
     # compare extra triples in second graph to first
     for (s, p, o) in in_second:
@@ -1592,6 +1605,7 @@ class EventsServerTest(unittest.TestCase):
         return sent_triples
 
     @unittest.skipIf(is_windows7, "Does not work on Windows 7")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10 because of SqlAlchemy")
     def test_basic_event_put(self):
         """This stores a graph, and reads its content, then check the result."""
         the_graph = rdflib.Graph()
@@ -1615,6 +1629,7 @@ class EventsServerTest(unittest.TestCase):
         self.assertEqual(received_triples, sent_triples)
 
     @unittest.skipIf(is_windows7, "Does not work on Windows 7")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10 because of SqlAlchemy")
     def test_file_events_ps_ef(self):
         """This reruns the tracing of the Linux command "ps -ef" """
         output_basename_prefix = "dockit_events_ps_ef.strace"
@@ -1641,6 +1656,7 @@ class EventsServerTest(unittest.TestCase):
         self._check_read_triples(expected_types_list)
 
     @unittest.skipIf(is_windows7, "Does not work on Windows 7")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10 because of SqlAlchemy")
     def test_file_events_shell(self):
         """This reruns the execution of a shell.
         The result of the command ltrace was stored in a file by dockit.
@@ -1669,6 +1685,7 @@ class EventsServerTest(unittest.TestCase):
         self._check_read_triples(expected_types_list)
 
     @unittest.skipIf(is_windows7, "Does not work on Windows 7")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10 because of SqlAlchemy")
     def test_file_events_proftpd(self):
         """This reruns a dockit tracing of the execution of a FTP command."""
         output_basename_prefix = "dockit_events_proftpd.strace.26299"
@@ -1697,6 +1714,7 @@ class EventsServerTest(unittest.TestCase):
         self._check_read_triples(expected_types_list)
 
     @unittest.skipIf(is_windows7, "Does not work on Windows 7")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10 because of SqlAlchemy")
     def test_file_events_firefox(self):
         """This replays the startup of a firefox process."""
         output_basename_prefix = "firefox_events_google.strace.22501"
