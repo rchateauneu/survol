@@ -183,7 +183,12 @@ def output_rdf_graph_as_rdf(grph):
     # It should be "application/xml+rdf" or possibly "application/xml" or "text/xml"
     # 'text/rdf' and 'xml/rdf' are OK with Protege
     # 'application/xml+rdf' creates a file.
-    lib_util.WrtHeader('application/xml')
+    arr_headers = [
+        ('Access-Control-Allow-Origin', '*'),
+        ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
+        ('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'),
+    ]
+    lib_util.WrtHeader('application/xml', arr_headers)
 
     out_dest = lib_util.get_default_output_destination()
 
@@ -206,7 +211,12 @@ def WriteRdfError(message, broken_url):
     # It should be "application/xml+rdf" or possibly "application/xml" or "text/xml"
     # 'text/rdf' and 'xml/rdf' are OK with Protege
     # 'application/xml+rdf' creates a file.
-    lib_util.WrtHeader('application/xml')
+    arr_headers = [
+        ('Access-Control-Allow-Origin', '*'),
+        ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
+        ('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'),
+    ]
+    lib_util.WrtHeader('application/xml', arr_headers)
 
     out_dest = lib_util.get_default_output_destination()
 
