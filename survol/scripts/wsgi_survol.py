@@ -67,7 +67,14 @@ class OutputMachineWsgi:
             return
         self.m_header_called = True
         status = '200 OK'
-        response_headers = [('Content-type', mime_type)]
+
+        response_headers = [
+            ('Content-type', mime_type),
+            ('Access-Control-Allow-Origin', '*'),
+            ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
+            ('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'),
+        ]
+
         self.m_start_response(status, response_headers)
 
     def OutStream(self):
