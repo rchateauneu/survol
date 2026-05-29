@@ -172,6 +172,23 @@ def _add_ontology(old_grph):
     return new_grph
 
 
+def add_seealso_statements(grph):
+    logging.warning("add_seealso_statements")
+
+    subjects_to_xid_set = set()
+    for subj, pred, obj in grph:
+        if subj not in subjects_to_xid_set:
+            if pred == rdflib.namespace.RDF.type:
+                subjects_to_xid_set.add(subj)
+
+    for subj in subjects_to_xid_set:
+        url_see_also = subj.replace("entity.py", "entity_menu_seealso.py")
+        if url_see_also != subj:
+            # TODO: Use the header to get the proper output mode, GuessDisplayMode
+            ###url_see_also += "&mode=rdf"
+            grph.add((subj, rdflib.namespace.RDFS["seeAlso"], rdflib.term.URIRef(url_see_also)))
+
+
 def output_rdf_graph_as_rdf(grph):
     """Used by all CGI scripts when they have finished adding triples to the current RDF graph.
     The RDF comment is specifically processed to be used by ontology editors such as Protege."""
@@ -191,6 +208,9 @@ def output_rdf_graph_as_rdf(grph):
     lib_util.WrtHeader('application/xml', arr_headers)
 
     out_dest = lib_util.get_default_output_destination()
+
+    # Scanner les objets et ajouter seealso = entity_menu_seealso
+    add_seealso_statements(new_grph)
 
     lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
     logging.debug("Grph2Rdf leaving, len(new_grph)=%d", len(new_grph))
