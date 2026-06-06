@@ -67,7 +67,7 @@ _urls_for_json = (
 def _script_for_json(url):
     """
     This tells if an URL should appear in the RDF graph displayed by the D3 interface to Survol.
-    This avoids creating a node for the "seel also" urls which returns another graph.
+    This avoids creating a node for the "see also" urls which returns another graph.
     In other words, it selects URL which designate an instance, not the URL returning a graph about an instance.
 
     On the other hand, scripts returning a graph of informatons about an instance are displayed
@@ -76,11 +76,15 @@ def _script_for_json(url):
     http://mymachine:8000/survol/entity_mime.py?xid=CIM_DataFile.Name=C://smh_installer.log&amp;amp;mode=mime:text/plain
     http://mymachine:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2Fpkg
     """
-    if url.startswith(lib_util.uriRoot):
-        # Where the script starts from.
-        idx_script = len(lib_util.uriRoot)
-        # Other scripts are forbidden.
-        return url.startswith(_urls_for_json, idx_script)
+
+    if False:
+        # This does not work anymore on Windows 7 and no idea why.
+        if url.startswith(lib_util.uriRoot):
+            # Where the script starts from.
+            idx_script = len(lib_util.uriRoot)
+            # Other scripts are forbidden.
+            logging.error("_script_for_json url=%s lib_util.uriRoot=%s" % (url, lib_util.uriRoot))
+            return url.startswith(_urls_for_json, idx_script)
     # Foreign scripts are OK.
     return True
 
@@ -170,7 +174,7 @@ def output_rdf_graph_as_json_d3(page_title, error_msg, parameters, grph):
 
         # TODO: Should probably also eliminate pc.property_rdf_data_nolist2 etc ... See lib_client.
         if pred == pc.property_script:
-            logging.debug("continue subj=%s obj=%s",subj,obj)
+            logging.debug("continue subj=%s obj=%s" % (subj,obj))
             continue
 
         # Normal data scripts are not accepted. This should apply only to file_directory.py and file_to_mime.py
