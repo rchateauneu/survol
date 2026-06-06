@@ -66,6 +66,8 @@ def PsutilProcToUser(proc, dflt_user="AccessDenied"):
         # This does not make sense but it happens.
         # KeyError: 'getpwuid(): uid not found: 56413'
         return "usr" + str(proc.pid)
+    except psutil.NoSuchProcess:
+        return "No such process:" + str(proc.pid)
 
 
 # This can be used to detect the return status fo the command.
