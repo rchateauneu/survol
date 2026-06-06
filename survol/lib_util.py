@@ -1,27 +1,31 @@
 # If the CGI script crashes before finishing the headers, cgitb will emit invalid HTTP headers before showing the error message.
 # The workaround is to put: HttpProtocolOptions Unsafe line into the apache .conf
 
-
-import cgitb
-
-import os
-
 __author__      = "Remi Chateauneu"
 __copyright__   = "Copyright 2020-2021, Primhill Computers"
 __license__     = "GPL"
 
-# This library is used by CGI scripts and command-line scripts.
-# Therefore, its behaviour is different in case of error.
-if "PYTEST_CURRENT_TEST" in os.environ:
-    # Do this when called in a deamon or pytest. Otherwise it is not readable
-    cgitb.enable(format="txt")
-elif os.getenv("SERVER_SOFTWARE"):
-    cgitb.enable()
+import os
+try:
+    import cgitb
+    # This library is used by CGI scripts and command-line scripts.
+    # Therefore, its behaviour is different in case of error.
+    if cgitb and "PYTEST_CURRENT_TEST" in os.environ:
+        # Do this when called in a deamon or pytest. Otherwise it is not readable
+        cgitb.enable(format="txt")
+    elif os.getenv("SERVER_SOFTWARE"):
+        cgitb.enable()
+except ImportError:
+    pass
+
 
 import re
 import sys
 import six
-import cgi
+try:
+    import cgi
+except ImportError:
+    import legacy_cgi as cgi
 import time
 import socket
 import base64
@@ -422,7 +426,7 @@ def RequestUri():
     try:
         # Example: REQUEST_URI=/Survol/survol/print_environment_variables.py
         script = os.environ["REQUEST_URI"]
-        #sys.stderr.write("RequestUri script=%s\n"%script)
+        # sys.stderr.write("RequestUri script=%s\n"%script)
     except KeyError:
         try:
             # For example SCRIPT_NAME=/survol/print_environment_variables.py
@@ -434,12 +438,16 @@ def RequestUri():
             if not script.startswith("/"):
                 script = "/" + script
             script = script.replace("\\", "/")
+            #print("scriptA=", script)
 
             try:
                 # For example QUERY_STRING="xid=EURO%5CLONL00111310@process:16580"
                 query_string = os.environ['QUERY_STRING']
+                #print("scriptB=", script)
+                #print("query_string=", query_string)
                 if query_string:
                     script += "?" + query_string
+                #print("scriptC=", script)
             except KeyError:
                 script = "QUERY_STRING should be set in RequestUri()"
         except KeyError:
@@ -1394,7 +1402,9 @@ def SplitMoniker(entity_id):
     splt_lst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', entity_id)
 
     resu = dict()
+    #print("entity_id=", entity_id)
     for splt_wrd in splt_lst:
+        #print("splt_wrd=", splt_wrd)
         key_token, _, value_token = splt_wrd.partition("=")
         assert "." not in key_token
         if value_token.startswith('"') and value_token.endswith('"'):
