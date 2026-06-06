@@ -2,7 +2,7 @@
 # The workaround is to put: HttpProtocolOptions Unsafe line into the apache .conf
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Copyright 2020-2021, Primhill Computers"
+__copyright__   = "Copyright 2020-2026, Primhill Computers"
 __license__     = "GPL"
 
 import os

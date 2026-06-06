@@ -581,7 +581,7 @@ def display_html_text_footer():
     <td><a href="%s">Configuration</a></td>
     <td><a href="%s">Credentials</a></td>
     <td><a href="%s">Daemons</a></td>
-    <td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017-2021</i></td>
+    <td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017-2026</i></td>
     </tr></table>
     """
 
