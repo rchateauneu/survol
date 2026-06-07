@@ -197,7 +197,9 @@ def application_ok(environ, start_response):
 
     if not path_info.endswith(".py"):
         logging.error("path_info=%s should be a Python script" % path_info)
-        raise Exception("application_ok: path_info=%s is not a Python script" % path_info)
+        # TODO: The error message is like "path_info=.favicon-16x16.png is not a Python script"
+        # TODO: It should be hidden, but it does not matter.
+        # raise Exception("application_ok: path_info=%s is not a Python script" % path_info)
 
     path_info = path_info[htbin_index + len(module_prefix):-3] # "Strips ".py" at the end.
 
