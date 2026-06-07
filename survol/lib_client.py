@@ -16,7 +16,7 @@ import lib_common
 import lib_naming
 import lib_properties
 from lib_properties import pc
-import entity_dirmenu_only
+import lib_dirmenu
 
 ################################################################################
 
@@ -375,6 +375,7 @@ class BaseCIMClass(object):
 
     def __get_scripts_remote(self):
         # We expect a contextual menu in JSON format, not a graph.
+        # TODO: Virer ce "mode=menu" : Ca doit etre SVG ou JSON etc...
         url_scripts = self.m_agent_url + "/survol/entity_dirmenu_only.py" \
                     + "?xid=" + self.__class__.__name__ \
                     + "." + self.m_entity_id + "&mode=menu"
@@ -432,7 +433,7 @@ class BaseCIMClass(object):
         entity_host = None # To start with
         root_node = None # The top-level is script is not necessary.
 
-        entity_dirmenu_only.recursive_walk_on_scripts(
+        lib_dirmenu.recursive_walk_on_scripts(
             callback_grph_add,
             root_node,
             entity_type,

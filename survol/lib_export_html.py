@@ -11,7 +11,7 @@ import lib_exports
 import lib_patterns
 import lib_naming
 import lib_kbase
-import entity_dirmenu_only
+import lib_dirmenu
 from lib_properties import pc
 from lib_util import WrtAsUtf
 from sources_types import CIM_ComputerSystem
@@ -221,7 +221,7 @@ def _scripts_tree_html_iterator(theCgi):
             dict_scripts[subj] = {prop: [obj]}
 
     logging.debug("entity_type=%s flag_show_all=%d", theCgi.m_entity_type, flag_show_all)
-    entity_dirmenu_only.recursive_walk_on_scripts(
+    lib_dirmenu.recursive_walk_on_scripts(
         callback_grph_add,
         root_node,
         theCgi.m_entity_type,

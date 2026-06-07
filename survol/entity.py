@@ -13,7 +13,7 @@ import lib_uris
 import lib_common
 import lib_associators
 from lib_properties import pc
-import entity_dirmenu_only # Also used with the CGI parameter mode=menu
+import lib_dirmenu # Also used with the CGI parameter mode=menu
 from sources_types import CIM_Process
 from sources_types import CIM_ComputerSystem
 
@@ -162,7 +162,7 @@ def Main():
 
         try:
             # This displays the scripts associated to this instance.
-            entity_dirmenu_only.recursive_walk_on_scripts(
+            lib_dirmenu.recursive_walk_on_scripts(
                 callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
         except Exception as exc:
             logging.error("Caught in recursive_walk_on_scripts:%s. Trace=%s", exc, traceback.format_exc())
