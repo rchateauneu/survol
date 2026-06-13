@@ -2045,6 +2045,17 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 		if(objDeferScripts) {
 			// https://swisnl.github.io/jQuery-contextMenu/demo/async-promise.html Submenu through promise.
 			var menusSurvol = objDeferScripts.promise();
+            console.log("menusSurvol.state()=", menusSurvol.state());
+            console.log("menusSurvol=", menusSurvol);
+            if ( menusSurvol.state() == "resolved" ) {
+                menusSurvol.then( function(ms) {
+                    menusSurvol = ms;
+                    // contextMenu does not want a promise which is resolved.
+                    // TBH, the logic is not very clean. So if it is resolved, it is replaced with the value.
+                    // TODO: Consider not resolving it, and just giving the prmise "as is" to contextMenu.
+                    console.log("RESOLVED menusSurvol=", menusSurvol);
+                });
+            }
 
 			var TheItemsScripts = {
 				"sep1": "---------",
@@ -2306,6 +2317,9 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             objectThis.__data__.contextual_menu_items = jsonData;
 
             // FIXME: This does not seem to work when called from Android.
+            // TODO: It could be cleaner to store the promise in defer_scripts.
+            //       This, because WSGI calculates it much earlier than CGI.
+            //       If this is not resolved, we may just need to give it as is to contextMenu.
             objectThis.__data__.defer_scripts.resolve(jsonData);
         }
 
