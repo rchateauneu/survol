@@ -9,14 +9,11 @@ It is also used by the client library lib_client, to return all the scripts acce
 It is never displayed directly.
 """
 
-import os
-import sys
 import logging
-import rdflib
 import lib_util
 import lib_common
 import lib_dirmenu
-
+import lib_kbase
 
 """
 <rdf:RDF
@@ -184,13 +181,6 @@ def Main():
         lib_dirmenu.recursive_walk_on_scripts(
             callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all, True)
 
-    # cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory, pc_property_script])
-
-    #top_url = lib_util.TopUrl(self.m_entity_type, self.m_entity_id)
-    #_out_cgi_mode(self, top_url, "rdf")
-
-
-    #lib_export_ontology.output_rdf_graph_as_rdf(grph, False)
     arr_headers = [
         ('Access-Control-Allow-Origin', '*'),
         ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
@@ -204,7 +194,5 @@ def Main():
     logging.debug("Grph2Rdf leaving, len(new_grph)=%d", len(grph))
 
 
-
 if __name__ == '__main__':
     Main()
-
