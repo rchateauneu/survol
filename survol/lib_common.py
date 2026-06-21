@@ -401,7 +401,7 @@ class ScriptEnvironment():
         except Exception as exc:
             # Then display the content in snapshot mode, which is better than nothing.
             self.report_error_message("Cannot start daemon, caught:%s\n" % exc)
-            logging.error("Cannot start daemon: When getting daemon status, caught:%s" % exc)
+            logging.error("Cannot start daemon %s. Caught:%s" % (self.m_url_without_mode, exc))
             return
 
         if not is_daemon_running:
