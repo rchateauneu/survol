@@ -18,6 +18,7 @@
 <script src="http://d3js.org/d3.v4.js"></script>
 <script src="js/base64.js"></script>
 <script src="js/revjslib.js"></script>
+<script src="https://unpkg.com/rdflib/dist/rdflib.min.js"></script>
 
 <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 
@@ -132,7 +133,7 @@
 </style>
 
 <script>
-function GetCgiParams()
+function getCgiParams()
 {
     // console.log("resetParams");
     var query = window.location.search;
@@ -152,7 +153,7 @@ function GetCgiParams()
         }
     }
     return params;
-}; // GetCgiParams
+}; // getCgiParams
 
 
 var wScreen;
@@ -173,63 +174,60 @@ var isDragging = false;
 
 // Sanity check to ensure that nodes and links are properly matched.
 // This is slow but useful in development mode.
-function CheckGraph(theNam,theData)
+function CheckGraph(theNam, theData)
 {
     'use strict';
 
-    // Add comments when in production version.
-    ///////////////////// return;
+    console.log("CheckGraph Nam=" + theNam);
 
-    console.log("CheckGraph Nam="+theNam);
-
-    if(theData == null)
+    if (theData == null)
     {
         return;
     }
-    console.log(theNam+" nodes="+theData.nodes.length+" links="+theData.links.length);
+    console.log(theNam+" nodes=" + theData.nodes.length + " links=" + theData.links.length);
 
     // Used to check the validity of the nodes and links.
     var dictNodeToIndex = {};
 
-    for( var ix = 0; ix < theData.nodes.length; ix++ )
+    for (var ix = 0; ix < theData.nodes.length; ix++)
     {
         objNod = theData.nodes[ix];
-        if( objNod.survol_url == undefined )
+        if (objNod.survol_url == undefined)
         {
-            console.log("CheckGraph undefined url at ix="+ix);
+            console.log("CheckGraph undefined url at ix=" + ix);
         }
         dictNodeToIndex[objNod] = ix;
     }
 
     // This checks if the source or target ref of a link points to a valid object.
-    function CheckLinkValid(nodeRef,errMsg)
+    function CheckLinkValid(nodeRef, errMsg)
     {
-        if( nodeRef == undefined )
+        if (nodeRef == undefined)
         {
-            console.log(theNam+" Undefined nodeRef: "+errMsg);
+            console.log(theNam + " Undefined nodeRef: " + errMsg);
         }
-        if( nodeRef.survol_url == undefined )
+        if (nodeRef.survol_url == undefined)
         {
-            console.log(theNam+" Undefined url:"+errMsg);
+            console.log(theNam + " Undefined url:" + errMsg);
         }
 
         var idxNode = dictNodeToIndex[nodeRef];
-        if(idxNode == undefined)
+        if (idxNode == undefined)
         {
-            console.log(theNam+" non-existent nodeRef:"+errMsg);
+            console.log(theNam + " non-existent nodeRef:" + errMsg);
         }
 
-        if( (idxNode < 0) || (idxNode >= theData.nodes.length))
+        if ( (idxNode < 0) || (idxNode >= theData.nodes.length))
         {
-            console.log(theNam+" broken index:"+errMsg);
+            console.log(theNam + " broken index:" + errMsg);
         }
     } // CheckLinkValid
 
     // Now this checks the validity of links and nodes they point to.
-    for( var ix = 0; ix < theData.links.length; ix++ )
+    for (var ix = 0; ix < theData.links.length; ix++)
     {
-        CheckLinkValid(theData.links[ix].source,"source "+ix);
-        CheckLinkValid(theData.links[ix].target,"target "+ix);
+        CheckLinkValid(theData.links[ix].source, "source " + ix);
+        CheckLinkValid(theData.links[ix].target, "target " + ix);
     }
 } // CheckGraph
 
@@ -252,7 +250,7 @@ function onDrop(evt) {
     evt.preventDefault();
     var droppedUrl = evt.dataTransfer.getData("URL");
 
-    console.log("onDrop droppedUrl="+droppedUrl);
+    console.log("onDrop droppedUrl=" + droppedUrl);
 
     var adaptedUrl = null;
 
@@ -262,7 +260,7 @@ function onDrop(evt) {
     */
     ixSourcesTypes = droppedUrl.indexOf("/sources_types/");
     if(ixSourcesTypes >= 0) {
-        adaptedUrl = AppendCgiToUrl(droppedUrl,"mode=json");
+        adaptedUrl = AppendCgiToUrl(droppedUrl, "mode=json");
     }
 
     if(adaptedUrl) {
@@ -273,17 +271,16 @@ function onDrop(evt) {
         The host is extracted from the url.
         Maybe a specific css could be loaded from this remote machine.
         */
-        LoadUrlUpdateDisplay(adaptedUrl,true);
+        loadUrlUpdateDisplay(adaptedUrl,true);
     }
     else
     {
         alert("Cannot drop url:"+droppedUrl);
     }
-
 };
 
 function onDragOver(evt){
-    console.log("onDrag evt="+JSON.stringify(evt))
+    console.log("onDrag evt=" + JSON.stringify(evt))
     evt.preventDefault();
 }
 
@@ -307,7 +304,6 @@ function D3DisplayCreation()
         ;
 
     var defs = divSvg.append('svg:defs');
-
 
     // https://css-tricks.com/svg-path-syntax-illustrated-guide/
     var dataMarker = [
@@ -343,8 +339,8 @@ function D3DisplayCreation()
         var divHeader = document.getElementById("HeaderDiv");
         var heightHeader = divHeader.offsetHeight;
 
-        wScreen = Math.max( window.innerWidth , eltDocElt.clientWidth , gebBody.clientWidth  );
-        hScreen = Math.max( window.innerHeight, eltDocElt.clientHeight, gebBody.clientHeight );
+        wScreen = Math.max(window.innerWidth, eltDocElt.clientWidth, gebBody.clientWidth);
+        hScreen = Math.max(window.innerHeight, eltDocElt.clientHeight, gebBody.clientHeight);
         wScreen -= 20;
         hScreen -= (heightHeader + 30); // TODO: Must take into account the text size.
 
@@ -394,14 +390,13 @@ function D3DisplayCreation()
     }
 
     myForce = d3.forceSimulation();
-
 } // D3DisplayCreation
 
 function CreateDisplay(data)
 {
     'use strict';
 
-    if( data == null )
+    if (data == null)
     {
         alert("CreateDisplay: Json data is null");
         return;
@@ -412,12 +407,8 @@ function CreateDisplay(data)
 
     // Brand new graph, no need to merge.
     previousData = data;
-    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
+    displayD3Layout(divItselfG,previousData,wScreen,hScreen);
 } // CreateDisplay
-
-
-
-
 
 /* Called when adding a new url and merge it to the existing nodes and links. */
 function RefillDisplayMerge(data, currTimeStamp, objectSvg)
@@ -431,7 +422,7 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
 
         var dictByUni = {};
 
-        for( var ixNod = 0; ixNod < lstNodes.length; ixNod++ )
+        for (var ixNod = 0; ixNod < lstNodes.length; ixNod++)
         {
             var objNod = lstNodes[ixNod];
             // console.log("DictNodesByUniversal ixNod="+ixNod+" survol_url="+objNod.survol_url);
@@ -457,7 +448,7 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
             }
             else
             {
-                dictByUni[univAlias].push( objNod );
+                dictByUni[univAlias].push(objNod);
             }
         }
         return dictByUni;
@@ -466,6 +457,8 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
     /* When merging networks, look for url_survol which are identical except the host,
     for some types only, where the same object can be detected on different machines:
     CIM_ComputerSystem, socket address, Oracle databases etc... and objects in credentials file.
+    Consider dropping the port number from the URL ?
+    Then each item would need a triple with the actual url ?
 
     See these two different representations of the same machine:
         DESKTOP-NI99V8E
@@ -485,25 +478,26 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
     for (var ixNod = 0; ixNod < previousData.nodes.length; ixNod++) {
         var objPrevNode = previousData.nodes[ixNod];
         // Sanity check: Object must exist.
-        if(objPrevNode == undefined)
+        if (objPrevNode == undefined)
         {
-            alert("ixNod="+ixNod+" Undefined url");
+            alert("ixNod=" + ixNod + " Undefined url");
             return;
         }
 
         var urlPrevNode = objPrevNode.survol_url;
 
         // Sanity check: URLs should be unique.
-        if(urlPrevNode == undefined)
+        if (urlPrevNode == undefined)
         {
-            alert("ixNod="+ixNod+" Undefined url");
+            alert("ixNod=" + ixNod + " Undefined url");
             return;
         }
 
         // Sanity check: URLs should be unique.
-        if(urlToNode[urlPrevNode] != undefined)
+        if (urlToNode[urlPrevNode] != undefined)
         {
-            alert("RefillDisplayMerge ixNod="+ixNod+" prevUrlsToIds[urlNode] undefined. urlPrevNode="+urlPrevNode);
+            alert("RefillDisplayMerge ixNod=" + ixNod
+                + " prevUrlsToIds[urlNode] undefined. urlPrevNode=" + urlPrevNode);
             return;
         }
         // Normally, at this stage, each URL should appear only once.
@@ -526,7 +520,7 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
             urlToNode[urlNewNode] = objNewNode;
             var univAlias = objNewNode.survol_universal_alias;
 
-            console.log("urlNewNode="+urlNewNode+" univAlias="+univAlias);
+            console.log("urlNewNode=" + urlNewNode + " univAlias=" + univAlias);
 
             /*
             The new nodes which have the same survol_universal_alias than existing nodes
@@ -537,20 +531,21 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
 
             // Then add a specific link binding two different representations of the same object.
             // They have describing the same object from two different servers, hence URLs.
-            if( prevNodesSameUni != undefined )
+            if (prevNodesSameUni != undefined)
             {
                 // Add one very short and visible link with the first of the previous nodes.
                 var oldNode = prevNodesSameUni[0];
 
-                console.log("objNod="+objNewNode.survol_url+" oldNode="+oldNode.survol_url+" univAlias="+univAlias);
+                console.log("objNod="+objNewNode.survol_url
+                          + " oldNode=" + oldNode.survol_url + " univAlias=" + univAlias);
 
                 // The links could be made with the objects, which would save time.
                 // But later on, there is a sanity check. So we stick to URLs.
                 var newLink =
                 {
-                    "source":objNewNode.survol_url,
-                    "target":oldNode.survol_url,
-                    "link_class":"survol_class_line_alias"
+                    "source": objNewNode.survol_url,
+                    "target": oldNode.survol_url,
+                    "link_class": "survol_class_line_alias"
                 };
 
                 data.links.push(newLink);
@@ -564,29 +559,29 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
         }
     }
 
-    console.log("RefillDisplayMerge Adding new links:"+data.links.length);
+    console.log("RefillDisplayMerge Adding new links:" + data.links.length);
 
     // Now this adds the new links, replacing the source and target urls
     // by the corresponding objects, which might have been duplicates.
-    for( var ixLnk = 0; ixLnk < data.links.length; ixLnk++ )
+    for (var ixLnk = 0; ixLnk < data.links.length; ixLnk++)
     {
         var newLnk = data.links[ixLnk];
 
-        if(newLnk.source == undefined)
+        if (newLnk.source == undefined)
         {
-            alert("RefillDisplayMerge ixLnk="+ixLnk+" newLnk.source undefined");
+            alert("RefillDisplayMerge ixLnk=" + ixLnk + " newLnk.source undefined");
             return;
         }
         var newLnkSource = urlToNode[newLnk.source];
-        if(newLnkSource == undefined)
+        if (newLnkSource == undefined)
         {
-            alert("RefillDisplayMerge ixLnk="+ixLnk+" newLnkSource undefined. newLnk.source="+newLnk.source);
+            alert("RefillDisplayMerge ixLnk=" + ixLnk + " newLnkSource undefined. newLnk.source=" + newLnk.source);
             return;
         }
         newLnk.source = newLnkSource;
 
         var newLnkTarget = urlToNode[newLnk.target];
-        if(newLnkTarget == undefined)
+        if (newLnkTarget == undefined)
         {
             alert("newLnk.target undefined");
             throw("newLnk.target undefined");
@@ -599,27 +594,25 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
     }
 
     // Sanity check.
-    CheckGraph("prev",previousData);
+    CheckGraph("prev", previousData);
 } // RefillDisplayMerge
 
 /* Called when reloading the content of a script which was previously loaded.
 Most of the nodes are already there. */
-function RefillDisplayRefresh(theUrl,data,currTimeStamp)
+function RefillDisplayRefresh(theUrl, data, currTimeStamp)
 {
     'use strict';
 
-    var urlNoJson = UrlWithoutJsonMode( theUrl );
-    console.log("RefillDisplayRefresh urlNoJson="+urlNoJson+" currTimeStamp="+currTimeStamp);
+    var urlNoJson = UrlWithoutJsonMode(theUrl);
+    console.log("RefillDisplayRefresh urlNoJson=" + urlNoJson + " currTimeStamp=" + currTimeStamp);
 
-    if( currTimeStamp == undefined ) {
+    if (currTimeStamp == undefined) {
         alert("Inconsistent timestamp (4)");
         return;
     }
 
-
-    /* Merge the new content with the old, and all nodes which exist in both data sets,
-    are tagged with a time-stamp. */
-    RefillDisplayMerge(data,currTimeStamp);
+    // Merge the new content with the old. All nodes existing in both data sets are tagged with a time-stamp.
+    RefillDisplayMerge(data, currTimeStamp);
 
     CheckGraph("refresh1",previousData);
 
@@ -631,51 +624,53 @@ function RefillDisplayRefresh(theUrl,data,currTimeStamp)
 
     var removedNodeObjects = {};
 
-    console.log("RefillDisplayRefresh urlNoJson="+urlNoJson+" previousData.nodes.length="+previousData.nodes.length);
-    for (var ixNod = 0, nodesLength = previousData.nodes.length; ixNod < nodesLength; ixNod++ ) {
+    console.log("RefillDisplayRefresh urlNoJson="
+        + urlNoJson + " previousData.nodes.length=" + previousData.nodes.length);
+    for (var ixNod = 0, nodesLength = previousData.nodes.length; ixNod < nodesLength; ixNod++) {
         var objNod = previousData.nodes[ixNod];
 
-        console.log("RefillDisplayRefresh ixNod="+ixNod+" survol_url="+objNod.survol_url+" survol_input_scripts="+objNod.survol_input_scripts+" timestamp="+objNod.survol_timestamp);
+        console.log("RefillDisplayRefresh ixNod=" + ixNod + " survol_url=" + objNod.survol_url
+            + " survol_input_scripts="+objNod.survol_input_scripts+" timestamp="+objNod.survol_timestamp);
         var idxIn = objNod.survol_input_scripts.indexOf(urlNoJson);
 
-        if ( idxIn >= 0 )
+        if (idxIn >= 0)
         {
-            if( objNod.survol_timestamp == undefined ) {
+            if (objNod.survol_timestamp == undefined) {
                 throw("Inconsistent timestamp (2)");
             }
-            if( objNod.survol_timestamp > currTimeStamp ) {
+            if (objNod.survol_timestamp > currTimeStamp) {
                 throw("Inconsistent timestamp (3)");
             }
 
             /* This node was not in the new content of the same URL. */
-            if( objNod.survol_timestamp < currTimeStamp )
+            if (objNod.survol_timestamp < currTimeStamp)
             {
                 /* The node is not in the new content of the same URL, so it must be deleted. */
 
                 // Then merge again if ActiveX ???
 
-                console.log("DELETING NODE ixNod="+ixNod+" id="+objNod.id);
+                console.log("DELETING NODE ixNod=" + ixNod + " id=" + objNod.id);
 
                 // Use the URL string, not the node, because it seems to behave "un-nicely".
                 removedNodeObjects[objNod.id] = objNod.id;
 
-                previousData.nodes.splice(ixNod,1);
+                previousData.nodes.splice(ixNod, 1);
                 ixNod--;
                 nodesLength--;
              }
          }
     } // for
-    console.log("RefillDisplayRefresh nodesLength="+nodesLength);
-    console.log("RefillDisplayRefresh removedNodeObjects="+removedNodeObjects);
+    console.log("RefillDisplayRefresh nodesLength=" + nodesLength);
+    console.log("RefillDisplayRefresh removedNodeObjects=" + removedNodeObjects);
 
-    // This contaisn the concatenation of source and target urls of
+    // This contains the concatenation of source and target urls of ...
     var dictUniqLinkNames = {};
 
     // Here, the links source and target contain a node reference or a URL.
     // The links that might be removed have already their source and reference
     // changed from a url to a node object. This is because they are pointing
     // to an object which is now removed.
-    for( var ixLnk = 0, linksLength = previousData.links.length; ixLnk < linksLength; ixLnk++ )
+    for (var ixLnk = 0, linksLength = previousData.links.length; ixLnk < linksLength; ixLnk++)
     {
         var objLnk = previousData.links[ixLnk];
 
@@ -683,7 +678,7 @@ function RefillDisplayRefresh(theUrl,data,currTimeStamp)
 
         // Any unique string will do. This keeps links with inverted vertices.
         var uniqLnkNm = objLnk.source.id + "@@@" + objLnk.target.id;
-        if( dictUniqLinkNames[uniqLnkNm] != undefined )
+        if (dictUniqLinkNames[uniqLnkNm] != undefined)
         {
             mustRemoveLink = true;
         }
@@ -693,21 +688,21 @@ function RefillDisplayRefresh(theUrl,data,currTimeStamp)
             dictUniqLinkNames[uniqLnkNm] = uniqLnkNm;
 
             // Maybe the link points to a node which is just removed.
-            if( ( removedNodeObjects[objLnk.source.id] != undefined )
-             || ( removedNodeObjects[objLnk.target.id] != undefined ) )
+            if ( (removedNodeObjects[objLnk.source.id] != undefined)
+              || (removedNodeObjects[objLnk.target.id] != undefined) )
             {
                 mustRemoveLink = true;
             }
         }
 
-        if( mustRemoveLink )
+        if (mustRemoveLink)
         {
-            console.log("DELETING LINK ixLnk="+ixLnk);
-            console.log("DELETING LINK source="+removedNodeObjects[objLnk.source.id]);
-            console.log("DELETING LINK source="+objLnk.source.id);
-            console.log("DELETING LINK target="+removedNodeObjects[objLnk.target.id]);
-            console.log("DELETING LINK target="+objLnk.target.id);
-            previousData.links.splice(ixLnk,1);
+            console.log("DELETING LINK ixLnk=" + ixLnk);
+            console.log("DELETING LINK source=" + removedNodeObjects[objLnk.source.id]);
+            console.log("DELETING LINK source=" + objLnk.source.id);
+            console.log("DELETING LINK target=" + removedNodeObjects[objLnk.target.id]);
+            console.log("DELETING LINK target=" + objLnk.target.id);
+            previousData.links.splice(ixLnk, 1);
             ixLnk--;
             linksLength--;
         }
@@ -725,25 +720,25 @@ function SetDisplayLinks(data)
     // Used to check the validity of the nodes and links.
     var urlToNode = {};
 
-    for( var ix = 0; ix < data.nodes.length; ix++ )
+    for (var ix = 0; ix < data.nodes.length; ix++)
     {
         var objNod = data.nodes[ix];
         urlToNode[objNod.survol_url] = objNod;
     }
 
-    for( var ixLnk = 0; ixLnk < data.links.length; ixLnk++ )
+    for (var ixLnk = 0; ixLnk < data.links.length; ixLnk++)
     {
         var newLnk = data.links[ixLnk];
 
         var newLnkSource = urlToNode[newLnk.source];
-        if(newLnkSource == undefined)
+        if (newLnkSource == undefined)
         {
             alert("newLnk.source undefined");
         }
         newLnk.source = newLnkSource;
 
         var newLnkTarget = urlToNode[newLnk.target];
-        if(newLnkTarget == undefined)
+        if (newLnkTarget == undefined)
         {
             alert("newLnk.target undefined");
         }
@@ -754,6 +749,13 @@ function SetDisplayLinks(data)
 // This is the host name if the current page, calculated once only.
 var hostMine = GetHostFromUrl(window.location.href);
 
+function isJson(value) {
+    return (value && value.constructor === ({}).constructor)
+}
+
+function isPromise(value) {
+    return value && value.then && typeof value.then === 'function';
+}
 
 /* This associates a hostname to a color.
 This gives a different appearance to nodes based on the host where they are defined.
@@ -771,7 +773,7 @@ function HostToColorNoCache(aHostName)
             hash  = ((hash << 5) - hash) + chr;
             hash |= 0; // Convert to 32bit integer
         }
-        if(hash <0)
+        if (hash <0)
             hash = -hash;
 
         return hash % ( 256 * 256 * 256 );
@@ -784,10 +786,10 @@ function HostToColorNoCache(aHostName)
     // This amplifies color contrast.
     function Amplify(aHex)
     {
-        if( "01234".indexOf(aHex) >= 0 ) return "0";
-        if( "567".indexOf(aHex) >= 0 ) return "5";
-        if( "89a".indexOf(aHex) >= 0 ) return "a";
-        if( "bcdef".indexOf(aHex) >= 0 ) return "f";
+        if ("01234".indexOf(aHex) >= 0) return "0";
+        if ("567".indexOf(aHex) >= 0) return "5";
+        if ("89a".indexOf(aHex) >= 0) return "a";
+        if ("bcdef".indexOf(aHex) >= 0) return "f";
     }
 
     var aCol = "#" + Amplify(theStr[0]) + theStr[1] + Amplify(theStr[2]) + theStr[3] + Amplify(theStr[4]) + theStr[5] ;
@@ -805,14 +807,14 @@ However, the list of color is stored in the data structure sent to the summary w
 function HostToColor(aHostName)
 {
     // Is this host here ?
-    var hostObj = lstLoadedUrls.dict_hosts[aHostName];
+    var hostObj = listLoadedUrls.dict_hosts[aHostName];
 
-    if(hostObj == undefined)
+    if (hostObj == undefined)
     {
         hostObj = {};
         hostObj.m_host_color = HostToColorNoCache(aHostName);
         // Store the color for later use.
-        lstLoadedUrls.dict_hosts[aHostName] = hostObj;
+        listLoadedUrls.dict_hosts[aHostName] = hostObj;
     }
 
     return hostObj.m_host_color;
@@ -824,7 +826,7 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp, objectSvg)
     'use strict';
 	console.log("RefillDisplay entering shouldMerge="+shouldMerge+" currTimeStamp="+currTimeStamp);
     // CheckGraph("new",data);
-    if( data == null )
+    if (data == null)
     {
         alert("RefillDisplay: Json data is null");
         return;
@@ -832,13 +834,13 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp, objectSvg)
 
     /* This calculates the stroke color and width for each object,
     based on the host on which it is defined.
-    Ths url should normally be from the same host, but this is not a requirement.
+    This url should normally be from the same host, but this is not a requirement.
     */
     for (var ixNod = 0; ixNod < data.nodes.length; ixNod++ ) {
         var objNode = data.nodes[ixNod];
         objNode.survol_host = GetHostFromUrl(objNode.survol_url);
 
-        if( objNode.survol_host == hostMine ) {
+        if (objNode.survol_host == hostMine) {
             objNode.survol_width = 1;
             objNode.survol_stroke = "#000000";
         }
@@ -848,8 +850,7 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp, objectSvg)
         }
     }
 
-
-    if( (previousData == null ) || (shouldMerge == false) )
+    if ((previousData == null) || (shouldMerge == false))
     {
         // Completely replaces the existing nodes.
         previousData = data;
@@ -861,11 +862,11 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp, objectSvg)
         /* If the url is already loaded, rather call RefillDisplayRefresh.
         This might happen when an URL is automatically loaded at a regular pace,
         or simply if by chance, the same URL is loaded several times. */
-        if( shouldMerge == MergeRefreshMode )
+        if (shouldMerge == MergeRefreshMode)
         {
             RefillDisplayRefresh(theUrl,data,currTimeStamp);
         }
-        else if( shouldMerge == true )
+        else if(shouldMerge == true)
         {
             // If we merge the current nodes and links with the new one.
             RefillDisplayMerge(data,currTimeStamp, objectSvg);
@@ -886,11 +887,12 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp, objectSvg)
 
     EmptyDisplay();
 
-	console.log("RefillDisplay before DisplayD3Layout");
+	console.log("RefillDisplay before displayD3Layout");
 
-    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
+    displayD3Layout(divItselfG,previousData,wScreen,hScreen);
 	console.log("RefillDisplay leaving");
 } // RefillDisplay
+
 
 function EmptyDisplay()
 {
@@ -906,42 +908,43 @@ function EmptyDisplay()
         .remove();
 } // EmptyDisplay
 
+
 /* When deleting a node from the contextual menu. Deletes the nodes and its links. */
 function FindIndexFromNode(objectSvg)
 {
     'use strict';
     // No need of a lookup because it happens just once.
-    for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
+    for (var ixNod = 0; ixNod < previousData.nodes.length; ixNod++)
     {
         var goodNodeIdx;
-        if( previousData.nodes[ixNod].survol_url == objectSvg.survol_url )
+        if (previousData.nodes[ixNod].survol_url == objectSvg.survol_url)
         {
             goodNodeIdx = ixNod;
-            console.log("FindIndexFromNode found ixNod="+ixNod);
+            console.log("FindIndexFromNode found ixNod=" + ixNod);
             return goodNodeIdx;
         }
     }
 
-    alert("Could not find url="+objectSvg.survol_url);
+    alert("Could not find url=" + objectSvg.survol_url);
     return -1;
 } // FindIndexFromNode
 
 function DeleteD3NodeFromIndex(goodNodeIdx)
 {
-    console.log("DeleteD3NodeFromIndex goodNodeIdx="+goodNodeIdx);
+    console.log("DeleteD3NodeFromIndex goodNodeIdx=" + goodNodeIdx);
     var goodNode = previousData.nodes[goodNodeIdx];
 
     // The node is removed and the following node numbers are decremented.
     // Therefore the links must be updated.
-    previousData.nodes.splice(goodNodeIdx,1);
+    previousData.nodes.splice(goodNodeIdx, 1);
 
     // The link is pointing to the node to be deleted. Each index is replaced by the node itself
     // NOTE: APPARENTLY THE NODE INDICES ARE REPLACED BY THE NODE OBJECT.
     previousData.links = previousData.links.filter(
         function(objLnk) {
-            return (objLnk.source != goodNode ) && ( objLnk.target != goodNode );
+            return (objLnk.source != goodNode) && (objLnk.target != goodNode);
         });
-    console.log("DeleteD3NodeFromIndex previousData.links.length="+previousData.links.length);
+    console.log("DeleteD3NodeFromIndex previousData.links.length=" + previousData.links.length);
 }
 
 // Attempt to fix the "use strict"problem with Edge..
@@ -958,7 +961,7 @@ function DeleteSvgNode(objectSvg)
     DeleteD3NodeFromIndex(goodNodeIdx);
 
     EmptyDisplay();
-    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
+    displayD3Layout(divItselfG, previousData, wScreen, hScreen);
     console.log("DeleteSvgNode reset globalMustMerge");
     // BEWARE: On IE / Edge: Not defined.
     globalMustMerge = false;
@@ -979,20 +982,20 @@ function MarkToDel(flag)
 
 // There is no direct way to get the edges connected to one node,
 // so this recursively explores the graph and marks objects for deletion.
-function DeleteSvgConnectedNodes(objectSvg)
+function deleteSvgConnectedNodes(objectSvg)
 {
     'use strict';
 
     MarkToDel(false);
 
     // First, builds for each node, the list of edges starting from it.
-    for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
+    for (var ixNod = 0; ixNod < previousData.nodes.length; ixNod++)
     {
         previousData.nodes[ixNod].indices_links_list = [];
     }
 
     // Now target and source point to node object, not indices.
-    for( var ixLnk = 0; ixLnk < previousData.links.length; ixLnk++ )
+    for (var ixLnk = 0; ixLnk < previousData.links.length; ixLnk++)
     {
         var objLnk = previousData.links[ixLnk];
 
@@ -1006,17 +1009,18 @@ function DeleteSvgConnectedNodes(objectSvg)
     {
         var lstIdxEdges = objNod.indices_links_list;
         objNod.to_delete = true;
-        for( var ixEdgeKey in lstIdxEdges )
+        for (var ixEdgeKey in lstIdxEdges)
         {
             var ixEdgeIdx = lstIdxEdges[ixEdgeKey];
             var objLnk = previousData.links[ixEdgeIdx];
             var nodOther = null;
-            if( objLnk.target == objNod )
+            if (objLnk.target == objNod)
                 nodOther = objLnk.source;
-            else if( objLnk.source == objNod )
+            else if (objLnk.source == objNod)
                 nodOther = objLnk.target;
-            else alert("We have a problem");
-            if( nodOther.to_delete == false )
+            else
+                alert("We have a problem");
+            if (nodOther.to_delete == false)
             {
                 RecursAppendConnected(nodOther);
             }
@@ -1034,22 +1038,22 @@ function DeleteSvgConnectedNodes(objectSvg)
     previousData.nodes = previousData.nodes.filter( function(objNod) { return ! objNod.to_delete; });
 
     previousData.links = previousData.links.filter( function(objLnk) {
-        return ! ( objLnk.source.to_delete || objLnk.target.to_delete );
+        return ! (objLnk.source.to_delete || objLnk.target.to_delete);
     });
 
     // Same code as for deleting one node.
     EmptyDisplay();
-    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
-    console.log("DeleteSvgConnectedNodes reset globalMustMerge");
+    displayD3Layout(divItselfG, previousData, wScreen, hScreen);
+    console.log("deleteSvgConnectedNodes reset globalMustMerge");
     globalMustMerge = false;
-} // DeleteSvgConnectedNodes
+} // deleteSvgConnectedNodes
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /* The list of currently loaded urls.
 This is an object array with some extra members.
-    lstLoadedUrls.number_nodes  // Total number of nodes after merging.
-    lstLoadedUrls.number_links  // Total number of links after merging.
+    listLoadedUrls.number_nodes  // Total number of nodes after merging.
+    listLoadedUrls.number_links  // Total number of links after merging.
     array_urls[]                // Each URL of the array.
                                 // It behaves like a map but we want to be sure of the order.
         m_loaded_url            // The loaded URL itself.
@@ -1066,7 +1070,7 @@ TODO: This could also be the UNDO list, and therefore will contain "pseudo-urls"
 meaning that such or such object was added or removed.
 */
 
-var lstLoadedUrls = {
+var listLoadedUrls = {
     number_nodes:0,
     number_links:0,
     array_urls: [],
@@ -1076,19 +1080,19 @@ var lstLoadedUrls = {
 };
 
 // We do not add methods because the object must be cloned when sent as a message.
-function lstLoadedUrls_DeleteAll()
+function listLoadedUrlsDeleteAll()
 {
-    for( var idxUrl = 0; idxUrl < lstLoadedUrls.array_urls.length; idxUrl++ )
+    for(var idxUrl = 0; idxUrl < listLoadedUrls.array_urls.length; idxUrl++)
     {
-        lstLoadedUrls_DeleteOne(0);
+        listLoadedUrlsDeleteOne(0);
     }
 }
 
 // Deletes an URL in the list and cancels the timer if needed.
-function lstLoadedUrls_DeleteOne(idxUrl)
+function listLoadedUrlsDeleteOne(idxUrl)
 {
-    lstLoadedUrls_TimerSet(idxUrl);
-    lstLoadedUrls.array_urls.splice(idxUrl,1);
+    listLoadedUrlsTimerSet(idxUrl);
+    listLoadedUrls.array_urls.splice(idxUrl, 1);
 }
 
 const MergeRefreshMode = 2;
@@ -1096,90 +1100,86 @@ const MergeRefreshMode = 2;
 // When the url is deleted, the timer must also be cleared.
 function TimerRefreshUrl(objLoadedUrl)
 {
-    console.log("TimerRefreshUrl m_loaded_url="+objLoadedUrl.m_loaded_url);
-
-    urlJson = AppendCgiToUrl(objLoadedUrl.m_loaded_url,"mode=json");
+    console.log("TimerRefreshUrl m_loaded_url=" + objLoadedUrl.m_loaded_url);
+    urlJson = AppendCgiToUrl(objLoadedUrl.m_loaded_url, "mode=json");
 
     // TODO: Finish this !! Doing what ??? ...
-    LoadUrlUpdateDisplay(urlJson, MergeRefreshMode );
+    loadUrlUpdateDisplay(urlJson, MergeRefreshMode );
 }
 
-function lstLoadedUrls_TimerSet(idxUrl,newRate)
+function listLoadedUrlsTimerSet(idxUrl, newRate)
 {
-    console.log("TimerSet idxUrl="+idxUrl+" newRate="+newRate);
-    lstLoadedUrls.array_urls[idxUrl].m_refresh_rate = newRate;
-    if( lstLoadedUrls.array_urls[idxUrl].m_timer_refresh != undefined )
+    console.log("TimerSet idxUrl=" + idxUrl + " newRate=" + newRate);
+    listLoadedUrls.array_urls[idxUrl].m_refresh_rate = newRate;
+    if(listLoadedUrls.array_urls[idxUrl].m_timer_refresh != undefined)
     {
-        clearInterval(lstLoadedUrls.array_urls[idxUrl].m_timer_refresh);
+        clearInterval(listLoadedUrls.array_urls[idxUrl].m_timer_refresh);
     }
     if((newRate != undefined) && (newRate != 0))
     {
         // The URL is reloaded every minute.
-        lstLoadedUrls.array_urls[idxUrl].m_timer_refresh = setInterval( TimerRefreshUrl, newRate * 60 * 1000, lstLoadedUrls.array_urls[idxUrl] );
+        listLoadedUrls.array_urls[idxUrl].m_timer_refresh
+            = setInterval( TimerRefreshUrl, newRate * 60 * 1000, listLoadedUrls.array_urls[idxUrl]);
     }
-} // lstLoadedUrls_TimerSet
+} // listLoadedUrlsTimerSet
 
 // This tells if an URL is already loaded.
-function IsLoadedUrl(theUrl)
+function isLoadedUrl(theUrl)
 {
-    var urlNoJson = UrlWithoutJsonMode( theUrl );
-    for( var idxUrl = 0; idxUrl < lstLoadedUrls.array_urls.length; idxUrl++ )
+    var urlNoJson = UrlWithoutJsonMode(theUrl);
+    for(var idxUrl = 0; idxUrl < listLoadedUrls.array_urls.length; idxUrl++)
     {
-        console.log("IsLoadedUrl idxUrl="+idxUrl+" url="+lstLoadedUrls.array_urls[idxUrl].m_loaded_url);
-        if( urlNoJson == lstLoadedUrls.array_urls[idxUrl].m_loaded_url ) {
-            console.log("IsLoadedUrl urlNoJson="+urlNoJson+" already there");
+        console.log("isLoadedUrl idxUrl=" + idxUrl + " url=" + listLoadedUrls.array_urls[idxUrl].m_loaded_url);
+        if( urlNoJson == listLoadedUrls.array_urls[idxUrl].m_loaded_url ) {
+            console.log("isLoadedUrl urlNoJson=" + urlNoJson + " already there");
             return true;
         }
     }
-    console.log("IsLoadedUrl urlNoJson="+urlNoJson+" not loaded");
+    console.log("isLoadedUrl urlNoJson=" + urlNoJson + " not loaded");
     return false;
-} // IsLoadedUrl
-
-
+} // isLoadedUrl
 
 ////////////////////////////////////////////////////////////////////////////////
 /* This is called when clicking "Del" on the Summary little window. */
-function ProcessSummaryWindowDel(idxUrl)
+function processSummaryWindowDel(idxUrl)
 {
-    objLoadedUrl = lstLoadedUrls.array_urls[idxUrl];
+    objLoadedUrl = listLoadedUrls.array_urls[idxUrl];
     // The URL can be something like "survol/sources_types/enumerate_CIM_Process.py?xid=."
     // It should be identical to what is stored in the nodes.
     objUrlStr = objLoadedUrl.m_loaded_url;
-    // console.log("ProcessSummaryWindowDel DelScript:"+objUrlStr);
 
-    for( var ixNd = 0; ixNd < previousData.nodes.length; ixNd++ )
+    for(var ixNd = 0; ixNd < previousData.nodes.length; ixNd++)
     {
         objNod = previousData.nodes[ixNd];
         // console.log("ixNd="+ixNd+" node="+JSON.stringify(objNod));
 
         // If the node was created by this script.
         idxIn = objNod.survol_input_scripts.indexOf(objUrlStr);
-        // console.log("idxIn="+idxIn);
-        if ( idxIn >= 0 )
+        if (idxIn >= 0)
         {
             // If the node was created only by this script, the delete it.
-            if( objNod.survol_input_scripts.length == 1 ) {
+            if(objNod.survol_input_scripts.length == 1) {
                 DeleteD3NodeFromIndex(ixNd);
                 ixNd--; // One node less.
             } else {
                 // Otherwise just remove the URL.
-                objNod.survol_input_scripts.splice( idxIn, 1 );
+                objNod.survol_input_scripts.splice(idxIn, 1);
             }
         }
     } // Loop on nodes.
 
-    lstLoadedUrls_DeleteOne(idxUrl);
+    listLoadedUrlsDeleteOne(idxUrl);
 
     // Maybe we could refresh the display at each node ?
     EmptyDisplay();
-    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
+    displayD3Layout(divItselfG, previousData, wScreen, hScreen);
 
-    RefreshSummaryWindow();
-} // ProcessSummaryWindowDel
+    refreshSummaryWindow();
+} // processSummaryWindowDel
 
 /* Messages received from the Summary window are made of a vector: The first element is a string
 which indicates the type of operation. */
-function ProcessSummaryWindowMessages(event)
+function processSummaryWindowMessages(event)
 {
     // event={"isTrusted":false}
     // "DelScript:0"
@@ -1187,22 +1187,22 @@ function ProcessSummaryWindowMessages(event)
     // "http://192.168.1.83"
     var msgOrig = event.origin;
     var keyWord = msgSent[0];
-    console.log("msgSent="+msgSent+" msgOrig="+msgOrig+" event="+JSON.stringify(event));
+    console.log("msgSent=" + msgSent + " msgOrig=" + msgOrig + " event=" + JSON.stringify(event));
 
     if(keyWord == 'ChangeRate')
     {
         var idxUrl = msgSent[1];
         var newRate = msgSent[2];
-        console.log("newRate="+newRate+" idxUrl="+idxUrl);
+        console.log("newRate=" + newRate + " idxUrl=" + idxUrl);
 
-        lstLoadedUrls_TimerSet(idxUrl,newRate);
+        listLoadedUrlsTimerSet(idxUrl, newRate);
     } else if(keyWord == 'DelScript')
     {
         idxUrl = msgSent[1];
-        ProcessSummaryWindowDel(idxUrl);
+        processSummaryWindowDel(idxUrl);
     } // If delete nodes exclusive from a script.
 
-} // ProcessSummaryWindowMessages
+} // processSummaryWindowMessages
 
 console.log("Initializing windowObjectReference");
 
@@ -1211,33 +1211,34 @@ var windowObjectReference = null;
 
 /* This is called when a URL is loaded. It updates the little Summary window
 by sending as a message the list of loaded urls. */
-function RefreshSummaryWindow()
+function refreshSummaryWindow()
 {
     if(windowObjectReference) {
-        console.log("RefreshSummaryWindow: Sending message to summary window lstLoadedUrls.array_urls.length="+lstLoadedUrls.array_urls.length);
-        lstLoadedUrls.number_nodes = previousData.nodes.length;
-        lstLoadedUrls.number_links = previousData.links.length;
+        console.log("refreshSummaryWindow: Sending message to summary window listLoadedUrls.array_urls.length="
+                   + listLoadedUrls.array_urls.length);
+        listLoadedUrls.number_nodes = previousData.nodes.length;
+        listLoadedUrls.number_links = previousData.links.length;
 
-        windowObjectReference.postMessage(lstLoadedUrls,"*");
+        windowObjectReference.postMessage(listLoadedUrls,"*");
     } else {
-        console.log("RefreshSummaryWindow: Summary window not created");
+        console.log("refreshSummaryWindow: Summary window not created");
     }
     return;
-} // RefreshSummaryWindow
+} // refreshSummaryWindow
 
 /* Add the origin URL to each node. This is used for example to selectively delete nodes
 coming from a specific URL, or to refresh the result of an URL. Note that URL and scripts
 have the same meaning in this file: Python scripts returning JSON data and invoked as HTTP URLs. */
-function NodeSetInputScript(urlObj,theData)
+function nodeSetInputScript(urlObj, theData)
 {
     // UTC timestamp in milliseconds.
     var currTimeStamp = Date.now();
 
     // Maybe could use a regular expression.
-    var urlObjRaw = UrlWithoutJsonMode( urlObj );
-    console.log("NodeSetInputScript urlObj="+urlObj+" NumNodes="+theData.nodes.length);
+    var urlObjRaw = UrlWithoutJsonMode(urlObj);
+    console.log("nodeSetInputScript urlObj=" + urlObj + " NumNodes=" + theData.nodes.length);
     // Loop on the nodes and add the url.
-    for( var ix = 0; ix < theData.nodes.length; ix++ )
+    for(var ix = 0; ix < theData.nodes.length; ix++)
     {
         objNod = theData.nodes[ix];
 
@@ -1249,16 +1250,16 @@ function NodeSetInputScript(urlObj,theData)
     }
 
     return currTimeStamp;
-} // NodeSetInputScript
+} // nodeSetInputScript
 
 /* Each node remembers the script which created it.
 The "options" parameter comes from contextMenu which passes it to the callback.
 This is used only when loading from ActiveX object.
 */
-function RememberCallback(options, urlObj, data)
+function rememberCallback(options, urlObj, data)
 {
-    console.log("RememberCallback urlObj="+urlObj+" NumNodes="+data.nodes.length);
-    var currTimeStamp = NodeSetInputScript(urlObj,data)
+    console.log("rememberCallback urlObj="+urlObj+" NumNodes="+data.nodes.length);
+    var currTimeStamp = nodeSetInputScript(urlObj,data)
 
     var menuOptions = {};
     $.contextMenu.getInputValues(options, menuOptions);
@@ -1269,16 +1270,15 @@ function RememberCallback(options, urlObj, data)
     RefillDisplay(urlObj, data, shouldMerge, currTimeStamp );
 }
 
-
 /* Loads from a URL, a JSON document made of nodes and links.
 After that, updates a table containing the list of loaded URLs.
 objectSvg is the object of which the contextual menu was clicked.
 */
-function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
+function loadUrlUpdateDisplay(theUrl, shouldMerge, objectSvg)
 {
     'use strict';
 
-    console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
+    console.log("loadUrlUpdateDisplay theUrl="+theUrl);
 
     if( theUrl.indexOf("entity_mime") >= 0 )
     {
@@ -1287,24 +1287,24 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
 
     if( shouldMerge == false ) {
         // Each element must be properly destroyed.
-        lstLoadedUrls_DeleteAll();
+        listLoadedUrlsDeleteAll();
     }
 
     // This is called by a JSON document loaded from a Python script.
-    function LoaderCallback(error,data)
+    function loaderCallback(error,data)
     {
-        console.log("LoaderCallback theUrl="+theUrl+" error="+error);
+        console.log("loaderCallback theUrl="+theUrl+" error="+error);
         if(error) {
-            alert("LoaderCallback: theUrl="+theUrl+" error="+JSON.stringify(error));
+            alert("loaderCallback: theUrl="+theUrl+" error="+JSON.stringify(error));
         }
 
         if( data == null )
         {
-            console.log("LoaderCallback: data is null");
+            console.log("loaderCallback: data is null");
             return;
         }
 
-        // console.log("LoaderCallback data="+JSON.stringify(data));
+        // console.log("loaderCallback data="+JSON.stringify(data));
         if( data.status == "error" )
         {
             alert("Error agent:"+data.message);
@@ -1319,10 +1319,10 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
 
         // This merges the new data with the current one.
         // Each node remembers the script which created it.
-        var currTimeStamp = NodeSetInputScript(theUrl,data);
+        var currTimeStamp = nodeSetInputScript(theUrl, data);
 
         var actualMergeMode = shouldMerge;
-        if( IsLoadedUrl(theUrl) ) {
+        if( isLoadedUrl(theUrl) ) {
             // This means that the nodes of the URL must be removed
             // before adding the new nodes of the same URL freshly reloaded.
             actualMergeMode = MergeRefreshMode;
@@ -1332,7 +1332,6 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
         Here, we must set a specific graphic attribute for this machine.
         This attribute is set to the loaded nodes.
         Or, we create a dictionary mapping host names to graphic attributes.
-        
         */
 
         RefillDisplay(theUrl,data, actualMergeMode, currTimeStamp, objectSvg);
@@ -1341,8 +1340,7 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
         var urlNoJson = UrlWithoutJsonMode( theUrl )
         if( actualMergeMode != MergeRefreshMode )
         {
-            // BEWARE THIS IS SOMETIMES DUPLICATED !!! BUT NOT ALWAYS !!!!!!
-            // De toute facon ca va maintenant etre un arbre.
+            // BEWARE THIS IS SOMETIMES DUPLICATED !!! BUT NOT ALWAYS !!!!!! It might become a tree.
 
             var objLoadedUrlNew = {
                 m_loaded_url : urlNoJson,
@@ -1350,14 +1348,14 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
                 m_loaded_nodes_length : data.nodes.length,
                 m_loaded_links_length : data.links.length
                 };
-            lstLoadedUrls.array_urls.push(objLoadedUrlNew);
+            listLoadedUrls.array_urls.push(objLoadedUrlNew);
         }
         else
         {
             var objUrl;
-            for( var ixUrl = 0; ixUrl < lstLoadedUrls.array_urls.length; ++ixUrl )
+            for( var ixUrl = 0; ixUrl < listLoadedUrls.array_urls.length; ++ixUrl )
             {
-                objUrl = lstLoadedUrls.array_urls[ixUrl];
+                objUrl = listLoadedUrls.array_urls[ixUrl];
                 if( objUrl.m_loaded_url == urlNoJson )
                 {
                     console.log("Updating url ixUrl="+ixUrl);
@@ -1373,13 +1371,13 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
             }
         }
 
-        RefreshSummaryWindow();
-    } // LoaderCallback
+        refreshSummaryWindow();
+    } // loaderCallback
 
 
     /* TODO: If theUrl="http://127.0.0.1:8000/survol/merge_scripts.py?url=aHRiaW4vc...",
     then parse the URLs, and load each of them. */
-    console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
+    console.log("loadUrlUpdateDisplay theUrl="+theUrl);
 
     if(isDragging) {
         console.log("NoUrl loading when dragging");
@@ -1394,18 +1392,19 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge, objectSvg)
 	try
 	{
 		// The Python script might fail.
-		d3.json(theUrl, LoaderCallback );
+		// TODO: Replace this with XML/RDF so the conversion RDF => D3 is done in the browser.
+		d3.json(theUrl, loaderCallback );
 	}
 	catch(exc)
 	{
-		console.log("LoadUrlUpdateDisplay caught:"+exc);
+		console.log("loadUrlUpdateDisplay caught:"+exc);
 		var emptyData = {
 			nodes: [],
 			links: []
 		};
-		LoaderCallback(null,emptyData);
+		loaderCallback(null,emptyData);
 	}
-} // LoadUrlUpdateDisplay
+} // loadUrlUpdateDisplay
 
 // This checks if there is already a CGI argument.
 function AppendCgiToUrl(url,cgipair)
@@ -1435,10 +1434,10 @@ function GetHostFromUrl( aSurvolUrl )
     return parser.host;
 } // GetHostFromUrl
 
-function DisplayD3Layout(divItselfG,newData,w,h)
+function displayD3Layout(divItselfG,newData,w,h)
 {
     'use strict';
-    console.log("DisplayD3Layout newData.nodes="+newData.nodes.length+" newData.links="+newData.links.length);
+    console.log("displayD3Layout newData.nodes="+newData.nodes.length+" newData.links="+newData.links.length);
 
     function tick_function()
     {
@@ -1466,10 +1465,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         });
     }
 
-	// console.log("newData.nodes"+JSON.stringify(newData.nodes));
-	// console.log("newData.links"+JSON.stringify(newData.links));
-	
-    // It is possible to link nodes by names in D3 v4: https://bl.ocks.org/mbostock/533daf20348023dfdd76
+   // It is possible to link nodes by names in D3 v4: https://bl.ocks.org/mbostock/533daf20348023dfdd76
     myForce
         .nodes(newData.nodes);
 
@@ -1518,7 +1514,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         .attr("x2", function (d) { return d.target.x; })
         .attr("y2", function (d) { return d.target.y; })
 
-        // TODO: The market should take the same color as the line.
+        // TODO: The marker should take the same color as the line.
         .style("marker-end", function (d) {
             if( d.link_class == undefined )
                 // TODO: Bidirectional arrays should be displayed so.
@@ -1602,8 +1598,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         ;
 
 	/* https://stackoverflow.com/questions/30723592/prevent-click-action-when-dragging-a-d3-node
-	When combining drag with other event listeners,
-	stop propagation on the source event to prevent multiple actions.
+	When combining drag with other event listeners, stop propagation on the source event to prevent multiple actions.
 	Otherwise, dragging also triggers the click behavior when the mouse is released. */
 
     // Define the div for the tooltip.
@@ -1615,7 +1610,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
     // Used for the tooltip containg literal nodes pointing to a given node, i.e. information.
     // TODO: This should be recursive.
-    function DictToTable(theList,theDict)
+    function dictToTable(theList, theDict)
     {
         var result = "<table>"
         for (var ix in theList) {
@@ -1623,12 +1618,13 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         }
         for (var key in theDict) {
             if (theDict.hasOwnProperty(key)) {
-                result += "<tr><td valign='top' align='left'><b>" + key + "</b></td><td valign='top' align='left'>" + theDict[key] + "</td></tr>";
+                result += "<tr><td valign='top' align='left'><b>"
+                       + key + "</b></td><td valign='top' align='left'>" + theDict[key] + "</td></tr>";
             }
         }
         result += "</table>";
         return result;
-    } // DictToTable
+    } // dictToTable
 
     // https://bl.ocks.org/mbostock/7555321 Wrapping Long Labels
     function addTextLines(selection) {
@@ -1655,7 +1651,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                 if (d.survol_info_dict.hasOwnProperty(key)) {
                     var valInfo = d.survol_info_dict[key];
 
-                    // FIXME> This is a temporary solution until we have automatic wrapping.
+                    // FIXME: This is a temporary solution until we have automatic wrapping.
                     if( valInfo.length > 30 )
                     {
                         var arrVals = NiceTextSplit(valInfo,30)
@@ -1757,10 +1753,9 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                     var urlReplaced = d.survol_url.replace("entity.py","entity_info_only.py");
                     var urlTooltip = AppendCgiToUrl(urlReplaced,"mode=json");
 
-                    // "urlTooltip=http://127.0.0.1:8000/survol/entity_info_only.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51759 -&gt; 127.0.0.1:5672&mode=json"
-
                     console.log("Loading urlTooltip="+urlTooltip);
 
+                    // TODO: Replace with XML, so the conversion RDF => D3 is done in the browser.
                     d3.json(urlTooltip,
                         function(error,objTooltip)
                         {
@@ -1812,7 +1807,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                             var objInfo = objTooltip.nodes[0].survol_info_dict
                             if ( typeof(objInfo) != 'undefined')
                             {
-                                var txtTooltip = DictToTable([],objInfo);
+                                var txtTooltip = dictToTable([],objInfo);
                                 DisplayTooltipDiv(txtTooltip);
                             }
                         }
@@ -1827,7 +1822,6 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         )
         .on("mouseout", function(d)
             {
-                // console.log("Resetting MouseOver");
                 d.is_mouseover = false;
 
                 // This could as well be done in CSS.
@@ -1853,7 +1847,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                 // This expects a graph, not a contextual menu.
                 var aUrl = AppendCgiToUrl( d.survol_url, "mode=json");
                 console.log("aUrl="+aUrl);
-                LoadUrlUpdateDisplay(aUrl, false);
+                loadUrlUpdateDisplay(aUrl, false);
             })
         */
         ;
@@ -1866,7 +1860,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         ;
 
     // This returns the contextual menu for nodes.
-    function MakeContextMenuItems(objectSvg)
+    function makeContextMenuItems(objectSvg)
     {
         // SHOULD CALL entity_info_only.py BUT THE PROBLEM IS THAT IT IS NOT THE ORIGINAL NODE
         // SO THERE IS A CONFUSION WITH entity.py THAT EVERYTHING RELIES ON.
@@ -1874,46 +1868,53 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         // MAYBE A ANOTHER MODE NEEDED FOR JUST TEXT INFORMATION FOR THE TOOLTIP.
         // BUT THIS IS VERY HEAVY TO CALL THIS EACH TIME WE HOVER OVER A NODE.
         var objUrl = objectSvg.survol_url;
-        console.log("MakeContextMenuItems objUrl="+objUrl);
+        console.log("makeContextMenuItems objUrl="+objUrl);
 
         var objKey = objectSvg.name;
 
         var objDeferScripts = objectSvg.defer_scripts;
-        console.log("MakeContextMenuItems objKey="+objKey);
+        // if (typeof objDeferScripts != 'object') {
+        // This tests of it is a Json object by comparing the constructors.
+        // if (objDeferScripts && objDeferScripts.constructor === Promise().constructor)
+
+        if (!isPromise(objDeferScripts)) {
+            alert("Should be a promise object:" + typeof(objDeferScripts));
+        }
+        console.log("makeContextMenuItems objKey=" + objKey);
 
         // TODO: Add URLs for wmi and WBEM.
 
         var TheItems = {};
 
         // This is the title, and it is clickable.
-        TheItems[ objUrl ] =
+        TheItems[objUrl] =
         {
-            name: objKey
+            name : objKey
         };
 
         /* The Survol agent has a WMI url only if this is a CIM class and if this is Windows machine.
         More: If the object specifies a different host than the Survol agent, and of the survol
         agent has a WMI api without being a Windows machine, it is still possible to have a valid URL.
         */
-        function CreateUrlWMI(aSurvolUrl)
+        function createUrlWMI(aSurvolUrl)
         {
-            console.log("CreateUrlWMI aSurvolUrl="+aSurvolUrl);
+            console.log("createUrlWMI aSurvolUrl=" + aSurvolUrl);
             // aSurvolUrl = "http://127.0.0.1:8000/survol/entity.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51759 -&gt; 127.0.0.1:5672&mode=json"
             // var strDelim = "entity_info_only.py?xid="
             var strDelim = "entity.py?xid="
             var posQuestion = aSurvolUrl.indexOf(strDelim);
-            console.log("CreateUrlWMI aSurvolUrl="+aSurvolUrl);
-            if(posQuestion < 0 )
+            console.log("createUrlWMI aSurvolUrl=" + aSurvolUrl);
+            if (posQuestion < 0 )
             {
                 return null;
             }
 
             // var urlWMI = "http://mymachine:8000/survol/entity_wmi.py?xid=\\mymachine\root\CIMV2%3ACIM_Process.Handle%3D8200&mode=json";
             var subsPrefix = aSurvolUrl.substring(0, posQuestion ); // "http://mymachine:8000/survol/"
-            console.log("CreateUrlWMI subsPrefix="+subsPrefix);
-            var subsMoniker = aSurvolUrl.substring( posQuestion + strDelim.length ); // "rabbitmq/connection.Url=LOCALHOST:12"
+            console.log("createUrlWMI subsPrefix=" + subsPrefix);
+            var subsMoniker = aSurvolUrl.substring(posQuestion + strDelim.length); // "rabbitmq/connection.Url=LOCALHOST:12"
             var posDot = subsMoniker.indexOf(".");
-            if(posDot < 0 )
+            if (posDot < 0 )
             {
                 // If no class.
                 return null;
@@ -1921,9 +1922,9 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             var strClass = subsMoniker.substring(0,posDot);
 
             // Check if this is a CIM class. Similar function in lib_wmi.py
-            function ValidClassWmi(className)
+            function isValidClassWmi(className)
             {
-                console.log("ValidClassWmi className="+className);
+                console.log("isValidClassWmi className="+className);
                 var posUnderscore = className.indexOf("_");
                 if( posUnderscore < 0 )
                 {
@@ -1933,7 +1934,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                 return (tpPrefix == "CIM") || (tpPrefix == "Win32") || (tpPrefix == "WMI");
             }
 
-            if ( ! ValidClassWmi(strClass) )
+            if ( ! isValidClassWmi(strClass) )
             {
                 return null;
             }
@@ -1950,7 +1951,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             // Expected result: "http://mymachine:8000/survol/entity_wmi.py?xid=CIM_Process.Handle=1200&mode=json"
             // The WMI host and namespace are not taken into account.
             var urlWMI = subsPrefix + "entity_wmi.py?xid=" + subsMoniker;
-            console.log("CreateUrlWMI urlWMI="+urlWMI);
+            console.log("createUrlWMI urlWMI="+urlWMI);
 
             // http://mymachine:8000/survol/entity_wmi.py?xid=CIM_Process.Handle=1200&mode=json
             // http://mymachine:8000/survol/entity_wmi?xid=CIM_Process.Handle=1200&mode=json
@@ -1958,15 +1959,14 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             return urlWMI;
         }
 
-        console.log("MakeContextMenuItems objUrl="+objUrl);
-        var urlWMI = CreateUrlWMI(objUrl);
+        console.log("makeContextMenuItems objUrl="+objUrl);
+        var urlWMI = createUrlWMI(objUrl);
         if(urlWMI) {
             TheItems[urlWMI] = {
                 "name": "WMI server-side",
                 "icon": "paste"
             };
         }
-
 
         var urlWBEM = null;
         // var urlWBEM = "http://mymachine:8000/survol/entity_wbem.py?xid=\\mymachine\root\CIMV2%3ACIM_Process.Handle%3D8200&mode=json";
@@ -2082,7 +2082,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 			// This creates a clickable item which calls RefillDisplay with the associators objects
 			// transformed into a JSON graph.
 
-			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg, RememberCallback );
+			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg, rememberCallback );
 
 			// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
 			if( TheItemsSuiteActiveX != [] )
@@ -2091,7 +2091,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 			}
 		}
 
-        var TheItemsSuiteDels =
+        var theItemsSuiteDels =
         {
             "delete_node": {
                 "name": "Delete node",
@@ -2102,15 +2102,96 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                 "icon": "delete"
             }
         };
-        jQuery.extend(TheItems, TheItemsSuiteDels);
+        jQuery.extend(TheItems, theItemsSuiteDels);
 
         return TheItems;
-    } // MakeContextMenuItems
+    } // makeContextMenuItems
+
+
+    /*
+    On veut utiliser les menus en XML comme ceux de entity_menu_seealso.py et on va zapper entity_dirmenu_only.py
+    Alors, il faut transformer le RDF en ce que veux contextMenu.
+    C'est logique : Le backend ne doit rien connaitre du front-end.
+    En revanche ca oblige a mettre rdflib dans le front-end.
+    Mais toutefois, RDF est un standard au contraire de notre format json.
+    */
+    const DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+    const RDFS = $rdf.Namespace("http://www.w3.org/2000/01/rdf-schema#");
+
+    function xmlToMenu_NOT_USED_YET(xmlMenuAsString) {
+        let rdfMenu = $rdf.graph();
+        console.log("xmlToMenu");
+        console.log("typeof(xmlMenuAsString)=", typeof(xmlMenuAsString));
+        console.log(xmlMenuAsString);
+        // It is a pity that we serialize the string to a XML document then to a string.
+        //var xmlMenuAsString = new XMLSerializer().serializeToString(xmlMenu);
+        $rdf.parse(xmlMenuAsString, rdfMenu, window.location.origin, 'application/rdf+xml');
+        // rdfMenu = $rdf.parseXML(xmlMenu);
+        var menuSurvol = menuRdfToContextMenu(rdfMenu);
+        return menuSurvol;
+    } // xmlToMenu_NOT_USED_YET
+
+    function menuRdfToContextMenu_NOT_USED_YET(store, baseUri) {
+        console.log('seeAlsoToMenu: Building menu hierarchy from store with base URI:', baseUri);
+        // Base URI is required by rdflib to shorten relative internal references like "/menu/..."
+
+        function buildHierarchy(node) {
+            const labelNode = store.any(node, RDFS('label'));
+            // The user requested dct:seeAlso. We check both DCT and RDFS namespaces for robustness.
+            const seeAlsoNode = store.any(node, RDFS('seeAlso'));
+            const childrenNodes = store.each(node, DCT('hasPart'));
+
+            // Use label from RDF, or fallback to a shortened version of the URI value
+            const label = labelNode ? labelNode.value : node.value.replace(baseUri, '');
+            const item = { name: label };
+
+            if (seeAlsoNode) {
+                console.log('seeAlsoToMenu : Found seeAlso for', node.value, ':', seeAlsoNode.value);
+                item.url = seeAlsoNode.value;
+            }
+
+            if (childrenNodes.length > 0) {
+                item.items = childrenNodes.map(child => buildHierarchy(child));
+            }
+
+            return item;
+        }
+
+        // Root detection: Find nodes that have parts but are not parts themselves.
+        const subjectsWithParts = store.each(undefined, DCT('hasPart'), undefined);
+        const uniqueSubjects = [...new Set(subjectsWithParts.map(s => s))];
+
+        const roots = uniqueSubjects.filter(uri => {
+            const node = uri;
+            return !store.any(undefined, DCT('hasPart'), node);
+        });
+
+        // Map each root to its hierarchy.
+        // If the top-level node is just a container (no label/url), we could return its children instead.
+        return roots.map(rootUri => buildHierarchy(rootUri));
+
+        var dfltItmsExample =
+        {
+            "xxxx": {
+                name: "xxxx",
+                type: 'checkbox',
+                selected: false
+            },
+            "yyyy": {
+                "name": "yyyyy",
+                "items": {
+                    "edit": {"name": "Edit", "icon": "edit"},
+                    "cut": {"name": "Cut", "icon": "cut", disabled: true},
+                    "quit": {"name": "Quit", "icon": "quit"}
+                }
+            }
+        };
+    } // menuRdfToContextMenu_NOT_USED_YET
 
     /* This returns the contextual menu for the background.
     It is immediately superseded, and the sample data are here just for documentation.
     It contains example data, to explain its structure. */
-    function MakeDefaultContextMenuItems(objectSvg)
+    function makeDefaultContextMenuItems(objectSvg)
     {
         var theDfltItems =
         {
@@ -2129,17 +2210,16 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             }
         };
         return theDfltItems;
-     } // MakeDefaultContextMenuItems
-
+     } // makeDefaultContextMenuItems
 
     /* Called after the page is loaded. It adds a context menu to each node,
     therefore the nodes must be created. A lot of information here:
     https://github.layalk.net/jQuery-contextMenu/docs.html */
-    function CreateContextMenus(){
-        console.log("CreateContextMenus");
+    function createContextMenus(){
+        console.log("createContextMenus");
 
         // Goes to the right URL given the selected key of a contextual menu.
-        function FromKeyToScript(key, options, objectSvg)
+        function fromKeyToScript(key, options, objectSvg)
         {
             // We will merge the new content with the existing content or not.
             var menuOptions = {};
@@ -2148,13 +2228,13 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
             // This is a Python script, but not a contextual menu displayed by "entity.py".
             var theUrl = AppendCgiToUrl( key, "mode=json");
-            console.log("FromKeyToScript theUrl="+theUrl);
-            LoadUrlUpdateDisplay(theUrl, menuOptions.yesno, objectSvg );
+            console.log("fromKeyToScript theUrl="+theUrl);
+            loadUrlUpdateDisplay(theUrl, menuOptions.yesno, objectSvg );
         }
 
         // For an URL which returns HTML and to be opened in its own window.
         // Similar to _script_for_json in Python.
-        function PlainNonEntityUrl(url)
+        function plainNonEntityUrl(url)
         {
             if( url.indexOf("survol/entity_mime.py") >= 0 )
             {
@@ -2166,7 +2246,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             }
             // This is a foreign URL
             return true;
-        } // PlainNonEntityUrl
+        } // plainNonEntityUrl
 
         $.contextMenu(
         {
@@ -2180,7 +2260,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                 // In JSON format, the node on which we have right-clicked.
                 var objectSvg = $trigger["0"]["__data__"];
 
-                var theItems = MakeContextMenuItems(objectSvg);
+                var theItems = makeContextMenuItems(objectSvg);
 
                 return {
                     // This is executed when an option is chosen in a contextual menu.
@@ -2193,11 +2273,11 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                         }
                         else if(key == "delete_connected")
                         {
-                            DeleteSvgConnectedNodes(objectSvg);
+                            deleteSvgConnectedNodes(objectSvg);
                         }
                         else
                         {
-                            if( PlainNonEntityUrl(key) )
+                            if( plainNonEntityUrl(key) )
                             {
                                 window.open(key, '_blank','location=no,height=570,width=520,scrollbars=yes,status=yes');
                                 return;
@@ -2205,7 +2285,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                             // The coordinates of new nodes merged in the current graph must be initialised
                             // with the coordinates of the current node, objectSvg. This makes the drawing more
                             // natural and the routing more efficient.
-                            FromKeyToScript(key, options, objectSvg);
+                            fromKeyToScript(key, options, objectSvg);
                         }
                     },
                     items: theItems
@@ -2214,23 +2294,23 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         });
 
         // TODO: Apparently not used.
-        var dfltItms = MakeDefaultContextMenuItems();
+        var dfltItms = makeDefaultContextMenuItems();
 
         /* There is one default menu, loaded once and for all,
         and it does not use the "promise" feature of the library.
         Therefore it is built asynchronously. */
 
         // Adds a context menu for the background.
-        function AddsDefaultCtxtMenu(error,dfltItms)
+        function addDefaultCtxtMenu(error, dfltItms)
         {
-            console.log("AddsDefaultCtxtMenu entering");
+            console.log("addDefaultCtxtMenu entering");
             if(error) {
-                alert("AddsDefaultCtxtMenu error="+error);
+                alert("addDefaultCtxtMenu error="+error);
             }
             if(dfltItms == undefined) {
-                alert("AddsDefaultCtxtMenu dfltItms undefined");
+                alert("addDefaultCtxtMenu dfltItms undefined");
             }
-            if( dfltItms.survol_error != undefined )
+            if(dfltItms.survol_error != undefined)
             {
                 alert("Error:"+dfltItms.survol_error);
                 return;
@@ -2242,7 +2322,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 					// This does not need the Python HTTP server.
 					console.log("ActiveX_WMI_JCtxtMenuGlobal before");
 
-					var activeXDefaultMenus = ActiveX_WMI_JCtxtMenuGlobal( RememberCallback );
+					var activeXDefaultMenus = ActiveX_WMI_JCtxtMenuGlobal(rememberCallback);
 
 					console.log("ActiveX_WMI_JCtxtMenuGlobal after");
 					if( activeXDefaultMenus )
@@ -2266,25 +2346,26 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                     return {
                         callback: function(key, options)
                         {
-                            console.log("callback key="+key);
-                            FromKeyToScript(key, options);
+                            console.log("callback key=" + key);
+                            fromKeyToScript(key, options);
                         },
                         items: dfltItms
                     };
                 }
             });
-            console.log("AddsDefaultCtxtMenu leaving");
-        } // AddsDefaultCtxtMenu
+            console.log("addDefaultCtxtMenu leaving");
+        } // addDefaultCtxtMenu
 
-        // This returns the top-level options as a JSON tree.
-        var urlTopLevel = AddUrlPrefix( "entity_dirmenu_only.py", "mode=menu");
+        // This returns the top-level options as a JSON tree. TODO: Should use the RDF menu.
+        var urlTopLevel = AddUrlPrefix("entity_dirmenu_only.py", "mode=menu");
 
 		try {
-			d3.json(urlTopLevel, AddsDefaultCtxtMenu);
+			d3.json(urlTopLevel, addDefaultCtxtMenu);
 		}
 		catch(exc)
 		{
-			console.log("CreateContextMenus caught:"+exc);
+		    // TODO : Remove this, which cannot work.
+			console.log("createContextMenus caught:" + exc);
 			var emptyItems = {
 				"Nothing" : {
                         name: "Empty menu",
@@ -2292,29 +2373,31 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                     }
 				};
 
-			AddsDefaultCtxtMenu(null, emptyItems);
+			addDefaultCtxtMenu(null, emptyItems);
 		}
-    }; // CreateContextMenus
-
+    }; // createContextMenus
 
     // When the mouse right button is down, this loads the contextual menu content into the SVG object.
     // Releasing the right button triggers the contextual menu whose content is in the SVG object.
     $("g.survol_node").mousedown(function(ev){
         // If left click, it should call entity.py.
-
-        function GetEntityUrl(error,jsonData)
+        function getEntityUrl(error, jsonData)
         {
-            if(error) {
-                alert("GetEntityUrl error="+error+" jsonData="+jsonData);
+            console.log("getXmlMenu");
+            if (error) {
+                alert("getEntityUrl error=" + error + " jsonData=" + jsonData);
                 return;
             }
-            if( jsonData.error != undefined )
+            if (jsonData.error != undefined)
             {
-                alert("Error:"+jsonData.error);
+                alert("Error:" + jsonData.error);
                 return;
             }
-            // Maybe this duplicates the value. Not a problem.
-            objectThis.__data__.contextual_menu_items = jsonData;
+
+            // This tests of it is a Json object by comparing the constructors.
+            if ( !isJson(jsonData)) {
+                alert("Should be a Json object : " + typeof(jsonData));
+            }
 
             // FIXME: This does not seem to work when called from Android.
             // TODO: It could be cleaner to store the promise in defer_scripts.
@@ -2330,7 +2413,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
             // If this was defined from a Python script.
             if(this.__data__.survol_url) {
-                console.log("Right click on URL="+this.__data__.survol_url);
+                console.log("Right click on URL=" + this.__data__.survol_url);
                 if(this.__data__.survol_url.indexOf("entity.py") < 0) {
                     /*
                     Very special case of the execution of file_directory.py : It returns CIM_DataFile and
@@ -2341,41 +2424,37 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                     return;
                 }
                 // We expect a contextual menu in JSON format, not a graph.
-                // TODO: Have a script which returns only the menu tree in json, without the intermediate
-                // step of RDF encoding.
-                var urlEntityNoMode = this.__data__.survol_url.replace("entity.py","entity_dirmenu_only.py")
-                var urlEntity = AddUrlCgiArg( urlEntityNoMode, "mode=menu");
+                // TODO: Use the RDF menu instead of Json.
+                var urlEntityNoMode = this.__data__.survol_url.replace("entity.py", "entity_dirmenu_only.py")
+                var urlEntity = AddUrlCgiArg(urlEntityNoMode, "mode=menu");
 
-                console.log("urlEntity:"+urlEntity);
+                console.log("urlEntity:" + urlEntity);
 
                 this.__data__.defer_scripts = jQuery.Deferred();
 
                 // This loads the menu options as a JSON tree.
-                d3.json(urlEntity, GetEntityUrl);
+                d3.json(urlEntity, getEntityUrl);
             }
         }
     });
 
     // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
-    // $(CreateContextMenus);
-    CreateContextMenus();
+
+    createContextMenus();
 
     myForce.restart();
     // myForce.alphaTarget(0.3).restart();
-
-
-} // DisplayD3Layout
+} // displayD3Layout
 
 // TODO: This could be a parameter.
 urlInit = AddUrlPrefix( "sources_types/enumerate_CIM_Process.py", "xid=.&mode=json");
-
 
 /* The calling URL might as well be:
 http://192.168.1.88/Survol/survol/entity.py?xid=smbshr.Id=////WDMyCloudMirror/jsmith
 http://127.0.0.1:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=file.Id%3DC%3A\windows\system32
 */
 
-function BuildSubUrlsListFromCgi(cgiArgs)
+function buildSubUrlsListFromCgi(cgiArgs)
 {
     'use strict';
     var splitCgiArgs = cgiArgs.split("&");
@@ -2394,56 +2473,56 @@ function BuildSubUrlsListFromCgi(cgiArgs)
         }
     }
     return arrUrls;
-} // BuildSubUrlsListFromCgi
+} // buildSubUrlsListFromCgi
 
-function BuildSubUrlsListFromJson(theInputUrls)
+function buildSubUrlsListFromJson(theInputUrls)
 {
     'use strict';
     var arrUrls = [];
 
-    for( var idx in theInputUrls )
+    for(var idx in theInputUrls)
     {
         var cgiPair = theInputUrls[idx];
-        if( cgiPair.cgi_key == "url" )
+        if(cgiPair.cgi_key == "url")
         {
             arrUrls.push(cgiPair.cgi_value);
         }
     }
     return arrUrls;
-} // BuildSubUrlsListFromJson
+} // buildSubUrlsListFromJson
 
 var globalIsCreated = false;
 
-function PreloadUrlsArray(urlsArray)
+function preloadUrlsArray(urlsArray)
 {
     'use strict';
 
     D3DisplayCreation();
 
     var numUrls = 0;
-    for( var idx in urlsArray )
+    for(var idx in urlsArray)
     {
         var aUrlB64 = urlsArray[idx];
         var aUrlRel = Base64.decode(aUrlB64);
 
         var idxScriptStart = aUrlRel.indexOf(pyMergeScript);
-        console.log("PreloadUrlsArray idx="+idx+" idxScriptStart="+idxScriptStart+" globalIsCreated="+globalIsCreated+" aUrlRel="+aUrlRel);
+        console.log("preloadUrlsArray idx=" + idx + " idxScriptStart=" + idxScriptStart
+                  + " globalIsCreated=" + globalIsCreated + " aUrlRel=" + aUrlRel);
         if( idxScriptStart != -1 ) {
             var idxScriptEnd = idxScriptStart + pyMergeScript.length;
             var cgiArgs = aUrlRel.substring( idxScriptEnd + 1 );
 
-            var arrUrls = BuildSubUrlsListFromCgi(cgiArgs);
-            PreloadUrlsArray(arrUrls);
+            var arrUrls = buildSubUrlsListFromCgi(cgiArgs);
+            preloadUrlsArray(arrUrls);
 
             numUrls += arrUrls.length;
         } else {
-
             var aUrlNoMode = aUrlRel;
 
             // This reasonably expects that there is at least one CGI argument.
             var aUrlMode = AppendCgiToUrl( aUrlNoMode, "mode=json");
 
-            LoadUrlUpdateDisplay(aUrlMode, true );
+            loadUrlUpdateDisplay(aUrlMode, true );
             numUrls += 1;
         }
     }
@@ -2452,17 +2531,17 @@ function PreloadUrlsArray(urlsArray)
     if( numUrls == 0 )
     {
         console.log("No URL to preload");
-        LoadUrlUpdateDisplay(urlInit, false);
+        loadUrlUpdateDisplay(urlInit, false);
     }
     return numUrls;
-} // PreloadUrlsArray
+} // preloadUrlsArray
 
 /* This opens the summary list in a separate window.
 It displays the URL which were loaded, how to delete them, how many nodes and links etc... */
 function openRequestedPopup() {
     // So the summary window can send messages which are executed in the main window.
     // TODO: Should do it once only.
-    window.addEventListener("message", ProcessSummaryWindowMessages, false);
+    window.addEventListener("message", processSummaryWindowMessages, false);
 
     if( (windowObjectReference == null) || (windowObjectReference.closed))
     {
@@ -2476,7 +2555,7 @@ function openRequestedPopup() {
         // There is a sort of race condition: The summary window id sometimes gets blanked after it is filled.
         windowObjectReference.onload = function() {
             // alert("After create");
-            RefreshSummaryWindow();
+            refreshSummaryWindow();
         };
 
     } else {
@@ -2487,7 +2566,7 @@ function openRequestedPopup() {
 }
 
 function openPrintLayout() {
-    var urlPrintLayout = ConcatenateMergeUrl(lstLoadedUrls,"");
+    var urlPrintLayout = ConcatenateMergeUrl(listLoadedUrls, "");
     if( location.href.indexOf("primhillcomputers.com") > 0 )
     {
         // This is because graphviz does not run on OVH hosting, for the moment.
@@ -2505,12 +2584,12 @@ function openPrintLayout() {
 }
 
 function openHtmlLayout() {
-    var urlHtmlLayout = ConcatenateMergeUrl(lstLoadedUrls, "mode=html");
+    var urlHtmlLayout = ConcatenateMergeUrl(listLoadedUrls, "mode=html");
     location.href = urlHtmlLayout;
 }
 
 function openRdfLayout() {
-    var urlRdfLayout = ConcatenateMergeUrl(lstLoadedUrls, "mode=rdf");
+    var urlRdfLayout = ConcatenateMergeUrl(listLoadedUrls, "mode=rdf");
     // TODO: Open protege ???
     location.href = urlRdfLayout;
 }
@@ -2520,17 +2599,16 @@ function openConfigurationUrl() {
     location.href = urlConfiguration;
 }
 
-function RunAfterLoad()
+function runAfterLoad()
 {
-    // "getParamValue=[{"cgi_key":"toto","cgi_value":"tutu"},{"cgi_key":"titi","cgi_value":"tata"}]"
-    var theInputUrls = GetCgiParams();
+    var theInputUrls = getCgiParams();
 
-    var urlsArray = BuildSubUrlsListFromJson(theInputUrls);
+    var urlsArray = buildSubUrlsListFromJson(theInputUrls);
 
     globalIsCreated = false;
-    var numUrls = PreloadUrlsArray(urlsArray);
+    var numUrls = preloadUrlsArray(urlsArray);
 
-    console.log("RunAfterLoad finished")
+    console.log("runAfterLoad finished")
 
     $(IdHrefSummary).on("click", openRequestedPopup);
 
@@ -2542,11 +2620,10 @@ function RunAfterLoad()
     window.name = gblWindowName;
 
     document.title = "Survol " + NiceHostname();
-} // RunAfterLoad
+} // runAfterLoad
 
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
-$(RunAfterLoad);
-
+$(runAfterLoad);
 
 /*
 http://bl.ocks.org/GerHobbelt/3669455
@@ -2556,7 +2633,6 @@ RDF doit passer la contrainte sur les proprietes: Ajouter des triplets RDF qui e
 Mais il n est pas certain que ca suffise quand on a beaucoup d'objets.
 */
 
-
 /*
 https://stackoverflow.com/questions/36841013/custom-force-directed-symbols-in-d3-tables-as-nodes
 SVG has a group element that you can use to organize what can be an arbitrarily complex node.
@@ -2565,9 +2641,7 @@ Ajouter le lien de merge.
 */
 
 </script>
-
     <title>Survol</title>
-
 </head>
 
 <body>
