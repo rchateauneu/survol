@@ -569,6 +569,8 @@ def extract_specific_ontology_wmi():
         logging.critical("Should be called once only during a process'lifetime.")
     is_done = True
 
+    logging.warning("extract_specific_ontology_wmi : Slow processing")
+
     cnn = wmi.WMI()
 
     list_plain_classes = {}
