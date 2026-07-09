@@ -373,7 +373,7 @@ class ScriptEnvironment():
             assert False
 
         # Scripts which can run as events feeders must have their name starting with "events_feeder_".
-        # This allows to use CGI programs as events genetors not written in Python.
+        # This allows to use CGI programs as events generators not written in Python.
         # TODO: Using the script name is enough, the module is not necessary.
         full_script_path, _, _ = self.m_calling_url.partition("?")
         script_basename = os.path.basename(full_script_path)
@@ -940,6 +940,10 @@ def format_username(usrnam):
 def set_events_credentials():
     """This sets the global parameter telling where the events are stored."""
     storage_credential = lib_credentials.GetCredentials("Storage", "Events")
+
+    # De memoire, on se servait de SQLAlchemy pour stocker les events dans sqllite, mais on n'a pas pu le reinstaller.
+    # C est un plugin de rdflib.
+
     if not storage_credential:
         credentials_filename = lib_credentials.credentials_filename()
         raise Exception("No storage credential in:%s" % credentials_filename)
