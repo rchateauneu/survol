@@ -553,7 +553,9 @@ function RefillDisplayMerge(data, currTimeStamp, objectSvg)
         }
         else
         {
-            console.log("RefillDisplayMerge Adding duplicate node:"+urlNewNode);
+            console.log("RefillDisplayMerge Adding duplicate node:" + urlNewNode
+                + " urlToNode[urlNewNode]=" + JSON.stringify(urlToNode[urlNewNode]));
+            console.log(urlToNode[urlNewNode]);
             // This shows that the node is duplicated with a new one.
             urlToNode[urlNewNode].survol_timestamp = currTimeStamp;
         }
@@ -1082,6 +1084,7 @@ var listLoadedUrls = {
 // We do not add methods because the object must be cloned when sent as a message.
 function listLoadedUrlsDeleteAll()
 {
+    console.log("listLoadedUrlsDeleteAll")
     for(var idxUrl = 0; idxUrl < listLoadedUrls.array_urls.length; idxUrl++)
     {
         listLoadedUrlsDeleteOne(0);
@@ -1091,6 +1094,7 @@ function listLoadedUrlsDeleteAll()
 // Deletes an URL in the list and cancels the timer if needed.
 function listLoadedUrlsDeleteOne(idxUrl)
 {
+    console.log("listLoadedUrlsDeleteOne idxUrl=", idxUrl)
     listLoadedUrlsTimerSet(idxUrl);
     listLoadedUrls.array_urls.splice(idxUrl, 1);
 }
@@ -1117,9 +1121,11 @@ function listLoadedUrlsTimerSet(idxUrl, newRate)
     }
     if((newRate != undefined) && (newRate != 0))
     {
-        // The URL is reloaded every minute.
+        // The URL is reloaded every minute or a multiple.
+        newRateMilliseconds = newRate * 60 * 1000;
+        console.log("TimerSet newRateMilliseconds=" + newRateMilliseconds);
         listLoadedUrls.array_urls[idxUrl].m_timer_refresh
-            = setInterval( TimerRefreshUrl, newRate * 60 * 1000, listLoadedUrls.array_urls[idxUrl]);
+            = setInterval( TimerRefreshUrl, newRateMilliseconds, listLoadedUrls.array_urls[idxUrl]);
     }
 } // listLoadedUrlsTimerSet
 
@@ -1143,6 +1149,7 @@ function isLoadedUrl(theUrl)
 /* This is called when clicking "Del" on the Summary little window. */
 function processSummaryWindowDel(idxUrl)
 {
+    console.log("processSummaryWindowDel idxUrl=" + idxUrl);
     objLoadedUrl = listLoadedUrls.array_urls[idxUrl];
     // The URL can be something like "survol/sources_types/enumerate_CIM_Process.py?xid=."
     // It should be identical to what is stored in the nodes.
@@ -1187,13 +1194,14 @@ function processSummaryWindowMessages(event)
     // "http://192.168.1.83"
     var msgOrig = event.origin;
     var keyWord = msgSent[0];
+    console.log("processSummaryWindowMessages keyWord=" + keyWord);
     console.log("msgSent=" + msgSent + " msgOrig=" + msgOrig + " event=" + JSON.stringify(event));
 
     if(keyWord == 'ChangeRate')
     {
         var idxUrl = msgSent[1];
         var newRate = msgSent[2];
-        console.log("newRate=" + newRate + " idxUrl=" + idxUrl);
+        console.log("Timer newRate=" + newRate + " idxUrl=" + idxUrl);
 
         listLoadedUrlsTimerSet(idxUrl, newRate);
     } else if(keyWord == 'DelScript')
@@ -1353,9 +1361,11 @@ function loadUrlUpdateDisplay(theUrl, shouldMerge, objectSvg)
         else
         {
             var objUrl;
+            console.log("loaderCallback listLoadedUrls.array_urls.length=" + listLoadedUrls.array_urls.length);
             for( var ixUrl = 0; ixUrl < listLoadedUrls.array_urls.length; ++ixUrl )
             {
                 objUrl = listLoadedUrls.array_urls[ixUrl];
+                console.log("loaderCallback objUrl=" + objUrl);
                 if( objUrl.m_loaded_url == urlNoJson )
                 {
                     console.log("Updating url ixUrl="+ixUrl);
@@ -1366,7 +1376,7 @@ function loadUrlUpdateDisplay(theUrl, shouldMerge, objectSvg)
             }
             if( objUrl == undefined )
             {
-                alert("Cannot find url ixUrl="+ixUrl);
+                alert("loaderCallback Cannot find url ixUrl="+ixUrl);
                 return;
             }
         }
