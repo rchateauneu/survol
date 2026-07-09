@@ -100,7 +100,7 @@ def _app_serve_file(path_info, start_response):
         return [file_content]
     except Exception as exc:
         start_response('200 OK', response_headers)
-        logging.error("Caught %s" % exc)
+        logging.error("Current dir=%s. Caught %s" % (os.getcwd(), exc))
         return ["<html><head></head><body>app_serve_file file_name=%s: Caught:%s</body></html>" % (file_name, exc)]
 
 
@@ -187,7 +187,7 @@ def application_ok(environ, start_response):
     # Example: path_info=/survol/www/index.htm
     if path_info.find("/survol/www/") >= 0 \
             or path_info.find("/ui/css") >= 0 \
-            or path_info == '/favicon.ico':
+            or path_info in ['/favicon.ico', '/favicon-16x16.png', '/favicon-32x32.png', '/manifest.json']:
         return _app_serve_file(path_info, start_response)
 
     path_info = path_info.replace("/", ".")
@@ -221,6 +221,7 @@ def application_ok(environ, start_response):
         try:
             the_module = importlib.import_module(module_name, modules_prefix)
         except Exception as exc:
+            logging.error("module_name=%s modules_prefix=%s", module_name, modules_prefix)
             logging.error("Caught=%s" % exc)
             raise
 
@@ -264,7 +265,7 @@ def application_ok(environ, start_response):
     return [module_content]
 
 
-_is_supervisor_started = False
+_supervisor_pid = None
 
 
 def application(environ, start_response):
@@ -272,12 +273,15 @@ def application(environ, start_response):
     This is required by WSGI interface.
     BEWARE: The url must start with "/survol" like "http://127.0.0.1:9000/survol/entity.py"
     """
-    logging.debug("Starting application")
-    global _is_supervisor_started
-    if not _is_supervisor_started:
+    logging.error("Starting application")
+    global _supervisor_pid
+    logging.error("START _supervisor_pid=%s" % str(_supervisor_pid))
+    if _supervisor_pid is None:
         # The daemon runs processes writing events to a database, which are later read by CGI or WSGI scripts.
-        daemon_factory.supervisor_startup()
-        _is_supervisor_started = True
+        _supervisor_pid = daemon_factory.supervisor_startup()
+        logging.error("_supervisor_pid=%s" % str(_supervisor_pid))
+    else:
+        logging.error("supervisor _supervisor_pid=%d already started" % _supervisor_pid)
 
     try:
         return application_ok(environ, start_response)
@@ -290,5 +294,3 @@ def application(environ, start_response):
         lib_util.globalOutMach.HeaderWriter('text/html')
         module_content = "Message: application caught:%s\n" % exc
         return ["<html><head></head><body>Error:%s</body></html>" % module_content]
-
-
