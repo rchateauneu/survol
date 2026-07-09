@@ -39,11 +39,12 @@ else:
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
     # Linux  : Module supervisor.
-    # Windows: Module supervisor-win
+    # Windows: Module supervisor-win : https://github.com/alexsilva/supervisor
+    #          Depending on the version, one might need to do : pip install pyasynchat
     import supervisor
     from supervisor.xmlrpc import Faults as SupervisorFaults
-except ImportError:
-    logging.debug("Cannot import supervisor module")
+except ImportError as exc:
+    logging.warning("Cannot import supervisor module: %s" % exc)
     supervisor = None
 
 
@@ -73,6 +74,7 @@ def _log_supervisor_access(function_name, step_name, **kwargs):
     This writes into a file all accesses to the supervisor.
     This is a debugging helper because this log file gives a complete history of events creations and reads.
     """
+    logging.info("_log_supervisor_access function_name=%s step_name=%s" % (function_name, step_name))
     # TODO: This file should be truncated when the CGI server starts.
     if "TRAVIS" in os.environ:
         log_supervisor_file = None
@@ -82,6 +84,7 @@ def _log_supervisor_access(function_name, step_name, **kwargs):
 
     if not log_supervisor_file:
         return
+    logging.info("_log_supervisor_access log_supervisor_file=%s" % log_supervisor_file)
 
     timestamp_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -191,6 +194,7 @@ def _local_supervisor_start():
     """This starts a local supervisor process."""
     global _supervisor_process
     logging.info("begin")
+    _log_supervisor_access("_local_supervisor_start", "begin")
 
     # Maybe it is already started.
     if not _supervisor_process is None:
@@ -198,13 +202,18 @@ def _local_supervisor_start():
         logging.info("leaving _supervisor_process.pid=%d" % _supervisor_process.pid)
         is_running = psutil.pid_exists(_supervisor_process.pid)
         if is_running:
+            _log_supervisor_access("_local_supervisor_start", "test running pid=%d" % _supervisor_process)
             logging.info("running fine")
         else:
             logging.warning("SHOULD BE RUNNING")
             process_stdout, process_stderr = _supervisor_process.communicate()
         return
 
+    if not os.path.exists(_supervisor_config_file):
+        logging.error("_local_supervisor_start _supervisor_config_file=%s does not exist" % _supervisor_config_file)
+
     supervisor_command = [sys.executable, "-m", "supervisor.supervisord", "-c", _supervisor_config_file]
+    _log_supervisor_access("supervisor_startup", "entry", supervisor_command=str(supervisor_command))
     logging.info("supervisor_command=%s" % str(supervisor_command))
 
     if "TRAVIS" in os.environ:
@@ -220,6 +229,9 @@ def _local_supervisor_start():
         supervisor_stdout_name = os.path.join(supervisor_files_directory, "survol_supervisor_stdout.log")
         supervisor_stderr_name = os.path.join(supervisor_files_directory, "survol_supervisor_stderr.log")
 
+        _log_supervisor_access("supervisor_startup", "entry", supervisor_stdout_name=supervisor_stdout_name)
+        _log_supervisor_access("supervisor_startup", "entry", supervisor_stderr_name=supervisor_stderr_name)
+
         supervisor_stdout = open(supervisor_stdout_name, "w")
         supervisor_stderr = open(supervisor_stderr_name, "w")
 
@@ -232,6 +244,7 @@ def _local_supervisor_start():
         shell=False)
 
     logging.info("proc_popen.pid=%d" % _supervisor_process.pid)
+    _log_supervisor_access("supervisor_startup", "entry", pid=_supervisor_process.pid)
 
 
 def _local_supervisor_stop():
@@ -283,7 +296,7 @@ def supervisor_startup():
     # - The Python package supervisor is not available.
     if not _must_start_factory():
         error_message = "supervisor_startup: Do not start. "
-        logging.info(error_message)
+        logging.warning(error_message)
         return None
 
     # Maybe this is a supervisor service, or a local process.
