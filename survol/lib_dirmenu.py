@@ -301,6 +301,7 @@ def recursive_walk_on_scripts(
                 imported_mod = lib_util.GetScriptModule(arg_dir, fil)
             except Exception as exc:
                 logging.warning("Caught:%s", exc)
+                logging.warning("When importing: arg_dir=%s fil=%s", arg_dir, fil)
                 error_msg = exc
                 imported_mod = None
                 if not flag_show_all:
