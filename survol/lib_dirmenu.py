@@ -17,7 +17,7 @@ rdfs_label = rdflib.namespace.RDFS.label
 
 # pc_property_script = pc.property_script
 DCT = rdflib.Namespace("http://purl.org/dc/terms/")
-dct_has_part = rdflib.URIRef(DCT["hasPart"])
+# dct_has_part = rdflib.URIRef(DCT["hasPart"])
 
 try:
     import lib_wmi
@@ -277,6 +277,11 @@ def recursive_walk_on_scripts(
                 # So its scripts do not apply to the current class.
                 logging.info("sub_entity_class=%s onto_keys=%s", sub_entity_class, onto_keys)
                 continue
+
+            # The label of an intermediate node is the directory name.
+            dir_as_node = lib_util.NodeLiteral(dir)
+            callback_grph_add((curr_dir_node, pc_property_information, dir_as_node), depth_call)
+
 
             something_added = recursive_walk_aux(
                 curr_dir_node, a_parent_node, full_sub_dir, sub_relative_dir, depth_call + 1)
