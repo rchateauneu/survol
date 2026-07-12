@@ -94,8 +94,10 @@ def Main():
             topdir_node = lib_uris.gUriGen.DirectoryUri(topdir)
             grph.add((topdir_node, pc.property_directory, fil_node))
 
-            url_mime = _uri_directory_direct_script(topdir)
-            grph.add((topdir_node, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime)))
+            # TODO: We want to remove the property property_rdf_data_nolist2 because it does not fit
+            # TODO: the logic of seeAlso. And it should be up to the UI to decide what to do.
+            #url_mime = _uri_directory_direct_script(topdir)
+            #grph.add((topdir_node, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime)))
 
     if os.path.isdir(fil_nam):
         # In case we do not loop at all, the value must be set.
@@ -122,8 +124,14 @@ def Main():
             if not url_dir_node is None:
                 grph.add((subdir_node, pc.property_rdf_data_nolist1, url_dir_node))
 
-            url_mime = _uri_directory_direct_script(full_dir_path)
-            grph.add((subdir_node, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime)))
+            # TODO: We want to remove the property property_rdf_data_nolist2 because it does not fit
+            # TODO: the logic of seeAlso. And it should be up to the UI to decide what to do.
+            # TODO: At the moment, there is a special processing when displaying the files in a Graphviz
+            # TODO: HTML table. If it is a directory, it opens a new table. If Mime, it displays it.
+            # TODO: But it is ugly and pollutes the natural generation to RDF.
+            # Better putting the display logic in the display, not in the RDF.
+            # url_mime = _uri_directory_direct_script(full_dir_path + "ZZZZZZZZZ")
+            # grph.add((subdir_node, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime)))
 
         # TODO: If this is a script, checks if this is executable ?
         for one_file in files:
@@ -148,7 +156,9 @@ def Main():
             # This adds size infoematon about the file.
             CIM_DataFile.AddStat(grph, subfil_node, full_file_path)
             # This adds an URL displaying the file as a MIME document.
-            CIM_DataFile.AddHtml(grph, subfil_node, full_file_path)
+            # TODO: Rather add the Mime logic in the UI which is free to display a Mime document as it can.
+            # TODO: Better put this logic in the UI, and keep RDF as clean and pure as possible.
+            # CIM_DataFile.AddHtml(grph, subfil_node, full_file_path)
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory])
 
