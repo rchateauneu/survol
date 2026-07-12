@@ -104,6 +104,7 @@ def Main():
         # mount_node = lib_uris.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shr_res )
         shr_res = shr_res.strip()
         shr_res = lib_util.standardized_file_path(shr_res)
+        shr_res = lib_util.EncodeUri(shr_res)
         mount_node = lib_uris.gUriGen.DirectoryUri(shr_res)
         grph.add((share_node, pc.property_smbmount, mount_node))
 
