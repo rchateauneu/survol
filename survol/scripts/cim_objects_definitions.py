@@ -41,11 +41,11 @@ try:
     # This is for Python 2
     import urllib2
     import urllib
-    urlencode_portable = urllib.urlencode
+    # urlencode_portable = urllib.urlencode
 except ImportError:
     import urllib.request as urllib2
     import urllib.parse
-    urlencode_portable = urllib.parse.urlencode
+    # urlencode_portable = urllib.parse.urlencode
 
 try:
     # This is optional when used from dockit, so dockit can be used
