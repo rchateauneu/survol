@@ -15,6 +15,7 @@ import lib_util
 import lib_common
 import lib_properties
 from lib_properties import pc
+import logging
 
 _param_a = "parama"
 _param_b = "paramb"
@@ -25,6 +26,7 @@ def Snapshot():
     global _global_counter
     cgiEnv = lib_common.ScriptEnvironment(parameters={_param_a: _global_counter, _param_b: "Two"})
 
+    # This state cannot be kept when the script is used in CGI mode.
     _global_counter += 1
 
     # This is to ensure that all CGI parameters are handled.
@@ -61,7 +63,7 @@ def Main():
     else:
         while True:
             Snapshot()
-            time.sleep(1)
+            time.sleep(10)
 
 
 if __name__ == '__main__':
