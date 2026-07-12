@@ -157,8 +157,6 @@ function getCgiParams()
 }; // getCgiParams
 
 
-var wScreen;
-var hScreen;
 var myForce = null;
 
 var divSvg = null;
@@ -261,7 +259,7 @@ function CreateDisplay(data)
 
     // Brand new graph, no need to merge.
     previousData = data;
-    displayD3Layout(divItselfG,previousData,wScreen,hScreen);
+    displayD3Layout(divItselfG,previousData);
 } // CreateDisplay
 
 /* Called when adding a new url and merge it to the existing nodes and links. */
@@ -745,7 +743,7 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp, objectSvg)
 
 	console.log("RefillDisplay before displayD3Layout");
 
-    displayD3Layout(divItselfG,previousData,wScreen,hScreen);
+    displayD3Layout(divItselfG,previousData);
 	console.log("RefillDisplay leaving");
 } // RefillDisplay
 
@@ -817,7 +815,7 @@ function DeleteSvgNode(objectSvg)
     DeleteD3NodeFromIndex(goodNodeIdx);
 
     EmptyDisplay();
-    displayD3Layout(divItselfG, previousData, wScreen, hScreen);
+    displayD3Layout(divItselfG, previousData);
     console.log("DeleteSvgNode reset globalMustMerge");
     // BEWARE: On IE / Edge: Not defined.
     globalMustMerge = false;
@@ -899,7 +897,7 @@ function deleteSvgConnectedNodes(objectSvg)
 
     // Same code as for deleting one node.
     EmptyDisplay();
-    displayD3Layout(divItselfG, previousData, wScreen, hScreen);
+    displayD3Layout(divItselfG, previousData);
     console.log("deleteSvgConnectedNodes reset globalMustMerge");
     globalMustMerge = false;
 } // deleteSvgConnectedNodes
@@ -1033,7 +1031,7 @@ function processSummaryWindowDel(idxUrl)
 
     // Maybe we could refresh the display at each node ?
     EmptyDisplay();
-    displayD3Layout(divItselfG, previousData, wScreen, hScreen);
+    displayD3Layout(divItselfG, previousData);
 
     refreshSummaryWindow();
 } // processSummaryWindowDel

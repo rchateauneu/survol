@@ -1,3 +1,6 @@
+var wScreen;
+var hScreen;
+
 function onDrop(evt) {
     evt.stopPropagation();
     evt.preventDefault();
@@ -147,7 +150,7 @@ function D3DisplayCreation()
 
 
 
-function displayD3Layout(divItselfG,newData,w,h)
+function displayD3Layout(divItselfG,newData)
 {
     'use strict';
     console.log("displayD3Layout newData.nodes="+newData.nodes.length+" newData.links="+newData.links.length);
@@ -170,8 +173,8 @@ function displayD3Layout(divItselfG,newData,w,h)
             /*
             // TODO: This works but is not very nice..
             var rr = 10;
-            d.x = Math.max(rr, Math.min(w - rr, d.x));
-            d.y = Math.max(rr, Math.min(h - rr, d.y));
+            d.x = Math.max(rr, Math.min(wScreen - rr, d.x));
+            d.y = Math.max(rr, Math.min(hScreen - rr, d.y));
             */
 
             return "translate(" + d.x + "," + d.y + ")";
