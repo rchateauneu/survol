@@ -279,7 +279,14 @@ class ScriptEnvironment():
 
         # The HTTP server can set the logging level with the environment variable SURVOL_LOGGING_LEVEL.
         try:
-            logging_level = os.environ["SURVOL_LOGGING_LEVEL"]
+            logging_level_string = os.environ["SURVOL_LOGGING_LEVEL"]
+            logging_level = {
+                "CRITICAL" : logging.CRITICAL,
+                "DEBUG": logging.DEBUG,
+                "WARNING": logging.WARNING,
+                "INFO": logging.INFO,
+                "ERROR": logging.ERROR,
+            }[logging_level_string]
             logging.getLogger().setLevel(logging_level)
             logging.info("logging_level set with SURVOL_LOGGING_LEVEL=%s" % logging_level)
         except KeyError:
