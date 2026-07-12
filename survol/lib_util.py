@@ -1450,8 +1450,8 @@ def Base64Encode(input_text):
 
 
 # These are all characters which are accepted in values.
-# It must at least accept filenames. "," commas are NOT accepted.
-r_cgi_vars_char_set = re.compile(r"^[-A-Za-z0-9_/:=\.]*$")
+# It must at least accept filenames. "," commas and colons are NOT accepted.
+r_cgi_vars_char_set = re.compile(r"^[-A-Za-z0-9_/=\.]*$")
 
 base64_prefix = "B64_"
 
