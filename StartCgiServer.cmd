@@ -7,4 +7,4 @@ python scripts\cgiserver.py %*
 :gotabreak
 popd
 
-@REM %~dp0\survol\scripts\cgiserver.py %*
+@REM python %~dp0\survol\scripts\cgiserver.py %*
