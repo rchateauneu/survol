@@ -10,6 +10,9 @@ import wsgiref.validate
 import wsgiref.simple_server
 import webbrowser
 import logging
+import cProfile
+import signal
+import pstats
 
 if __package__:
     from . import wsgi_survol
@@ -18,7 +21,7 @@ else:
 
 
 _port_number_default = 9000
-
+general_profiler = None
 
 def __print_wsgi_server_usage():
     prog_nam = sys.argv[0]
@@ -27,17 +30,19 @@ def __print_wsgi_server_usage():
     print("    -p,--port=<number>        TCP/IP port number. Default is %d." % _port_number_default)
     print("    -b,--browser              Starts a browser.")
     print("    -v,--validate             Validate application.")
-    print("    -l,--log=<level>          Log level.")
+    print("    -l,--log=<level>          Log level: DEBUG, INFO ....")
+    print("    -P,--profile              Profile application.")
     print("")
     print("Script must be started with command: survol/scripts/wsgiserver.py")
 
 
 def wsgiserver_entry_point():
+    global general_profiler
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            "a:p:b:l:vh",
-            ["address=", "port=", "browser=", "log=", "validate", "help"])
+            "a:p:b:l:vhP",
+            ["address=", "port=", "browser=", "log=", "validate", "help", "profile"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -72,6 +77,9 @@ def wsgiserver_entry_point():
         elif an_opt in ("-h", "--help"):
             __print_wsgi_server_usage()
             sys.exit()
+        elif an_opt in ("-P", "--profile"):
+            general_profiler = cProfile.Profile()
+            general_profiler.enable()
         else:
             assert False, "Unhandled option"
 
@@ -135,7 +143,19 @@ def start_server_forever(server_name, port_number, validate_application):
     logfil.close()
 
 
+def signal_handler(sig, frame):
+    global general_profiler
+    print('You pressed Ctrl+C!')
+    if general_profiler:
+        general_profiler.disable()
+        general_profiler.dump_stats("wsgiserver.profile")
+        pstats.Stats(general_profiler).sort_stats(pstats.SortKey.CUMULATIVE).print_stats(20)
+    sys.exit(0)
+
+
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
     # and not use the installed packages.
+
+    signal.signal(signal.SIGINT, signal_handler)
     wsgiserver_entry_point()
