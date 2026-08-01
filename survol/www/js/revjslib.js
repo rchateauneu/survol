@@ -58,7 +58,6 @@ function AddUrlPrefix(urlQuery, cgiArgs )
 
 // This merges the URLs given as CGI parameters, b64-encoded.
 // It then displays in SVG or any mode, just like the other Python scripts.
-// var pyMergeScript = AddUrlPrefix( "merge_scripts.py", "" );
 var pyMergeScript = "merge_scripts.py";
 
 // This is the name of the main window which display index.htm.
