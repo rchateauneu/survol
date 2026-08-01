@@ -1,0 +1,54 @@
+On utilse strace avec sous-process, en continu, injecte dans un LLM.
+La sortie doit etre un diagramme qui peut evoluer, lentement.
+Le diagramme represente de facon consise ce que fait le log.
+On part d'un modele existant qui va etre "fine-trainer" avec l'application qui genere le log.
+
+
+Un premier pipe de compression pour eliminer ce qui est trivial,
+et separer les streams de chaque process.
+En revanche, on peut passer au LLM les streams dans des fichiers differents,
+ce qui lui permet d'avoir une vue plus globale de l'activite.
+Retrouver le programme C++ qui faisait le parsing.
+
+Requetes successives au LLM en lui demandant de garder le contexte,
+on lui fournit de nouvelles lignes de log, et il renvoie une nouvelle representation.
+Ou eventuellement seulement les differences.
+Dans son contexte, il conserve les processes, les fichiers en cours d'ecriture.
+
+GDB-MCP:
+========
+Au lieu d'utiliser strace.
+https://github.com/Ipiano/gdb-mcp
+
+
+Le prompt:
+==========
+Le prompt contient des clauses qui permettent de resumer l'execution.
+Il est envoye au LLM, avec un fichier attache contenant un nouveau segment du log.
+Les regles sont par exemple:
+
+Ne tient pas compte des appels a brk, fcntl etc...
+
+Plusieurs write fait par un meme process, commencent par open et finissant par close,
+sont resume par "Ecriture dans ce fichier".
+
+Plusieurs read fait par un meme process, commencent par open et finissant par close,
+sont resume par "Ecriture dans ce fichier".
+
+Etablit la liste de chaque fichier ouvert par chaque process. Selon le nom du fichier,
+deduit ce que ca fait: Par exemple, si le nom du fichier contient tmp, temp, conf, log.
+
+Construit l'arbre des sous-processes.
+On veut decrire chaque process.
+Analyse les librairies utilisees par l'executable de chaque process.
+Si ces librairies appartiennt a des logiciels standards,
+mentionne le dans la description du process.
+Regroupe dans un meme ensemble les processes qui ont des streams comparables, 
+c'est a dire qui font des operations similaires, en faisant abstraction des noms des fichiers,
+qui doivent cependant etre proches.
+
+Construit la liste des machines accedes par socket et par quel process.
+
+Decrit ce que fait chaque socket d'apres les donnees qui transitent et le numero de port.
+
+

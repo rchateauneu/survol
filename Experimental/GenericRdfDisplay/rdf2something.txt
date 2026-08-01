@@ -1,0 +1,99 @@
+On veut simplifier Survol en retirant la conversion de Rdf en HTML/Dot/SVG etc...
+C'est un module completement a part, qu'on peut tester en isolation
+en comparant des fichiers de sortie.
+
+C'est une sorte de serveur qui s'intercale entre CGI/WSGI , et les scripts:
+- En entree, ca prend les parametres d'affichage (accept, mode, clusterisation)
+- En sortie, ca convertit.
+
+On aura:
+- Les menus sont codes avec seeAlso.
+- D'autre part un site qui cree du RDF.
+- D'autre part la transformation du RDF en quelque chose d'affichable.
+
+- Ca recoit le RDF soit avec un URL (si sur le client), soit "autre chose" si serveur,
+  pour des raisons de performances.
+- Ca doit gerer les menus contextuels.
+- Les parametres sont faciles a serialiser sur un url get: mode=x, etc...
+- Ca gere la logique d'affichage different selon les classes, les CSS.
+- Ca peut etre un projet a part.
+
+C'est implemente avec un objet qui recoit au debut un ou plusieurs liens/documents RDF,
+avec les arguments, et qui produit une sortie.
+On peut mettre a jour l'objet avec des updates, et ca produit une nouvelle sortie, minimale.
+Ou bien un update de la sortie.
+- Si DOM, on contient un DOM.
+- Si Dot/SVG, voir graphviz-d3.
+
+L'objet recoit en parametre des CSS qui donnent une correspondance classe -> attributs graphiques.
+La classe d'un objet est donnee par "rdf:type" (Mais on voudrait que ca marche avec instanceOf de WD ?).
+
+Pour D3 et HTML, on n'a pas besoin d'extraire les attributs graphiques, mais seulement de la class. Pour Dot, si, car CSS n'existe pas.
+
+Architecture:
+=============
+On dirait qu'on peut appeler Javascript a partir de Python.
+Il faut pouvoir conserver un objet Javascript dont Python appelerait des methodes,
+notamment pour updater le graphisme.
+Mais la mise a jour reelle devra quand meme etre faite dans le client : Moins pratique
+que si c'est fait sur le client.
+
+- Ca sera ecrit en Javascript pour fonctionner soit sur le serveur, soit sur le client.
+- Ce n'est pas un serveur pour pouvoir etre facilement teste, mais tres facile 
+  a appeler d'un serveur.
+
+Clusterisation:
+===============
+Ca peut regrouper des nodes dans un cluster afin d'alleger l'affichage.
+
+Les clusters sont dans un named graph.
+La clusterisation est une phase avant l'affichage : On indique quels named graphs sont affiches 
+ou bien caches : Ca permet en theorie de switcher facilement sans trop modifier un DOM.
+Idem en HTML, on pourrait cacher une sous-rubrique (collapse/expand).
+
+Si on modifie les parametres de clusterisation. ca met a jour l'affichage comme avec un update.
+
+Par default, k-means de 7. On calcule la distance entre les noms des objets, leur taille etc...
+Ca serait une clusteriation independante de la classe.
+Eventuellement un seuil a partir duquel on clusterise ?
+
+"Declusteriser / reclusteriser" un cluster seulement, avec right-click ?
+Lister dans un node les clusters auquels il appartient.
+
+On peut clusteriser les sous-nodes si arborescence, ou bien un ensemble arbitraire de nodes :
+Selection de nodes.
+
+On doit pouvoir clusteriser des clusters.
+
+Named graphs pour modeliser les transformations:
+------------------------------------------------
+Les noeuds qui peuvent etre clusterises (apparaitre ou disparaitre selon les parametres)
+sont dans des named graphs differents, comme des couches.
+Ainsi, on peut avoir plusieurs types de clusterisation concernant les memes nodes.
+
+Si on veut changer l'affichage, il faut ajouter dynamiquement de nouvelles regles de clusterisation. Elles sont sous la forme de pattern RDF pour selectionner des nodes precis,
+et eventuellement une liste explicite. Un pattern est associe a l'url d'un named graph.
+
+Un triple peut appartenir a plusieurs named graphs. Ca peut simplifier,
+car il suffira de selectionner un seul named graph ou bien le graph par defaut.
+
+Attention: the contents of the default graph are implementation-dependent. Some RDF stores keep it separate from the named graphs, while others expose the union of all named graphs as the default graph. If your application depends on predictable behavior across different SPARQL endpoints, it's usually best to query named graphs explicitly with GRAPH ?g { ... } rather than relying on the default graph.
+
+On devra donc creer un "base" named graph.
+
+Attention aux named graphs utilises pour les updates de nouvelles donnees: L'IRI du named graph est l'URI du script. J'ai oublie pourquoi c'etait necessaire.
+
+Parametrer l'affichage en tables:
+---------------------------------
+Si arborescence, on affiche en tables. C'est different de la clusterisationcar les nodes ne changent pas. Le type d'affichage est decrit avec un pattern RDF.
+On doit pouvoir le changer, et voir la mise a jour. Peut-etre au niveau d'un node parent seulement.
+
+Pour decrire proprement:
+
+    <blank1>-type-<class1>
+    <blank1>-property-<blank2>
+    <blank2>-type-<class2>
+
+Ou bien seulement un parent:
+    parent-property-<blank2>
+    <blank2>-type-<class2>
