@@ -1,0 +1,42 @@
+Installation et setup de llama.cpp :
+winget install -e --id ggml.llamacpp
+Get version with:
+llama-server.exe --version
+
+Configuration of pluging Continue.
+
+Models in D:\.cache\huggingface\hub
+    models--bartowski--Qwen2.5-Coder-3B-Instruct-GGUF
+    models--distilbert-base-uncased-finetuned-sst-2-english
+    models--ggml-org--Qwen2.5-Coder-1.5B-Instruct-Q8_0-GGUF
+    models--ggml-org--Qwen2.5-Coder-1.5B-Q8_0-GGUF
+    models--ggml-org--Qwen2.5-Coder-3B-Instruct-Q8_0-GGUF
+    models--ggml-org--Qwen2.5-Coder-3B-Q8_0-GGUF
+    models--lmsys--fastchat-t5-3b-v1.0
+    models--meta-llama--Llama-3.2-1B-Instruct
+    models--microsoft--trocr-base-handwritten
+    models--Salesforce--blip-image-captioning-base
+
+Chat:
+llama-server.exe -hf bartowski/Qwen2.5-Coder-3B-Instruct-GGUF:Q4_K_M -c 16384 --port 8011
+
+
+llama.cpp setup:
+llama-server.exe -m D:\models\qwen2.5-coder-1.5b-q8_0.gguf -c 8192
+llama-server.exe -m "D:\.cache\huggingface\hub\models--ggml-org--Qwen2.5-Coder-1.5B-Q8_0-GGUF\snapshots\8be1b8a895a84beea772817caaa71eba6b6e0d07\qwen2.5-coder-1.5b-q8_0.gguf" -c 8192
+
+=> llama_context: n_ctx_seq (8192) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+=> server is listening on http://127.0.0.1:8080
+
+Qwen2.5-Coder-7B-Instruct is probably the best balance of quality and speed for local coding.
+    Memory requirements:
+    Q4_K_M GGUF: about 5–6 GB RAM <= This one.
+    Q8_0 GGUF: about 9 GB RAM
+
+llama-server.exe -hf ggml-org/Qwen2.5-Coder-1.5B-Instruct-Q8_0-GGUF -c 32768
+=> "D:\.cache\huggingface\hub\models--ggml-org--Qwen2.5-Coder-1.5B-Instruct-Q8_0-GGUF\snapshots\9a02a57656dad824ae12a0a2d625d85e9646cc84\qwen2.5-coder-1.5b-instruct-q8_0.gguf"
+
+llama-server.exe -hf bartowski/Qwen2.5-Coder-3B-Instruct-GGUF:Q4_K_M -c 16384
+=> "D:\.cache\huggingface\hub\models--bartowski--Qwen2.5-Coder-3B-Instruct-GGUF\snapshots\7c137640ef0332dfedb229f2504c58d83ed4307a\Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf"
+
+C:\Users\rchat\.continue\config.yaml
