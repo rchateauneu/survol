@@ -32,9 +32,9 @@ class induction:
 	def tokenize(sample):
 		return []
 
-	#Non: Ce qui caracterise un cluster, c est la substitution.
-	#La "moyenne" de deux queries, ce sont les tokens identiaues tandis que les
-	#differents sont remplaces par des "variables" (Ou bien on garde les variables deja la).
+	# Non: Ce qui caracterise un cluster, c est la substitution.
+	# La "moyenne" de deux queries, ce sont les tokens identiques tandis que les
+	# differents sont remplaces par des "variables" (Ou bien on garde les variables deja presentes
 
 	# Certains tokens peuvent etre substitues plus facilement que d'autres: Chaines (encadrees
 	# par des guillemets), et nombres.
@@ -100,8 +100,6 @@ class induction:
 
 	# Des qu'il y a plus de deux echantillons dans la meme moyenne, on supprime les echantillons,
 	# on arrete de les stocker ???
-
-
 
 	def token_to_index(self,token):
 		pass

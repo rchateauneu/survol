@@ -1,0 +1,40 @@
+Entrainer un reseau neuronal avec toutes les donnees possibles concernant une application.
+
+De meme que Survol interrgore toutes les sources possibles de donnees pour generer des graphes RDF,
+on veut faire la meme chose avec un reseau neuronal.
+Ca ne marche qu'avec une machine qui a principalement ou uniquement
+l'application cible.
+
+Le training se fait en background, et il faut pouvoir le mener sur des machines differentes 
+afin de mieux generaliser. Et fusionner des apprentissages faits en parallele.
+
+On injecte:
+- Des logs,
+- Des fichiers de donnees,
+- le code source,
+- ... etc ...
+
+Le plus important est ce qu'on veut en sortie:
+- Diagramme de fonctionnement : En fait, des blocs, des clusters qu'on doit ensuite
+appliquer a un vrai systeme en cours d'execution. Il faudrait que ca sorte des patterns
+de clusterisation.
+
+Coder/decoder:
+- La hidden layer est le diagramme qu'on veut obtenir, c'est a dire l'information 
+la plus concise possible. Ou plutot: Les patterns de clusterisation.
+- On peut avoir plusieurs types de hidden layer, selon l'information qu'on veut exprimer.
+C'est a dire, plusieurs clusterisations, plusieurs named graphs sur les memes nodes reels.
+
+Aussi, la comparaison doit s'abstraire de certains aspects.
+- La hidden layer est faite de patterns de clusterisation, en RDF,
+qu'on peut melanger avec des donnees extraites sur le vif, et relier les deux :
+Le modele general, avec un echantillon precis.
+
+Apprentissage:
+--------------
+L'apprentissage se fait en comparant la sortie du decoder avec l'entree du coder,
+mais avec une distance qui ne retient que certains criteres.
+Ou alors : Des contextes de fonctionnement tres different doivent creer les memes patterns,
+les plus gros possibles (c'est a dire, qui incluent le plus grand nombre d'infos).
+Autrement dit: Quand on applique les patterns au systeme reel (avec RDF),
+on doit obtenir "la meme chose".
