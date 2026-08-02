@@ -4,6 +4,7 @@
 import straceparser;
 import std;
 
+namespace fs = std::filesystem;
 
 using namespace std;
 
@@ -12,14 +13,21 @@ TEST(TestCaseName, TestName) {
   EXPECT_TRUE(true);
 }
 
+static string get_test_data_path() {
+	// Test files might be in D:\Developpement\Survol\survol\tests\dockit_input_test_trace_files
+	// Current file is: D:\Developpement\Survol\survol\Experimental\strace2rdf\tests\test.cpp
+	fs::path p = fs::path(__FILE__).parent_path().parent_path().parent_path().parent_path() / "tests" / "dockit_input_test_trace_files";
+	return p.string() + "\\";
+}
+
 TEST(TestParseStrace, ParseFileCtor) {
-	const string filename = R"(C:\Users\rchat\Developpement\STraceToRdf\strace2rdf\TestData\bash_fedora.strace.4233.log)";
+	const string filename = get_test_data_path() + "bash_fedora.strace.4233.log";
 
 	STraceParser parser(filename);
 }
 
 TEST(TestParseStrace, ParseFileLoop) {
-	const string filename = R"(C:\Users\rchat\Developpement\STraceToRdf\strace2rdf\TestData\bash_fedora.strace.4233.log)";
+	const string filename = get_test_data_path() + "bash_fedora.strace.4233.log";
 
 	STraceParser parser(filename);
 	for (;;) {
