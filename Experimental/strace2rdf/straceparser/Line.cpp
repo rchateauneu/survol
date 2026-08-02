@@ -635,7 +635,7 @@ public:
 
 #ifdef MODEL
 /// <summary>
-/// 
+/// This is just a code template for a new system call. It is not used in the current implementation.
 /// </summary>
 class SystemCall_XXXX : public SystemCall {
     FileNode m_file_node;
@@ -789,6 +789,9 @@ shared_ptr<SystemCall> Line::create_system_call()
 STraceParser::STraceParser(const string& filename)
     : m_filename(filename) {
     m_file.open(m_filename);
+    if (!m_file.is_open()) {
+        throw runtime_error("Cannot open file: " + m_filename);
+    };
 }
 
 pair<Line::LineState, TripleStore> STraceParser::get_next_triplestore() {
