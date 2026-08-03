@@ -16,32 +16,8 @@ def credentials_filename():
 
     credentials_basname = "SurvolCredentials.json"
 
-    def _get_home_directory():
-        if lib_util.isPlatformLinux:
-            try:
-                return os.environ["HOME"]
-            except KeyError:
-                return None
-        else:
-            try:
-                home_drive = os.environ["HOMEDRIVE"]
-            except Exception:
-                home_drive = "C:"
-            try:
-                # This is not defined on Travis.
-                home_path = os.environ["HOMEPATH"]
-                return os.path.join(home_drive, home_path)
-            except KeyError:
-                logging.warning("_get_home_directory: No HOME dir")
-                if False:
-                    # Slow and complete print, for debugging.
-                    available_envs = sorted([key for key in os.environ])
-                    for one_key in available_envs:
-                        logging.warning("_get_home_directory: env[%s] = %s" % (one_key, os.environ[one_key]))
 
-                return None
-
-    home_directory = _get_home_directory()
+    home_directory = lib_util.get_home_directory()
     logging.debug("home_directory=%s" % home_directory)
 
     if home_directory:
