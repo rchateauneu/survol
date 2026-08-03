@@ -2021,10 +2021,14 @@ def get_temporary_directory():
 global_temp_directory = get_temporary_directory()
 
 
+# Extra counter in case two similar files are created by the same process.
+global_file_counter = 0
+
 # TODO: Consider using the module tempfile.
 class TmpFile:
     """Creates and automatically delete, a file and possibly a dir."""
     def __init__(self, prefix="tmp", suffix="tmp", subdir=None):
+        global global_file_counter
         proc_pid = os.getpid()
         curr_dir = global_temp_directory
 
@@ -2044,7 +2048,8 @@ class TmpFile:
             self.Name = None
             return
 
-        self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
+        self.Name = "%s/%s.%d.%d.%s" % (curr_dir, prefix, proc_pid, global_file_counter, suffix)
+        global_file_counter += 1
         logging.debug("tmp=%s", self.Name )
 
     def _remove_temp_file(self, fil_nam):
@@ -2076,3 +2081,27 @@ class TmpFile:
             logging.error("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
         return
 
+def get_home_directory():
+    if isPlatformLinux:
+        try:
+            return os.environ["HOME"]
+        except KeyError:
+            return None
+    else:
+        try:
+            home_drive = os.environ["HOMEDRIVE"]
+        except Exception:
+            home_drive = "C:"
+        try:
+            # This is not defined on Travis.
+            home_path = os.environ["HOMEPATH"]
+            return os.path.join(home_drive, home_path)
+        except KeyError:
+            logging.warning("_get_home_directory: No HOME dir")
+            if False:
+                # Slow and complete print, for debugging.
+                available_envs = sorted([key for key in os.environ])
+                for one_key in available_envs:
+                    logging.warning("_get_home_directory: env[%s] = %s" % (one_key, os.environ[one_key]))
+
+            return None
