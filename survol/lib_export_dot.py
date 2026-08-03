@@ -13,7 +13,7 @@ import lib_naming
 import lib_patterns
 import lib_grammar
 import lib_exports
-
+import lib_configuration
 import lib_util
 from lib_util import TimeStamp
 
@@ -702,57 +702,106 @@ def _rdf_graph_to_dot_stream(grph, logfil, stream, collapsed_properties, commuta
     stream.write("}\n")
 
 
-def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
-    """Copies a file to standard output."""
+def _copy_graphviz_to_output_destination(logfil, dot_filename, out_dest):
+    """Copies a Graphviz/dot file to standard output."""
+    logfil.write(lib_util.TimeStamp() + " dot_filename=%s\n" % dot_filename)
 
-    # TODO: On Linux, consider splice.
-    # See lib_kbase.triplestore_to_stream_xml for a similar situation.
+    logfil.write(lib_util.TimeStamp() + " _copy_svg_to_output_destination Writing header\n")
+    lib_util.WrtHeader("text/plain")
 
-    logfil.write(lib_util.TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam)
+    with open(dot_filename, 'rb') as infil:
+        str_in_read = infil.read()
+    nb_out = out_dest.write(str_in_read)
+
+    # The variable nb_out is converted to string because it might be None.
+    logfil.write(lib_util.TimeStamp() + " End of output: %s chars\n" % str(nb_out))
+    infil.close()
+
+
+def _copy_svg_to_output_destination(logfil, svg_out_filnam, out_dest):
+    """Copies a SVG file to standard output."""
+    logfil.write(lib_util.TimeStamp() + " _copy_svg_to_output_destination svg_out_filnam=%s\n" % svg_out_filnam)
+
+    # https://stackoverflow.com/questions/5667576/can-i-set-the-html-title-of-a-pdf-file-served-by-my-apache-web-server
+    dict_http_properties = [("Content-Disposition", 'inline; filename="Survol_Download"')]
+
+    logfil.write(lib_util.TimeStamp() + " _copy_svg_to_output_destination Writing SVG header\n")
+    lib_util.WrtHeader("image/svg+xml", dict_http_properties)
+
     infil = open(svg_out_filnam, 'rb')
     str_in_read = infil.read()
     try:
+        logfil.write(lib_util.TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam)
         nb_out = out_dest.write(str_in_read)
     except TypeError as exc:
+        logfil.write(lib_util.TimeStamp() + " Output with conversion: %s\n" % svg_out_filnam)
         # This happens when:
         # Python 2 and wsgiref.simple_server: unicode argument expected, got 'str'
         # Python 3 and wsgiref.simple_server: string argument expected, got 'bytes'
         nb_out = out_dest.write(str_in_read.decode('latin1'))
 
     # The variable nb_out is converted to string because it might be None.
-    logfil.write(lib_util.TimeStamp() + " End of output without conversion: %s chars\n" % str(nb_out))
+    logfil.write(lib_util.TimeStamp() + " End of output: %s chars\n" % str(nb_out))
     infil.close()
 
+def is_wsl_running():
+    result = subprocess.run(
+        ["wsl.exe", "--list", "--running"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace"
+    )
+    return bool(result.stdout.strip())
 
 # TODO: Consider using the Python module pygraphviz: Small speedup probably.
 # But the priority is to avoid graphes which are too long to route.
 # TODO: Consider using the Python module pydot,
 # but anyway it needs to have graphviz already installed.
 # Also, creating an intermediary files helps debugging.
-def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
+def _dot_to_svg(dot_filnam_after, logfil, viztype):
     tmp_svg_fil = lib_util.TmpFile("survol_graph_to_svg", "svg")
     svg_out_filnam = tmp_svg_fil.Name
+    logging.debug("_dot_to_svg dot_filnam_after=%s svg_out_filnam=%s", _dot_to_svg, svg_out_filnam)
     # dot -Kneato
 
     # Dot/Graphviz no longer changes PATH at installation. It must be done BEFORE.
-    dot_path = "dot"
-
-    if lib_util.isPlatformLinux:
+    if lib_util.isPlatformWindows:
+        try:
+            # This module must be present, and
+            import wslPath
+            isWsl = is_wsl_running() and lib_configuration.LoadConfig()['graphviz_wsl']
+        except ImportError:
+            logging.debug("wslPath module not present")
+            isWsl = False
+        if isWsl: # WSL. Fix me with a config file.
+            # This is called when dot is run from WSL. This is necessay on Windows for most recent versions
+            # because Neato does not work, due to GTS library not being available.
+            dot_path = ["wsl", "dot"]
+            logfil.write("Before WSL file conversion dot_filnam_after=%s svg_out_filnam=%s\n" % (dot_filnam_after, svg_out_filnam))
+            dot_filnam_after = wslPath.to_posix(os.path.realpath(dot_filnam_after))
+            svg_out_filnam = wslPath.to_posix(os.path.realpath(svg_out_filnam))
+            logfil.write("After WSL file conversion dot_filnam_after=%s svg_out_filnam=%s\n" % (dot_filnam_after, svg_out_filnam))
+            # Flush because the subprocess will write into it.
+            logfil.flush()
+        else:
+            dot_path = ["dot"]
+    elif lib_util.isPlatformLinux:
         # TODO: This is arbitrary because old Graphviz version.
         # TODO: Take the fonts from html_exports.css
+        dot_path = ["dot"]
         dot_fonts = [
                     # "-Gfontpath=/usr/share/fonts/dejavu",
                     "-Gfontpath=/usr/share/fonts",
                     "-Gfontnames=svg",
                     "-Nfontname=DejaVuSans.ttf",
                     "-Efontname=DejaVuSans.ttf"]
-    else:
-        dot_fonts = []
+        dot_path = dot_path + dot_fonts
 
     # Old versions of dot need the layout on the command line.
     # This is maybe a bit faster than os.open because no shell and direct write to the output.
-    svg_command = [dot_path, "-K", viztype, "-Tsvg", dot_filnam_after, "-o", svg_out_filnam,
-                   "-v", "-Goverlap=false"] + dot_fonts
+    svg_command = dot_path + ["-K", viztype, "-Tsvg", dot_filnam_after, "-o", svg_out_filnam,
+                   "-v", "-Goverlap=false"]
     str_command = " ".join(svg_command)
     logfil.write(TimeStamp() + " svg_command=" + str_command + "\n")
 
@@ -760,22 +809,13 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
         ret = subprocess.call(svg_command, stdout=logfil, stderr=logfil, shell=False)
     except Exception as exc:
         raise Exception("ERROR:%s raised:%s" % (str_command, str(exc)))
-    logfil.write(TimeStamp()+" Process ret=%d\n" % ret)
+    logfil.write(TimeStamp() + " Process ret=%d\n" % ret)
 
-    if not os.path.isfile(svg_out_filnam):
-        raise Exception("SVG file " + svg_out_filnam + " could not be created.")
+    # Use the expected SVG output path, because it may have been chaned if WSL, and then isfile would not work.
+    if not os.path.isfile(tmp_svg_fil.Name):
+        raise Exception("SVG file " + tmp_svg_fil.Name + " could not be created.")
 
-    # TODO: If there is an error, we should write it as an HTML page.
-    # On the other hand it is impossible to pipe the output because it would assume a SVG document.
-
-    # https://stackoverflow.com/questions/5667576/can-i-set-the-html-title-of-a-pdf-file-served-by-my-apache-web-server
-    dict_http_properties = [("Content-Disposition", 'inline; filename="Survol_Download"')]
-
-    logfil.write(lib_util.TimeStamp() + " Writing SVG header\n")
-    lib_util.WrtHeader("image/svg+xml", dict_http_properties)
-
-    # Here, we are sure that the output file is closed.
-    copy_to_output_destination(logfil, svg_out_filnam, out_dest)
+    return tmp_svg_fil
 
 
 def _font_string():
@@ -790,7 +830,7 @@ def _font_string():
         return 'fontpath="/usr/share/fonts" fontname="DejaVuSans"'
 
 
-def write_dot_header(page_title, layout_style, stream, grph):
+def _write_dot_header(page_title, layout_style, stream):
     # Some cleanup.
     page_title_clean = page_title.strip()
     # Escape double-quotes.
@@ -851,6 +891,71 @@ def write_dot_header(page_title, layout_style, stream, grph):
     stream.write(" node [ %s ] ; \n" % _font_string())
     return dot_layout
 
+# It returns a temporary file containing the translation of the graph into dot format.
+def _output_rdf_graph_as_graphviz_core(
+        logfil, with_header,
+        page_title, error_msg, parameters, grph, parameterized_links, top_url,
+        layout_style, collapsed_properties, commutative_properties):
+
+    tmp_dot_fil = lib_util.TmpFile("survol_graph_to_svg", "dot")
+    created_dot_filename = tmp_dot_fil.Name
+    rdf_output_file = open(created_dot_filename, "w")
+    logfil.write(lib_util.TimeStamp() + " Created " + created_dot_filename + "\n")
+
+    dot_layout = _write_dot_header(page_title, layout_style, rdf_output_file)
+    if with_header:
+        _write_dot_legend(page_title, top_url, error_msg,
+                        parameters, parameterized_links, rdf_output_file, grph)
+        logfil.write(lib_util.TimeStamp() + " Legend written\n")
+    else:
+        dot_layout = None
+        logfil.write(lib_util.TimeStamp() + " No legend written\n")
+
+    _rdf_graph_to_dot_stream(grph, logfil, rdf_output_file, collapsed_properties, commutative_properties)
+    logfil.write(lib_util.TimeStamp() + " About to close dot file %s\n" % created_dot_filename)
+
+    # BEWARE: Do this because the file is about to be reopened from another process.
+    rdf_output_file.flush()
+    os.fsync(rdf_output_file.fileno())
+    rdf_output_file.close()
+    logging.info("_output_rdf_graph_as_graphviz_core : created_dot_filename=%s dot_layout=%s" % (created_dot_filename, dot_layout))
+    return tmp_dot_fil, dot_layout
+
+
+# This temporary log file to understand what is going on with Graphviz.
+def _create_graphviz_log_file(filename):
+    tmp_log_fil = lib_util.TmpFile("survol_graph_to_svg", "log")
+    try:
+        # As long as logfil is not closed, tmp_log_fil is referenced and the file is not deleted.
+        # It is not deleted if the program crashes.
+        logfil = open(tmp_log_fil.Name, "w")
+    except Exception as exc:
+        logging.error("_graph_to_svg caught %s when opening:%s", str(exc), tmp_log_fil.Name)
+        raise Exception("_graph_to_svg caught %s when opening:%s\n" % (str(exc), tmp_log_fil.Name))
+    logging.info("_create_graphviz_log_file Graphviz log file=%s", tmp_log_fil.Name)
+    logfil.write("Starting logging\n")
+    return logfil
+
+
+def output_rdf_graph_as_graphviz(
+        page_title, error_msg, parameters, grph, parameterized_links, top_url,
+        layout_style, collapsed_properties, commutative_properties):
+    logfil = _create_graphviz_log_file("survol_graph_to_graphviz")
+
+    tmp_dot_fil, dot_layout = _output_rdf_graph_as_graphviz_core(
+        logfil, False,
+        page_title, error_msg, parameters, grph, parameterized_links, top_url,
+        layout_style, collapsed_properties, commutative_properties)
+
+    created_dot_filename = tmp_dot_fil.Name
+
+    out_dest = lib_util.get_default_output_destination()
+    _copy_graphviz_to_output_destination(logfil, created_dot_filename, out_dest)
+
+    logfil.flush()
+    logfil.write(lib_util.TimeStamp() + " output_rdf_graph_as_graphviz closing log file\n")
+    logfil.close()
+
 
 def output_rdf_graph_as_svg(
         page_title, error_msg, parameters, grph, parameterized_links, top_url,
@@ -859,38 +964,29 @@ def output_rdf_graph_as_svg(
     This transforms a RDF triplestore into a temporary DOT file, which is
     transformed by GraphViz into a SVG file sent to the HTTP browser.
     """
-    tmp_log_fil = lib_util.TmpFile("survol_graph_to_svg", "log")
-    try:
-        logfil = open(tmp_log_fil.Name, "w")
-    except Exception as exc:
-        logging.error("_graph_to_svg caught %s when opening:%s", str(exc), tmp_log_fil.Name)
-        raise Exception("_graph_to_svg caught %s when opening:%s\n" % (str(exc), tmp_log_fil.Name))
 
-    logfil.write("Starting logging\n")
+    # This temporary log file to understand what is going on with Graphviz.
+    logfil = _create_graphviz_log_file("survol_graph_to_svg")
 
-    tmp_dot_fil = lib_util.TmpFile("survol_graph_to_svg", "dot")
-    dot_filnam_after = tmp_dot_fil.Name
-    rdfoutfil = open(dot_filnam_after, "w")
-    logfil.write(lib_util.TimeStamp() + " Created " + dot_filnam_after + "\n")
-
-    dot_layout = write_dot_header(page_title, layout_style, rdfoutfil, grph)
-    _write_dot_legend(page_title, top_url, error_msg,
-                      parameters, parameterized_links, rdfoutfil, grph)
-    logfil.write(lib_util.TimeStamp() + " Legend written\n")
-    _rdf_graph_to_dot_stream(grph, logfil, rdfoutfil, collapsed_properties, commutative_properties)
-    logfil.write(lib_util.TimeStamp() + " About to close dot file\n")
-
-    # BEWARE: Do this because the file is about to be reopened from another process.
-    rdfoutfil.flush()
-    os.fsync(rdfoutfil.fileno())
-    rdfoutfil.close()
+    tmp_dot_fil, dot_layout = _output_rdf_graph_as_graphviz_core(
+        logfil, True,
+        page_title, error_msg, parameters, grph, parameterized_links, top_url,
+        layout_style, collapsed_properties, commutative_properties)
+    created_dot_filename = tmp_dot_fil.Name
 
     out_dest = lib_util.get_default_output_destination()
 
     logfil.flush()
-    _dot_to_svg(dot_filnam_after, logfil, dot_layout, out_dest)
+    # TODO: If there is an error, we should write it as an HTML page.
+    # On the other hand it is impossible to pipe the output because it would assume a SVG document.
+
+    svg_tmp_file = _dot_to_svg(created_dot_filename, logfil, dot_layout)
+
+    # Here, we are sure that the output file is closed and will be removed.
+    _copy_svg_to_output_destination(logfil, svg_tmp_file.Name, out_dest)
+
     logfil.flush()
-    logfil.write(lib_util.TimeStamp() + " closing log file\n")
+    logfil.write(lib_util.TimeStamp() + " output_rdf_graph_as_svg closing log file\n")
     logfil.close()
 
 
