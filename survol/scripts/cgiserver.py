@@ -29,6 +29,9 @@ import datetime
 import atexit
 import webbrowser
 import logging
+import cProfile
+import signal
+import pstats
 
 if __package__:
     from . import daemon_factory
@@ -47,6 +50,7 @@ def __run_server_forever(server):
 
 
 _port_number_default = 8000
+general_profiler = None
 
 
 # So it can be restored.
@@ -61,6 +65,7 @@ def __print_cgi_server_usage():
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
     print("    -b,--browser              Starts a browser.")
     print("    -l,--log                  Log level.")
+    print("    -P,--profile              Profile application.")
     print("")
 
 
@@ -71,11 +76,15 @@ def _exit_handler():
 
 def cgiserver_entry_point():
     """Note: It is also possible to call the script from command line."""
+    global general_profiler
 
     logging.debug("cgiserver_entry_point")
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ha:p:bl:", ["help", "address=", "port=", "browser", "log"])
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            "ha:p:bl:P",
+            ["help", "address=", "port=", "browser", "log", "profile"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -115,6 +124,9 @@ def cgiserver_entry_point():
             port_number = int(a_val)
         elif an_opt in ("-b", "--browser"):
             start_browser = True
+        elif an_opt in ("-P", "--profile"):
+            general_profiler = cProfile.Profile()
+            general_profiler.enable()
         elif an_opt in ("-h", "--help"):
             __print_cgi_server_usage()
             sys.exit()
@@ -327,6 +339,16 @@ def start_server_forever(server_name, port_number, current_dir=""):
     logfil.close()
 
 
+def signal_handler(sig, frame):
+    global general_profiler
+    print('You pressed Ctrl+C!')
+    if general_profiler:
+        general_profiler.disable()
+        general_profiler.dump_stats("cgiserver.profile")
+        pstats.Stats(general_profiler).sort_stats(pstats.SortKey.CUMULATIVE).print_stats(100)
+    sys.exit(0)
+
+
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
     # and not use the installed packages.
@@ -334,6 +356,7 @@ if __name__ == '__main__':
     # www/index.htm
     # www/js/base64.js
     #
+    signal.signal(signal.SIGINT, signal_handler)
     # In this mode, we assume that the Python scripts are here, on the same server.
     cgiserver_entry_point()
 
