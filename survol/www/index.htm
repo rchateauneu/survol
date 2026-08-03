@@ -1153,25 +1153,25 @@ function loadUrlUpdateDisplay(theUrl, shouldMerge, objectSvg)
     // This is called by a JSON document loaded from a Python script.
     function loaderCallback(error,data)
     {
-        console.log("loaderCallback theUrl="+theUrl+" error="+error);
+        console.log("loaderCallback theUrl=" + theUrl + " error=" + error);
         if(error) {
-            alert("loaderCallback: theUrl="+theUrl+" error="+JSON.stringify(error));
+            alert("loaderCallback: theUrl="+theUrl+" error=" + JSON.stringify(error));
         }
 
-        if( data == null )
+        if (data == null)
         {
             console.log("loaderCallback: data is null");
             return;
         }
 
         // console.log("loaderCallback data="+JSON.stringify(data));
-        if( data.status == "error" )
+        if (data.status == "error")
         {
             alert("Error agent:"+data.message);
             return;
         }
 
-        if( data.survol_error != undefined )
+        if (data.survol_error != undefined)
         {
             alert("Error:"+data.survol_error);
             return;
