@@ -1,2 +1,11 @@
 rdflib
+rdflib-sqlalchemy
 psutil
+jinja2
+legacy-cgi
+six
+pywin32;sys_platform=="win32"
+WMI;sys_platform=="win32"
+supervisor;sys_platform=="linux"
+supervisor-win;sys_platform=="win32"
+pywbem;sys_platform=="linux"
