@@ -1,3 +1,4 @@
+# pyx is the extension is used for files containing Cython code. 
 cython dockit.pyx
 # gcc -I /usr/include/python2.7 -l python2.7 dockit.c -o dockit
 
