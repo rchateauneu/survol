@@ -149,7 +149,7 @@ def signal_handler(sig, frame):
     if general_profiler:
         general_profiler.disable()
         general_profiler.dump_stats("wsgiserver.profile")
-        pstats.Stats(general_profiler).sort_stats(pstats.SortKey.CUMULATIVE).print_stats(20)
+        pstats.Stats(general_profiler).sort_stats(pstats.SortKey.CUMULATIVE).print_stats(100)
     sys.exit(0)
 
 
