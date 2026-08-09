@@ -1,8 +1,9 @@
 On veut simplifier Survol en retirant la conversion de Rdf en HTML/Dot/SVG etc...
 C'est un module completement a part, qu'on peut tester en isolation
 en comparant des fichiers de sortie.
+En entree, ca prend du RDF. En sortie, ga genere du HTML, DOT, SVG etc...
 
-C'est une sorte de serveur qui s'intercale entre CGI/WSGI , et les scripts:
+Au point de vue de l'implementation, c'est une sorte de serveur qui s'intercale entre CGI/WSGI , et les scripts:
 - En entree, ca prend les parametres d'affichage (accept, mode, clusterisation)
 - En sortie, ca convertit.
 
@@ -66,7 +67,7 @@ Selection de nodes.
 On doit pouvoir clusteriser des clusters.
 
 Named graphs pour modeliser les transformations:
-------------------------------------------------
+================================================
 Les noeuds qui peuvent etre clusterises (apparaitre ou disparaitre selon les parametres)
 sont dans des named graphs differents, comme des couches.
 Ainsi, on peut avoir plusieurs types de clusterisation concernant les memes nodes.
@@ -79,9 +80,42 @@ car il suffira de selectionner un seul named graph ou bien le graph par defaut.
 
 Attention: the contents of the default graph are implementation-dependent. Some RDF stores keep it separate from the named graphs, while others expose the union of all named graphs as the default graph. If your application depends on predictable behavior across different SPARQL endpoints, it's usually best to query named graphs explicitly with GRAPH ?g { ... } rather than relying on the default graph.
 
-On devra donc creer un "base" named graph.
+On devra peut-etre donc creer un "base" named graph qui joue le role du named graph par default mais est portable ?
 
 Attention aux named graphs utilises pour les updates de nouvelles donnees: L'IRI du named graph est l'URI du script. J'ai oublie pourquoi c'etait necessaire.
+
+On peut utiliser l'IRI d'un named graph comme sujet ou objet d'un triple. C'est conceptuellement different mais commode.
+
+Attention : Les names graphs sont deja utilises pour les scripts qui envoient des mises a jour. Je crois, du moins.
+
+Exemple de clusterisation: Remplacer tous les sous-processes d'un process.
+--------------------------------------------------------------------------
+Note: Si on deplace un triple d'un named graph a un autre, les triples qui pointent vers ce named graph ne sont pas deplaces.
+Donc attention quand on itere: Il faut partir du triple relativement a son named graph.
+
+On se base sur "insert data" et "delete data" de Sparql 1.1.
+- On part du named graph courant qui n'est pas le graph par default: "current".
+- Creer un named graph "pid_XYZ_children".
+- "delete data" de "current" de tous les triples (pid_XYZ, sub-process, *) et "insert data" de ces pids dans "pid_XYZ_children".
+- On ne cree pas un triple ("pid_XYZ_children", instance_of, CIM_Process) car ca impliquerait qu'on ne peut clusteriser que des nodes de la meme classe.
+  Au contraire, "insert data" dans "current" de (pid_XYZ, CLUSTER, "pid_XYZ_children").
+  Il faut faire ca pour tous les triples de "current" dont l'objet point vers un node qui doit etre clusterise.
+
+Comment on affiche:
+- Si on veut la clusterisation, boucler sur "current",
+- Si on veut tous les nodes, boucler sur "current" ET "pid_XYZ_children". Probleme (ou pas), on va voir les sous-nodes et leur cluster.
+  Ca peut etre bien pour les mettre dans une boite, mais on peut aussi l'eliminer.
+  
+Pour supprimer un cluster : on fait "insert data" dans "current" de tous les triples, et on "delete data" dans "current" du triple (pid_XYZ, CLUSTER, "pid_XYZ_children")
+
+Le named graph "current" est cree au debut, en copiant le default graph.
+A chaque creation d'un cluster, on fabrique la sortie en iterant sur les triples de "current"
+
+Autre exemple de clusterisation : k-means:
+==========================================
+
+On prend tous les sous-elements d'un node, au premier niveau. Puis classification en k-classes.
+On cree alors k clusters. Il faut ajouter un label a chcun des nodes qui representent un cluster.
 
 Parametrer l'affichage en tables:
 ---------------------------------

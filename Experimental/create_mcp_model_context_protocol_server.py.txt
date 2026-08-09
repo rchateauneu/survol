@@ -1,0 +1,109 @@
+On veut utiliser Survol comme un serveur MCP.
+On fournit des scripts. Le parametre est en general un moniker.
+Ca renvoie du RDF.
+Ca permet de faire du RAG mais on envoie des resultats d'un plus haut niveau.
+Et surtout, les resultats sont rigoureux.
+Idealement, il faudrait que le LLM combine les resultats en RDF en utilisant une librairie RDF et Sparql dessus.
+Ca permettrait de melanger des calculs rigoureux, avec des donnees exterieures plus floues.
+
+- On ne veut pas modifier chaque script avec quelque chose comme:
+@mcp.tool()
+    async def my_func(arg1: float, arg: float) -> str:
+
+D'apres ChatGPT:
+
+"Le point important : ne pas faire subprocess si tes scripts sont importables
+
+Si tes scripts ont par exemple une fonction main() ou une fonction qui produit le RDF, le serveur MCP peut importer dynamiquement les modules et fabriquer les fonctions MCP à partir d'eux."
+
+On le fait tourner en stdio, car c'est deja assez lent comme ca.
+
+===============================================================================	
+from pathlib import Path
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("RDF server")
+
+class PythonScript:
+    def __init__(self, script_path):
+        self.path = script_path
+        self.module = self.load()
+
+    def load(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            self.path.stem,
+            self.path
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def run(self, query_string):
+        # Ici on mettra QUERY_STRING dans os.environ
+        # puis module.Main()
+        with environment(QUERY_STRING=query_string):
+            return self.module.Main()        
+
+# Two kind of walks : With and without argument.
+all_scripts_objects = {
+	# TODO: Build a string with the subdirectories.
+    script_path.stem: PythonScript(script_path)
+    for script_path in Path("scripts").glob("*.py")
+}
+
+# Do the same for top-level scripts.
+def make_tool_with_moniker(script_object):
+    # async def tool(query_string: str) -> str:
+	# Ou alors renvoyer du Json-LD : Json a l'air d'avoir la preference de MCP.
+    async def tool(query_string: str) -> rdflib.Graph:
+        return script_object.run(query_string)
+    return tool
+	
+for name, script_object in all_scripts_objects.items():
+    tool = make_tool_with_moniker(script_object)
+
+    # Le nom est important : il sera le nom du tool MCP.
+    tool.__name__ = name
+	tool.__doc__ = script_object.module.__doc__
+    mcp.tool()(tool)
+
+
+
+
+all_resources = {
+    "directory": {
+        "uri": "filesystem://{path}",
+        "mime_type": "text/turtle",
+		# Add the script entity.py somewhere.
+    },
+}
+
+def make_resource(script, uri, mime_type):
+
+    @mcp.resource(uri, mime_type=mime_type)
+    def resource(path: str) -> str:
+        graph: rdflib.Graph = script.run(path)
+        return graph.serialize(format="turtle")
+
+    return resource
+
+for script_name, config in all_resources.items():
+
+    script = scripts[script_name]
+
+    make_resource(
+        script,
+        config["uri"],
+        config["mime_type"],
+    )
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+
+# Implementer "entity" comme une resource.
+# Un seul script ou bien un script par classe ?
+	
+
+===============================================================================	

@@ -1,6 +1,6 @@
 Entrainer un reseau neuronal avec toutes les donnees possibles concernant une application.
 
-De meme que Survol interrgore toutes les sources possibles de donnees pour generer des graphes RDF,
+De meme que Survol interroge toutes les sources possibles de donnees pour generer des graphes RDF,
 on veut faire la meme chose avec un reseau neuronal.
 Ca ne marche qu'avec une machine qui a principalement ou uniquement
 l'application cible.

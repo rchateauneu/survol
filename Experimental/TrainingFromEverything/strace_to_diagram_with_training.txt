@@ -1,19 +1,26 @@
-On utilse strace avec sous-process, en continu, injecte dans un LLM.
+On utilise strace avec sous-process, en continu, injecte dans un LLM.
 La sortie doit etre un diagramme qui peut evoluer, lentement.
-Le diagramme represente de facon consise ce que fait le log.
+Le diagramme represente de facon concise ce que fait le log.
 On part d'un modele existant qui va etre "fine-trainer" avec l'application qui genere le log.
 
 
 Un premier pipe de compression pour eliminer ce qui est trivial,
 et separer les streams de chaque process.
-En revanche, on peut passer au LLM les streams dans des fichiers differents,
+On passe au LLM les streams dans des fichiers differents,
 ce qui lui permet d'avoir une vue plus globale de l'activite.
-Retrouver le programme C++ qui faisait le parsing.
 
 Requetes successives au LLM en lui demandant de garder le contexte,
 on lui fournit de nouvelles lignes de log, et il renvoie une nouvelle representation.
 Ou eventuellement seulement les differences.
 Dans son contexte, il conserve les processes, les fichiers en cours d'ecriture.
+
+Implementation:
+===============
+On a trois programmes qui peuvent parser:
+- Le script historique en Python.
+- En C++, "legacy" : a-t-il ete utilise ?
+- Un nouveau, en cours d'ecriture, et qui sert a convertir en RDF.
+
 
 GDB-MCP:
 ========
