@@ -257,6 +257,10 @@ def recursive_walk_on_scripts(
                 curr_dir_node = rdflib.BNode()
             else:
                 try:
+                    # FIXME: This is bad because it uses a literal node as a subject which forbidden in RDF.
+                    # FIXME: It only works because it is converted to json with the flag "mode=menu"
+                    # FIXME: This is one of the reasons why "mode=menu" should be replaced with a simple RDF output
+                    # FIXME: where the scripts urls are tagged with seeAlso.
                     curr_dir_node = lib_util.DirDocNode(arg_dir, dir)
                 except Exception as exc:
                     logging.error("exc=%s", exc)
@@ -281,7 +285,6 @@ def recursive_walk_on_scripts(
             # The label of an intermediate node is the directory name.
             dir_as_node = lib_util.NodeLiteral(dir)
             callback_grph_add((curr_dir_node, pc_property_information, dir_as_node), depth_call)
-
 
             something_added = recursive_walk_aux(
                 curr_dir_node, a_parent_node, full_sub_dir, sub_relative_dir, depth_call + 1)
