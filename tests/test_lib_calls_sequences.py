@@ -71,10 +71,6 @@ class RepetitionDetectionTest(unittest.TestCase):
             for one_input_list in itertools.combinations_with_replacement(['a', 'b', 'c', 'd'], 8):
                 self.aux_restore(max_len, list(one_input_list))
 
-
     def test_simplify(self):
         self.aux_simplify([1], [([([([([([1], 1)], 1)], 1)], 1)], 1)])
         self.aux_simplify([1, 2], [([([1], 1)], 1), ([([2], 1)], 1)])
-
-
-
