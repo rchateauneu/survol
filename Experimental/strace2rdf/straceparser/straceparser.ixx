@@ -9,6 +9,7 @@ export class Triple {
 	string subject, predicate, object;
 };
 
+// This contains a couple of triple which describe the system call.
 export class TripleStore {
 	vector<Triple> m_triples;
 public:

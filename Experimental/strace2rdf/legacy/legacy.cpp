@@ -4,6 +4,13 @@
 ** "Survol : The map is the territory".
 **
 ** Copyright Primhill Computers 2023
+* 
+* We could maybe use this one which does what we want ?
+* We just need to:
+* 1. Parse the strace output, notably the process id and the function call.
+* 2. Eliminate use useless calls.
+* 3. Create one file per process.
+* 
 **********************************************************************/
 
 #ifdef __linux__

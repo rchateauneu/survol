@@ -9,6 +9,9 @@ import straceparser;
 using namespace std;
 
 /*
+    Anciennes idees.
+    On va se contenter de parser.
+
     print("DockIT: %s <executable>" % prog_nam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                       This message.")
@@ -40,6 +43,12 @@ using namespace std;
 
 int main()
 {
+	/*
+    * Pas utilise pour l'instant.
+    * En fait, on veut lire a partir d'un pipe de strace,
+    * et creer plusieurs fichiers, un par process.
+    * Et eliminer les appels dont on n'a pas besoin.
+    */
     string filename;
     STraceParser parser(filename);
 
