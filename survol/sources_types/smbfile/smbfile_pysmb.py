@@ -10,7 +10,7 @@ from lib_properties import pc
 
 try:
 	# https://bugzilla.samba.org/show_bug.cgi?id=11181
-	# I installed pysmp but
+	# I installed pysmb but
 	import pysmb as smb
 except ImportError:
 	try:
