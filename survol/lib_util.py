@@ -426,7 +426,7 @@ def RequestUri():
     try:
         # Example: REQUEST_URI=/Survol/survol/print_environment_variables.py
         script = os.environ["REQUEST_URI"]
-        # sys.stderr.write("RequestUri script=%s\n"%script)
+        logging.debug("RequestUri REQUEST_URI=%s\n" % script)
     except KeyError:
         try:
             # For example SCRIPT_NAME=/survol/print_environment_variables.py
@@ -438,16 +438,15 @@ def RequestUri():
             if not script.startswith("/"):
                 script = "/" + script
             script = script.replace("\\", "/")
-            #print("scriptA=", script)
+            logging.debug("RequestUri script=%s\n" % script)
 
             try:
                 # For example QUERY_STRING="xid=EURO%5CLONL00111310@process:16580"
                 query_string = os.environ['QUERY_STRING']
-                #print("scriptB=", script)
-                #print("query_string=", query_string)
+                logging.debug("RequestUri query_string=%s\n" % query_string)
                 if query_string:
                     script += "?" + query_string
-                #print("scriptC=", script)
+                logging.debug("RequestUri script=%s\n" % script)
             except KeyError:
                 script = "QUERY_STRING should be set in RequestUri()"
         except KeyError:
@@ -1303,6 +1302,7 @@ def _strip_or_replace_cgi_argument(script, cgi_argument_with_equal, other_value)
 
     # TODO: PROBLEMS IF THE URL CONTAINS BACKSLASHES SUCH AS HERE:
     # "http://127.0.0.1:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
+    logging.debug("_strip_or_replace_cgi_argument updated_url=%s" % updated_url)
     return updated_url
 
 
