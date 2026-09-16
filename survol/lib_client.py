@@ -210,7 +210,7 @@ class SourceLocal (SourceCgi):
 
         lib_util.SetGlobalOutMach(outmach_string)
 
-        # If there is an error, it will not exit but send a nice exception/
+        # If there is an error, it will not exit but send an exception which can be handled.
         lib_common.enable_error_message(False)
         try:
             # TODO: If some arguments are missing, it might display an HTML form.
@@ -731,7 +731,7 @@ class TripleStore:
         self.m_triplestore = grph_k_base
 
     def to_stream_xml(self, str_stream):
-        lib_kbase.triplestore_to_stream_xml(self.m_triplestore, str_stream, 'xml')
+        lib_kbase.triplestore_to_stream_xml(self.m_triplestore, str_stream)
 
     def __add__(self, other_triple):
         """This merges two triplestores. The package rdflib does exactly that,

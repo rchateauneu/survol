@@ -51,7 +51,10 @@ nodeMachine = gUriGen.HostnameUri(lib_util.currentHostname)
 
 def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
     """
-    The result can be sent to the Web browser in several formats.
+    The result can be sent to the Web browser or to the MCP client in several formats.
+
+    FIXME: This is not ideal because MCP json must be serialised then deserialised.
+    FIXME: The serializaton logic should be in the object theCgi.
     """
     theCgi._bind_identical_nodes()
 
@@ -78,6 +81,8 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
         lib_export_json.output_rdf_graph_as_json_menu(page_title, error_msg, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.output_rdf_graph_as_rdf(grph)
+    elif mode == "mpcjson":
+        lib_export_ontology.output_rdf_graph_as_mpc_json(grph)
     elif mode == "daemon":
         # Only in this output mode, all meta-data are injected in the graph, to be used at the next output.
         for one_collapsed_property in collapsed_properties:
@@ -92,6 +97,9 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
         except Exception as exc:
             logging.error("_out_cgi_mode Exception exc=%s", exc)
             raise
+    elif mode == "graphviz":
+        lib_export_dot.output_rdf_graph_as_graphviz(page_title, error_msg, parameters, grph, parameterized_links, top_url,
+                                               theCgi.m_layout_style, collapsed_properties, commutative_properties)
     elif mode in ["svg", ""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?),
         # probably because of the ampersand which must be escaped, or had to be in old versions.
@@ -330,10 +338,12 @@ class ScriptEnvironment():
         self.m_calling_url = lib_util.RequestUri()
         self.m_url_without_mode = lib_util.url_mode_replace(self.m_calling_url, "")
 
+        logging.debug("self.m_calling_url=%s" % self.m_calling_url)
         full_title, entity_class, entity_id, entity_host = lib_naming.parse_entity_uri_with_host(
             self.m_calling_url,
             long_display=False,
             force_entity_ip_addr=None)
+        logging.debug("entity_class=%s entity_id=%s" % (entity_class, entity_id))
         # Here, the commas separating the CGI arguments are intact, but the commas in the arguments are encoded.
         entity_id_dict = lib_util.SplitMoniker(entity_id)
 

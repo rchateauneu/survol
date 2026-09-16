@@ -190,7 +190,7 @@ def Main():
 
     out_dest = lib_util.get_default_output_destination()
 
-    lib_kbase.triplestore_to_stream_xml(grph, out_dest, 'xml')
+    lib_kbase.triplestore_to_stream_xml(grph, out_dest)
     logging.debug("Grph2Rdf leaving, len(new_grph)=%d", len(grph))
 
 

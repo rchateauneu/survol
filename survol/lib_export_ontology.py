@@ -1,3 +1,4 @@
+import io
 import os
 import sys
 import logging
@@ -24,12 +25,12 @@ def flush_or_save_rdf_graph(grph, output_rdf_filename):
         lib_util.WrtHeader('text/html')
 
         out_dest = lib_util.get_default_output_destination()
-        lib_kbase.triplestore_to_stream_xml(grph,out_dest, 'xml')
+        lib_kbase.triplestore_to_stream_xml(grph,out_dest)
 
     except KeyError:
         logging.info("onto_filnam=%s", output_rdf_filename)
         outfil = open(output_rdf_filename, "w")
-        lib_kbase.triplestore_to_stream_xml(grph,outfil, 'xml')
+        lib_kbase.triplestore_to_stream_xml(grph,outfil)
         outfil.close()
 
 ################################################################################
@@ -212,8 +213,37 @@ def output_rdf_graph_as_rdf(grph):
     # Scanner les objets et ajouter seealso = entity_menu_seealso
     add_seealso_statements(new_grph)
 
-    lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
-    logging.debug("Grph2Rdf leaving, len(new_grph)=%d", len(new_grph))
+    lib_kbase.triplestore_to_stream_xml(new_grph, out_dest)
+    logging.debug("output_rdf_graph_as_rdf leaving, len(new_grph)=%d", len(new_grph))
+
+
+def output_rdf_graph_as_mpc_json(grph):
+    """This output format is only intended at MPC clients.
+    For the moment, the ontology is not added.
+    """
+
+    if False:
+        arr_headers = [
+            ('Access-Control-Allow-Origin', '*'),
+            ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
+            ('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'),
+        ]
+        lib_util.WrtHeader('test/rdf+json', arr_headers)
+
+
+
+    logging.error("output_rdf_graph_as_mpc_json, len(grph)=%d", len(grph))
+    out_dest = lib_util.get_default_output_destination()
+    lib_kbase.triplestore_to_stream_json_ld(grph, out_dest)
+    logging.debug("output_rdf_graph_as_mpc_json leaving, len(grph)=%d", len(grph))
+
+    if False:
+        toto = io.BytesIO()
+        lib_kbase.triplestore_to_stream_json_ld(grph, toto)
+        str_value = toto.getvalue()
+        logging.error("output_rdf_graph_as_mpc_json leaving, len(str_value)=%d", len(str_value))
+
+
 
 
 def WriteRdfError(message, broken_url):
@@ -240,5 +270,5 @@ def WriteRdfError(message, broken_url):
 
     out_dest = lib_util.get_default_output_destination()
 
-    lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
+    lib_kbase.triplestore_to_stream_xml(new_grph, out_dest)
 

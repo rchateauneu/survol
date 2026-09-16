@@ -252,7 +252,7 @@ def output_rdf_graph_as_json_d3(page_title, error_msg, parameters, grph):
 
     _write_json_header(json.dumps(graph, indent=2))
 
-
+# On va supprimer ceci car on ajoute un seeAlso a chaque objet, et ce seeAlso renvoie un arbre RDF.
 def output_rdf_graph_as_json_menu(page_title, error_msg, parameters, grph):
     """
     This returns a tree of scripts, usable as the contextual menu of a node displayed

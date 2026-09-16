@@ -128,7 +128,7 @@ def triplestore_all_strings(grph):
             yield k_sub, k_pred, k_obj
 
 
-def triplestore_to_stream_xml(grph, out_dest, a_format):
+def triplestore_to_stream_xml(grph, out_dest):
     """This writes a triplestore to a stream which can be a socket, file, a bytes or a str."""
 
     try:
@@ -148,9 +148,17 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
         #     'str': Py2
         #     '_io.BytesIO': Py3
 
-        grph.serialize(destination=out_dest, format=a_format)
+        grph.serialize(destination=out_dest, format='xml')
     except Exception as exc:
         logging.error("triplestore_to_stream_xml Exception:%s", exc)
+        raise
+
+
+def triplestore_to_stream_json_ld(grph, out_dest):
+    try:
+        grph.serialize(destination=out_dest, format='json-ld')
+    except Exception as exc:
+        logging.error("triplestore_to_stream_json_ld Exception:%s", exc)
         raise
 
 
