@@ -281,12 +281,16 @@ def build_flat_hierarchy_from_dir(sources_types_directory: str):
 
     scripts_list = []
     for root_path, dirs, files in os.walk(sources_types_directory):
+        if root_path.endswith("__pycache__"):
+            continue
         logging.debug("os.path.abspath(root_path)=%s sources_types_directory=%s" % (os.path.abspath(root_path), sources_types_directory))
         if os.path.abspath(root_path) == sources_types_directory:
             arguments = {}
         else:
             arguments = {"moniker": str}
         for top_level_script in files:
+            if top_level_script == "__init__.py":
+                continue
             logging.info("Processing script: %s %s" % (root_path, top_level_script))
             if not top_level_script.endswith(".py"):
                 continue
