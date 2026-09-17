@@ -14,7 +14,7 @@ import lib_export_html
 import lib_util
 import lib_configuration
 
-from lib_util import WrtAsUtf
+from lib_util import write_as_utf
 
 
 def GetSubmittedConfig(loaded_config):
@@ -56,7 +56,7 @@ def MainNoJinja(config):
     checked_jinja2 = " checked" if config["html_jinja2"] else ""
     checked_graphviz_wsl = " checked" if config["graphviz_wsl"] else ""
 
-    WrtAsUtf("""
+    write_as_utf("""
     <body><h2>Edit Survol configuration</h2>
     <form method="post" action="edit_configuration.py" name="ServerConfiguration">
     <table border="0">
@@ -88,8 +88,8 @@ def MainNoJinja(config):
     """ % (cgi_server_port, wsgi_server_port, bookmark_url, checked_jinja2, checked_graphviz_wsl))
 
     html_footer = "".join(lib_export_html.display_html_text_footer())
-    WrtAsUtf(html_footer)
-    WrtAsUtf("</body></html>")
+    write_as_utf(html_footer)
+    write_as_utf("</body></html>")
 
 
 def MainJinja(config):
@@ -106,7 +106,7 @@ def MainJinja(config):
     # Pass all four configuration values to the Jinja2 template.
     jinja_render = jinja_template.render(**config)
     lib_util.WrtHeader('text/html')
-    WrtAsUtf(jinja_render)
+    write_as_utf(jinja_render)
 
 
 def Main():

@@ -23,6 +23,7 @@ import re
 import sys
 import six
 try:
+    # This module is deprecated.
     import cgi
 except ImportError:
     import legacy_cgi as cgi
@@ -878,34 +879,34 @@ def InfoMessageHtml(message):
     # TODO: Change this for WSGI.
     globalOutMach.HeaderWriter("text/html")
 
-    WrtAsUtf(
+    write_as_utf(
         "<html><head><title>Error: Process=%s</title></head>"
         % str(os.getpid()))
 
-    WrtAsUtf("<body>")
+    write_as_utf("<body>")
 
-    WrtAsUtf("<b>" + message + "</b><br>")
+    write_as_utf("<b>" + message + "</b><br>")
 
-    WrtAsUtf('<table>')
+    write_as_utf('<table>')
 
     if is_py3:
-        WrtAsUtf("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
+        write_as_utf("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
 
-    WrtAsUtf("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
-    WrtAsUtf("<tr><td>OS</td><td>%s</td></tr>" % sys.platform)
-    WrtAsUtf("<tr><td>Version</td><td>%s</td></tr>" % sys.version)
+    write_as_utf("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
+    write_as_utf("<tr><td>OS</td><td>%s</td></tr>" % sys.platform)
+    write_as_utf("<tr><td>Version</td><td>%s</td></tr>" % sys.version)
     
-    WrtAsUtf('</table>')
+    write_as_utf('</table>')
 
     # http://desktop-ni99v8e:8000/survol/www/configuration.htm
     config_url = uriRoot + "/edit_configuration.py"
-    WrtAsUtf('<a href="%s">Setup</a>.<br>' % config_url)
+    write_as_utf('<a href="%s">Setup</a>.<br>' % config_url)
     envs_url = uriRoot + "/print_environment_variables.py"
-    WrtAsUtf('<a href="%s">Environment variables</a>.<br>' % envs_url)
+    write_as_utf('<a href="%s">Environment variables</a>.<br>' % envs_url)
     home_url = TopUrl("", "")
-    WrtAsUtf('<a href="%s">Return home</a>.<br>' % home_url)
+    write_as_utf('<a href="%s">Return home</a>.<br>' % home_url)
 
-    WrtAsUtf("""
+    write_as_utf("""
     </body></html>
     """)
     logging.debug("InfoMessageHtml:Leaving")
@@ -1615,7 +1616,7 @@ def is_apache_server():
     return os.environ["SERVER_SOFTWARE"].startswith("Apache/")
 
 
-def WrtAsUtf(input_str):
+def write_as_utf(input_str):
     """
     Depending if the stream is a socket, a file or standard output,
     if Python 2 or 3, Windows or Linux, some complicated tests or conversions are needed.
@@ -1626,15 +1627,15 @@ def WrtAsUtf(input_str):
     - CGI output.
     """
 
-    # FIXME: Should always send bytes (Py3) or str (Py2)
     my_output_stream = get_default_output_destination()
+    # FIXME: Should always send bytes (Py3) or str (Py2)
     try:
         my_output_stream.write(input_str)
     except:
         try:
             my_output_stream.write(input_str.encode('latin1'))
         except Exception as exc:
-            sys.stderr.write("WrtAsUtf type=%s my_output_stream=%s caught %s\n"
+            logging.error("write_utf_to_stream type=%s my_output_stream=%s caught %s\n"
                              % (type(input_str), type(my_output_stream), exc))
 
 

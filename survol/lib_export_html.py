@@ -13,7 +13,7 @@ import lib_naming
 import lib_kbase
 import lib_dirmenu
 from lib_properties import pc
-from lib_util import WrtAsUtf
+from lib_util import write_as_utf
 from sources_types import CIM_ComputerSystem
 
 # TODO: Use descriptions provided by lib_bookmark.py
@@ -551,7 +551,7 @@ def display_html_text_header(page_title):
     """
     This is the common Survol header, ideally for all HTML documents.
     """
-    WrtAsUtf( """
+    write_as_utf( """
     <head>
         <title>%s</title>
         <link rel='stylesheet' type='text/css' href='/survol/www/css/html_exports.css'>
@@ -598,43 +598,43 @@ def _output_rdf_graph_as_html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_l
 
     display_html_text_header(page_title)
 
-    WrtAsUtf('<body>')
+    write_as_utf('<body>')
 
     script_information = "".join(_script_information_html_iterator(theCgi, gbl_cgi_env_list))
-    WrtAsUtf(script_information)
+    write_as_utf(script_information)
     object_information = "".join(_object_information_html_iterator(theCgi))
-    WrtAsUtf(object_information)
+    write_as_utf(object_information)
 
-    WrtAsUtf("".join(_write_errors_no_jinja(error_msg)))
+    write_as_utf("".join(_write_errors_no_jinja(error_msg)))
 
     dict_class_subj_prop_obj = _create_objects_list(grph)
 
-    WrtAsUtf("".join(_write_all_objects_no_jinja(dict_class_subj_prop_obj)))
+    write_as_utf("".join(_write_all_objects_no_jinja(dict_class_subj_prop_obj)))
 
     parameters_edition_html = "".join(_parameters_edition_html_iterator(theCgi))
     if parameters_edition_html:
-        WrtAsUtf("<h2>Script parameters</h2>")
-        WrtAsUtf(parameters_edition_html)
+        write_as_utf("<h2>Script parameters</h2>")
+        write_as_utf(parameters_edition_html)
 
     # Scripts do not apply when displaying a class.
     # TODO: When in a enumerate script such as enumerate_CIM_LogicalDisk.py,
     # it should assume the same: No id but a class.
     if(theCgi.m_entity_type == "") or (theCgi.m_entity_id != ""):
-        WrtAsUtf("<h2>Related data scripts</h2>")
-        WrtAsUtf("".join(_scripts_tree_html_iterator(theCgi)))
+        write_as_utf("<h2>Related data scripts</h2>")
+        write_as_utf("".join(_scripts_tree_html_iterator(theCgi)))
 
-    WrtAsUtf("<h2>Other related urls</h2>")
-    WrtAsUtf('<table class="other_urls">')
-    WrtAsUtf("".join(_other_urls_html_iterator(top_url)))
-    WrtAsUtf("".join(_cim_urls_html_iterator()))
-    WrtAsUtf('</table>')
+    write_as_utf("<h2>Other related urls</h2>")
+    write_as_utf('<table class="other_urls">')
+    write_as_utf("".join(_other_urls_html_iterator(top_url)))
+    write_as_utf("".join(_cim_urls_html_iterator()))
+    write_as_utf('</table>')
 
     html_footer = "".join(display_html_text_footer())
-    WrtAsUtf(html_footer)
+    write_as_utf(html_footer)
 
-    WrtAsUtf("</body>")
+    write_as_utf("</body>")
 
-    WrtAsUtf("</html> ")
+    write_as_utf("</html> ")
 
 
 def output_rdf_graph_as_html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
@@ -690,7 +690,7 @@ def output_rdf_graph_as_html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list)
         list_other_urls=list(list_other_urls),
         html_cim_urls=html_cim_urls
     )
-    WrtAsUtf(jinja_render)
+    write_as_utf(jinja_render)
 
 
 def output_rdf_graph_as_html(theCgi, top_url, error_msg, gbl_cgi_env_list):

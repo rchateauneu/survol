@@ -17,7 +17,7 @@ import lib_common
 import lib_util
 import lib_credentials
 import lib_export_html
-from lib_util import WrtAsUtf
+from lib_util import write_as_utf
 
 
 def _create_credentials_map():
@@ -55,11 +55,11 @@ def _create_credentials_map():
 
 def _form_update_credentials_no_jinja(form_action, cred_map):
     """This applies only if the jinja2 module is not there."""
-    WrtAsUtf("""
+    write_as_utf("""
     <form method="post" action="%s" name="ServerCredentials">
     """ % (form_action))
 
-    WrtAsUtf("""<tr>
+    write_as_utf("""<tr>
     <td><b>Resource</b></td>
     <td><b>Account</b></td>
     <td><b>Password</b></td>
@@ -69,7 +69,7 @@ def _form_update_credentials_no_jinja(form_action, cred_map):
 
     for cred_type in sorted(cred_map):
         # This is a type of access: Oracle databse, Linux machine, Windows account etc...
-        WrtAsUtf("<tr><td colspan=4><b>%s</b></td></tr>" % cred_type)
+        write_as_utf("<tr><td colspan=4><b>%s</b></td></tr>" % cred_type)
 
         # This is a homogeneous list, for example of machines names, or databases.
         cred_nams = cred_map[cred_type]
@@ -83,7 +83,7 @@ def _form_update_credentials_no_jinja(form_action, cred_map):
             cred_name_url = cred[4]
 
             if cred_name_url:
-                WrtAsUtf("""<tr>
+                write_as_utf("""<tr>
                 <td><a href="%s">%s</a></td>
                 <td>%s</td>
                 <td><input name="%s" value="%s"></td>
@@ -93,7 +93,7 @@ def _form_update_credentials_no_jinja(form_action, cred_map):
             else:
                 # If no URL can be created. For example of the map misses a function
                 # for a given credential type.
-                WrtAsUtf("""<tr>
+                write_as_utf("""<tr>
                 <td>%s</td>
                 <td>%s</td>
                 <td><input name="%s" value="%s"></td>
@@ -101,20 +101,20 @@ def _form_update_credentials_no_jinja(form_action, cred_map):
                 </tr>
                 """ % (cred_name, cred[0], cred[2], cred[1], cred[3]))
 
-    WrtAsUtf("""<tr>""")
-    WrtAsUtf("""<td colspan=4>""")
-    WrtAsUtf("""
+    write_as_utf("""<tr>""")
+    write_as_utf("""<td colspan=4>""")
+    write_as_utf("""
     <input value="Update / delete credential" name="SubmitCredUpdName" type="submit"><br>
     """)
-    WrtAsUtf("""</td>""")
-    WrtAsUtf("""</tr>""")
-    WrtAsUtf("""
+    write_as_utf("""</td>""")
+    write_as_utf("""</tr>""")
+    write_as_utf("""
     </form>
     """)
 
 
 def _form_insert_credentials_no_jinja(form_action, cred_type_list):
-    WrtAsUtf("""
+    write_as_utf("""
     <form method="post" action="edit_credentials.py" name="ServerCredentials">
     """)
 
@@ -124,34 +124,34 @@ def _form_insert_credentials_no_jinja(form_action, cred_type_list):
     cred_input_add_usr = cred_input_add_prefix + "usr"
     cred_input_add_pwd = cred_input_add_prefix + "pwd"
 
-    WrtAsUtf("""<tr>""")
-    WrtAsUtf("""<td colspan=4><b>Credentials creation</b></td>""")
-    WrtAsUtf("""</tr>""")
+    write_as_utf("""<tr>""")
+    write_as_utf("""<td colspan=4><b>Credentials creation</b></td>""")
+    write_as_utf("""</tr>""")
 
-    WrtAsUtf("""<tr>""")
-    WrtAsUtf("""<td colspan=4><select name="%s">""" % cred_input_add_type)
+    write_as_utf("""<tr>""")
+    write_as_utf("""<td colspan=4><select name="%s">""" % cred_input_add_type)
     for cred_type in cred_type_list:
-        WrtAsUtf("""<option value='%s'>%s</option>""" % (cred_type, cred_type))
-    WrtAsUtf("""</select></td>""")
-    WrtAsUtf("""</tr>""")
+        write_as_utf("""<option value='%s'>%s</option>""" % (cred_type, cred_type))
+    write_as_utf("""</select></td>""")
+    write_as_utf("""</tr>""")
 
-    WrtAsUtf("""<tr>""")
-    WrtAsUtf("""
+    write_as_utf("""<tr>""")
+    write_as_utf("""
     <td><input name="%s"></td>
     <td><input name="%s"></td>
     <td><input name="%s"></td>
     </tr>
     """ % (cred_input_add_name, cred_input_add_usr, cred_input_add_pwd))
 
-    WrtAsUtf("""<tr>""")
-    WrtAsUtf("""<td colspan=4>""")
-    WrtAsUtf("""
+    write_as_utf("""<tr>""")
+    write_as_utf("""<td colspan=4>""")
+    write_as_utf("""
     <input type="hidden" value="HiddenValue" name="HiddenName">
     <input value="Insert new credential" name="SubmitCredAddName" type="submit">
     """)
-    WrtAsUtf("""</td>""")
-    WrtAsUtf("""</tr>""")
-    WrtAsUtf("""
+    write_as_utf("""</td>""")
+    write_as_utf("""</tr>""")
+    write_as_utf("""
     </form>
     """)
 
@@ -206,7 +206,7 @@ def _updated_cred_map(cgi_arguments):
                     upd_password = cgi_arguments[cred[2]].value
                     if upd_password != cred[1]:
                         was_changed = True
-                        #   WrtAsUtf("Name=%s: Replace %s by %s<br>"%(cred[0],cred[1],upd_password))
+                        #   write_as_utf("Name=%s: Replace %s by %s<br>"%(cred[0],cred[1],upd_password))
                         cred[1] = upd_password
                 except:
                     pass
@@ -356,28 +356,28 @@ def Main():
         lib_util.WrtHeader('text/html')
         lib_export_html.display_html_text_header(page_title)
 
-        WrtAsUtf("""
+        write_as_utf("""
         <body><h2>%s</h2>
         """ % page_title)
 
-        WrtAsUtf("""
+        write_as_utf("""
         <table border="1" width='100%%'>
         <tr><td><b>Host name</b></td><td>%s</td></tr>
         <tr><td><b>Host address</b></td><td>%s</td></tr>
         <tr><td><b>Remote address</b></td><td>%s</td></tr>
         """ % (curr_host_nam, curr_host_addr, addr_remote))
 
-        WrtAsUtf("""<table border="1" width='100%%'>""")
+        write_as_utf("""<table border="1" width='100%%'>""")
         if cred_map:
             _form_update_credentials_no_jinja(form_action, cred_map)
 
         _form_insert_credentials_no_jinja(form_action, cred_type_list)
-        WrtAsUtf("""</table>""")
+        write_as_utf("""</table>""")
 
         html_footer = "".join(lib_export_html.display_html_text_footer())
-        WrtAsUtf(html_footer)
+        write_as_utf(html_footer)
 
-        WrtAsUtf("</body></html>")
+        write_as_utf("</body></html>")
 
     def main_jinja():
         THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -404,7 +404,7 @@ def Main():
             credMap=ordered_map,
             credTypeList=cred_type_list )
         lib_util.WrtHeader('text/html')
-        WrtAsUtf(jinja_render)
+        write_as_utf(jinja_render)
 
     if lib_util.GetJinja2():
         main_jinja()

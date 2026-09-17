@@ -118,7 +118,7 @@ class SparqlEnvironment:
         except Exception as exc:
             logging.error("Caught:%s" % exc)
             return
-        lib_util.WrtAsUtf(strRdf)
+        lib_util.write_as_utf(strRdf)
 
 ################################################################################
 

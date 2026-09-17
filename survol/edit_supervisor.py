@@ -11,7 +11,7 @@ import lib_util
 import lib_kbase
 import lib_naming
 
-from lib_util import WrtAsUtf
+from lib_util import write_as_utf
 
 from scripts import daemon_factory
 import lib_daemon
@@ -71,16 +71,16 @@ def MainNoJinja(url_supervisor_control, urls_daemons_dict):
     lib_util.WrtHeader('text/html')
     lib_export_html.display_html_text_header("Events generators")
 
-    WrtAsUtf("""
+    write_as_utf("""
     <body><h2>Display events generators</h2>
     """)
 
     if url_supervisor_control:
-        WrtAsUtf("""
+        write_as_utf("""
         <a href="%s">Supervisor Control</a>
         """ % url_supervisor_control)
 
-    WrtAsUtf("""
+    write_as_utf("""
     <br><br>
     
     <table border="1" width="100%">
@@ -88,7 +88,7 @@ def MainNoJinja(url_supervisor_control, urls_daemons_dict):
     """)
 
     for daemon_url, daemon_object in urls_daemons_dict.items():
-        WrtAsUtf("""
+        write_as_utf("""
         <tr><td><a href="%s">%s</a></td><td><a href="%s">%s</a></td><td>%d</td><td>%s</td><td>%s</td><td>%d</td></tr>
         """ % (
             daemon_url,
@@ -101,15 +101,15 @@ def MainNoJinja(url_supervisor_control, urls_daemons_dict):
             daemon_object['pid']
             ))
 
-    WrtAsUtf("""
+    write_as_utf("""
     </table>
     <br><br>
     """)
 
     html_footer = "".join(lib_export_html.display_html_text_footer())
-    WrtAsUtf(html_footer)
+    write_as_utf(html_footer)
 
-    WrtAsUtf("</body></html>")
+    write_as_utf("</body></html>")
 
     # TODO: Upload bookmarks file.
 
@@ -130,7 +130,7 @@ def MainJinja(url_supervisor_control, urls_daemons_dict):
 
     jinja_render = jinja_template.render(   )
     lib_util.WrtHeader('text/html')
-    WrtAsUtf(jinja_render)
+    write_as_utf(jinja_render)
 
 def Main():
     lib_common.set_events_credentials()

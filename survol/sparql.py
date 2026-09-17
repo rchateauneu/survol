@@ -236,7 +236,7 @@ def Main():
         ('Content-Length', str(str_output)),
     ]
     lib_util.WrtHeader(mime_format, arr_headers)
-    lib_util.WrtAsUtf(str_output)
+    lib_util.write_as_utf(str_output)
 
 if __name__ == '__main__':
     Main()

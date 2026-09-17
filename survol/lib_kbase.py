@@ -12,6 +12,8 @@ import datetime
 import tempfile
 import logging
 import traceback
+import json
+
 from rdflib.namespace import RDF, RDFS, XSD
 from rdflib import URIRef
 
@@ -73,14 +75,12 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
 
     # This takes an edge and updates the map.
     def _insert_edge(url_start, url_end):
-        #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
         # This keeps only Survol instances urls.
         str_start = str(url_start)
         str_end = str(url_end)
         # TODO: Make this test better.
 
         if (str_start != "http://localhost") and (str_end != "http://localhost"):
-            #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
             assert str_start.find("/localhost") < 0, "start local host"
             assert str_end.find("/localhost") < 0, "end local host"
             try:
@@ -156,7 +156,10 @@ def triplestore_to_stream_xml(grph, out_dest):
 
 def triplestore_to_stream_json_ld(grph, out_dest):
     try:
-        grph.serialize(destination=out_dest, format='json-ld')
+        jsonld = grph.serialize(format="json-ld")
+        jsonld = json.dumps(json.loads(jsonld), separators=(",", ":"))
+        logging.debug("jsonld=%s" % jsonld)
+        out_dest.write(jsonld.encode('latin1'))
     except Exception as exc:
         logging.error("triplestore_to_stream_json_ld Exception:%s", exc)
         raise
@@ -719,4 +722,3 @@ def time_stamp_now_node():
     datetime_now = datetime.datetime.now()
     timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
     return rdflib.Literal(timestamp_literal)
-

@@ -8,6 +8,7 @@ pytest tests/test_lib_naming.py
 
 or:
 cd survol
+
 pytest tests
 
 More help available:

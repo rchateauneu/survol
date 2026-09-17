@@ -44,8 +44,10 @@ class OutputMachineMcp:
 
     def Content(self):
         """
-        This is specific to this class and returns a bytes containing the result sent to the HTTP client.
+        This is specific to this class and returns bytes which is a constraint of the model
+        because the output could be a socket.
         :return:
+            bytes containing the result sent to the HTTP client.
         """
         logging.debug("OutputMachineMcp.Content")
         str_value = self.m_output.getvalue()
@@ -181,8 +183,11 @@ class PythonScript:
             the_out_mach = OutputMachineMcp()
             lib_util.globalOutMach = the_out_mach
             self.main_entry_point()
-            logging.info("PythonScript.run Before Content %s" % self.script_name)
-            execution_content = lib_util.globalOutMach.Content()
+            # logging.info("PythonScript.run Before Content %s" % self.script_name)
+            execution_content_bytes = lib_util.globalOutMach.Content()
+            logging.info("PythonScript.run execution_content_bytes=%s" % execution_content_bytes)
+            # Reconversion to Ascii which is unfortunate.
+            execution_content = execution_content_bytes.decode('ascii')
             logging.info("PythonScript.run execution_content=%s" % execution_content)
         except Exception as exc:
             logging.error("PythonScript.run caught=%s" % exc)
@@ -202,6 +207,7 @@ def make_tool(script: PythonScript):
     async def tool(**kwargs):
         graph_as_json_ld = script.run(kwargs)
         logging.debug("tool type(graph_as_json_ld)=%s" % type(graph_as_json_ld))
+        assert isinstance(graph_as_json_ld, six.text_type)
         if graph_as_json_ld is None:
             raise Exception("Null error")
         return graph_as_json_ld

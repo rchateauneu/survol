@@ -222,28 +222,10 @@ def output_rdf_graph_as_mpc_json(grph):
     For the moment, the ontology is not added.
     """
 
-    if False:
-        arr_headers = [
-            ('Access-Control-Allow-Origin', '*'),
-            ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
-            ('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'),
-        ]
-        lib_util.WrtHeader('test/rdf+json', arr_headers)
-
-
-
-    logging.error("output_rdf_graph_as_mpc_json, len(grph)=%d", len(grph))
+    logging.info("output_rdf_graph_as_mpc_json, len(grph)=%d", len(grph))
     out_dest = lib_util.get_default_output_destination()
     lib_kbase.triplestore_to_stream_json_ld(grph, out_dest)
     logging.debug("output_rdf_graph_as_mpc_json leaving, len(grph)=%d", len(grph))
-
-    if False:
-        toto = io.BytesIO()
-        lib_kbase.triplestore_to_stream_json_ld(grph, toto)
-        str_value = toto.getvalue()
-        logging.error("output_rdf_graph_as_mpc_json leaving, len(str_value)=%d", len(str_value))
-
-
 
 
 def WriteRdfError(message, broken_url):

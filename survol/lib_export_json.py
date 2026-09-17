@@ -126,7 +126,7 @@ def _write_json_header(buf_json, with_content_length=False):
     lib_util.WrtHeader('application/json', arr_headers)
 
     # No text conversion.
-    lib_util.WrtAsUtf(buf_json)
+    lib_util.write_as_utf(buf_json)
 
 
 def write_json_error(message):

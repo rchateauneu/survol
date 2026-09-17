@@ -21,6 +21,8 @@ import anyio
 import pytest
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+import pprint
+import rdflib
 
 # { "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": { "name": "test", "version": "1.0"  } } }
 # { "jsonrpc": "2.0",  "id": "unique-id-123",  "method": "tools/list",  "params": {} }
@@ -212,7 +214,6 @@ def test_mcp_server_synchronous_file_stat():
     print(responses[1])
 
 def test_mcp_server_synchronous_enumerate_user():
-    filename_example = __file__.replace("\\", "/")
     request_file_stat = {
         "jsonrpc": "2.0",
         "id": 2,
@@ -228,6 +229,14 @@ def test_mcp_server_synchronous_enumerate_user():
     assert len(responses) == 2
     assert responses[0]["jsonrpc"] == "2.0"
 
-    print(responses[1])
+    pprint.pprint(responses[1], compact=True)
     assert responses[1]["jsonrpc"] == "2.0"
     assert responses[1]["result"]["isError"] == False
+
+    content_jsonld = responses[1]["result"]["content"][0]['text']
+    rdf_graph = rdflib.Graph()
+    rdf_graph.parse(data=content_jsonld, format="json-ld")
+    print("Number of triples:%d" % len(rdf_graph))
+    for s, p, o in rdf_graph.triples((None, None, None)):
+        print("s=%s p=%s o=%s" % (s, p, o))
+
